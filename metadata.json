@@ -1,0 +1,6 @@
+{
+  "name": "Hisnul Muslim",
+  "description": "An elegant, lightweight, offline-first Hisnul Muslim app with Arabic text, translations, search, favorites, audio TTS recitation, and daily reminders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
