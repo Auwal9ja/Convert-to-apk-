@@ -15,8 +15,8 @@ import java.util.Calendar
 class ReminderReceiver : BroadcastReceiver() {
 
     companion object {
-        const val CHANNEL_ID = "hisnul_muslim_reminders"
-        const val CHANNEL_NAME = "Hisnul Muslim Daily Reminders"
+        const val CHANNEL_ID = "noor_zikir_reminders"
+        const val CHANNEL_NAME = "Noor Zikir Daily Reminders"
         const val NOTIFICATION_ID_MORNING = 1001
         const val NOTIFICATION_ID_EVENING = 1002
 
@@ -129,9 +129,9 @@ class ReminderReceiver : BroadcastReceiver() {
         )
 
         val title = if (type == "MORNING") {
-            "☀️ Hisnul Muslim: Morning Adhkar"
+            "☀️ Noor zikir: Morning Adhkar"
         } else {
-            "🌙 Hisnul Muslim: Evening Adhkar"
+            "🌙 Noor zikir: Evening Adhkar"
         }
 
         val contentText = if (type == "MORNING") {

@@ -557,7 +557,7 @@ fun LibraryTab(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_hisnul_muslim_banner),
-                contentDescription = "Hisnul Muslim Banner",
+                contentDescription = "Noor Zikir Banner",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -574,14 +574,14 @@ fun LibraryTab(
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
-                    "حصن المسلم",
+                    "نور الذكر",
                     color = Color.White,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif
                 )
                 Text(
-                    "Fortress of the Muslim • Supplications",
+                    "Noor Zikir • The Light of Remembrance",
                     color = Color(0xFFECC76A),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
@@ -925,7 +925,7 @@ fun RemindersTab(selectedLanguage: String = "English") {
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 24.dp)
+                .padding(bottom = 16.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -973,6 +973,69 @@ fun RemindersTab(selectedLanguage: String = "English") {
                     },
                     modifier = Modifier.testTag("switch_evening")
                 )
+            }
+        }
+
+        // Mandatory Daily Adhkar (Auto-Open Over Any App) Card
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)),
+            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Alarm,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Mandatory Adhkar (Auto-Open / Bude Kai Tsaye)",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Opens automatically over any running app when the time arrives.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            Toast.makeText(context, "Testing Auto-Open in 3 seconds. Switch to another app!", Toast.LENGTH_LONG).show()
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                com.example.receiver.MandatoryAdhkarManager.triggerTestNow(context, "MORNING")
+                            }, 3000L)
+                        },
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Test Auto-Open Now", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
 
@@ -2181,7 +2244,7 @@ fun OnboardingLanguageSelection(
                 }
 
                 Text(
-                    text = "Hisnul Muslim",
+                    text = "Noor zikir",
                     style = MaterialTheme.typography.headlineMedium,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
@@ -2190,7 +2253,7 @@ fun OnboardingLanguageSelection(
                 )
 
                 Text(
-                    text = "FORTRESS OF THE MUSLIM",
+                    text = "THE LIGHT OF REMEMBRANCE",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32),
@@ -2901,6 +2964,25 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                             fontSize = 12.sp
                         )
                     }
+                }
+
+                // Test Trigger Button
+                OutlinedButton(
+                    onClick = {
+                        Toast.makeText(context, "Testing Auto-Open in 3 seconds. Switch to another app!", Toast.LENGTH_LONG).show()
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            com.example.receiver.MandatoryAdhkarManager.triggerTestNow(context, "MORNING")
+                        }, 3000L)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Gwada Bude Kai Tsaye (Test Auto-Open Now - 3s)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
                 }
             }
         }

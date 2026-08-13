@@ -9,6 +9,7 @@ import com.example.ui.screens.MandatoryAdhkarActivity
 class MandatoryAdhkarReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val type = intent.getStringExtra("ADHKAR_TYPE") ?: "MORNING"
+        val isTest = intent.getBooleanExtra("IS_TEST", false)
         val prefs = MandatoryAdhkarManager.getPrefs(context)
 
         val isMorning = type == "MORNING"
@@ -18,7 +19,7 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
             prefs.getBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, false)
         }
 
-        if (!enabled) return
+        if (!enabled && !isTest) return
 
         val completed = if (isMorning) {
             MandatoryAdhkarManager.isMorningCompletedToday(context)
@@ -26,12 +27,12 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
             MandatoryAdhkarManager.isEveningCompletedToday(context)
         }
 
-        if (!completed) {
+        if (!completed || isTest) {
             // Wake device screen if sleeping
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
             val wakeLock = powerManager?.newWakeLock(
                 PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
-                "HisnulMuslim:MandatoryAdhkarWakeLock"
+                "NoorZikir:MandatoryAdhkarWakeLock"
             )
             try {
                 wakeLock?.acquire(10000L) // Hold wake lock for 10 seconds
@@ -44,7 +45,7 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
 
             // Full-Screen Reminder Activity wake screen & open over any running app
             val fullscreenEnabled = prefs.getBoolean(MandatoryAdhkarManager.KEY_FULLSCREEN_ENABLED, true)
-            if (fullscreenEnabled) {
+            if (fullscreenEnabled || isTest) {
                 val fullScreenIntent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TOP or
@@ -74,7 +75,9 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
             }
         }
 
-        // Reschedule alarm for next day
-        MandatoryAdhkarManager.scheduleAlarms(context)
+        // Reschedule alarm for next day if not a test
+        if (!isTest) {
+            MandatoryAdhkarManager.scheduleAlarms(context)
+        }
     }
 }

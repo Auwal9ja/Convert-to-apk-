@@ -229,6 +229,15 @@ object MandatoryAdhkarManager {
         notificationManager.notify(notifId, notification)
     }
 
+    fun triggerTestNow(context: Context, type: String = "MORNING") {
+        val intent = Intent(context, MandatoryAdhkarReceiver::class.java).apply {
+            action = if (type == "MORNING") "ACTION_MANDATORY_MORNING_ALARM" else "ACTION_MANDATORY_EVENING_ALARM"
+            putExtra("ADHKAR_TYPE", type)
+            putExtra("IS_TEST", true)
+        }
+        context.sendBroadcast(intent)
+    }
+
     fun cancelPersistentNotification(context: Context, type: String) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notifId = if (type == "MORNING") NOTIF_ID_MORNING else NOTIF_ID_EVENING
