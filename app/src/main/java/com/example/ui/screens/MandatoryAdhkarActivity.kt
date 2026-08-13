@@ -42,6 +42,7 @@ import com.example.data.local.DuaDatabase
 import com.example.data.local.DuaDatabaseSeeder
 import com.example.data.local.DuaEntity
 import com.example.receiver.MandatoryAdhkarManager
+import com.example.ui.components.BannerAd
 import com.example.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
@@ -380,6 +381,9 @@ fun MandatoryAdhkarScreen(
                     }
                 }
             }
+
+            // Banner Ad
+            BannerAd()
 
             // Bottom Action Area (Only shows finish button when timer complete)
             AnimatedVisibility(visible = isFinished) {

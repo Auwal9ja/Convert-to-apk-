@@ -61,6 +61,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.example.ui.DuaViewModel
 import com.example.ui.audio.DuaSpeaker
+import com.example.ui.components.BannerAd
 import java.util.Calendar
 
 // Play Store redirection link for downloading more apps from developer
@@ -299,43 +300,46 @@ fun MainScreen(
             )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text(AppLocalizer.getString("home", selectedLanguage)) },
-                    modifier = Modifier.testTag("nav_home")
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.Book, contentDescription = "Library") },
-                    label = { Text(AppLocalizer.getString("library", selectedLanguage)) },
-                    modifier = Modifier.testTag("nav_book")
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
-                    icon = {
-                        Icon(
-                            imageVector = if (selectedTab == 2) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorites"
-                        )
-                    },
-                    label = { Text(AppLocalizer.getString("favorites", selectedLanguage)) },
-                    modifier = Modifier.testTag("nav_favorites")
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 },
-                    icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
-                    label = { Text(AppLocalizer.getString("daily_reminders", selectedLanguage)) },
-                    modifier = Modifier.testTag("nav_reminders")
-                )
+            Column {
+                BannerAd()
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 8.dp
+                ) {
+                    NavigationBarItem(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text(AppLocalizer.getString("home", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_home")
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        icon = { Icon(Icons.Default.Book, contentDescription = "Library") },
+                        label = { Text(AppLocalizer.getString("library", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_book")
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
+                        icon = {
+                            Icon(
+                                imageVector = if (selectedTab == 2) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorites"
+                            )
+                        },
+                        label = { Text(AppLocalizer.getString("favorites", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_favorites")
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
+                        label = { Text(AppLocalizer.getString("daily_reminders", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_reminders")
+                    )
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -1003,47 +1007,11 @@ fun RemindersTab(selectedLanguage: String = "English") {
 }
 
 fun scheduleAlarm(context: Context, type: String, hour: Int, minute: Int) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val intent = Intent(context, ReminderReceiver::class.java).apply {
-        putExtra("REMINDER_TYPE", type)
-    }
-    val pendingIntent = PendingIntent.getBroadcast(
-        context,
-        if (type == "MORNING") 101 else 102,
-        intent,
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
-
-    val calendar = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, hour)
-        set(Calendar.MINUTE, minute)
-        set(Calendar.SECOND, 0)
-        if (timeInMillis < System.currentTimeMillis()) {
-            add(Calendar.DAY_OF_YEAR, 1)
-        }
-    }
-
-    alarmManager.setRepeating(
-        AlarmManager.RTC_WAKEUP,
-        calendar.timeInMillis,
-        AlarmManager.INTERVAL_DAY,
-        pendingIntent
-    )
+    ReminderReceiver.scheduleDailyReminder(context, type, hour, minute)
 }
 
 fun cancelAlarm(context: Context, type: String) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val intent = Intent(context, ReminderReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(
-        context,
-        if (type == "MORNING") 101 else 102,
-        intent,
-        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-    )
-    if (pendingIntent != null) {
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
-    }
+    ReminderReceiver.cancelReminder(context, type)
 }
 
 fun getLocalizedResources(context: Context, language: String): android.content.res.Resources {

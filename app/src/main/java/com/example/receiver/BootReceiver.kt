@@ -6,8 +6,8 @@ import android.content.Intent
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            MandatoryAdhkarManager.scheduleAlarms(context)
-        }
+        // Reschedule all alarms on Boot, Time Change, or App Update
+        MandatoryAdhkarManager.scheduleAlarms(context)
+        ReminderReceiver.rescheduleAllIfEnabled(context)
     }
 }

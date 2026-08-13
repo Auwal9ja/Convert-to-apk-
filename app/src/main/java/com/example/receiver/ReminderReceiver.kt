@@ -1,5 +1,6 @@
 package com.example.receiver
 
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.MainActivity
+import java.util.Calendar
 
 class ReminderReceiver : BroadcastReceiver() {
 
@@ -17,6 +19,87 @@ class ReminderReceiver : BroadcastReceiver() {
         const val CHANNEL_NAME = "Hisnul Muslim Daily Reminders"
         const val NOTIFICATION_ID_MORNING = 1001
         const val NOTIFICATION_ID_EVENING = 1002
+
+        fun scheduleDailyReminder(context: Context, type: String, hour: Int, minute: Int) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ReminderReceiver::class.java).apply {
+                putExtra("REMINDER_TYPE", type)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                if (type == "MORNING") 101 else 102,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val now = System.currentTimeMillis()
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+                if (timeInMillis <= now) {
+                    add(Calendar.DAY_OF_YEAR, 1)
+                }
+            }
+
+            try {
+                val alarmClockInfo = AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent)
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            } catch (_: Throwable) {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            calendar.timeInMillis,
+                            pendingIntent
+                        )
+                    } else {
+                        alarmManager.set(
+                            AlarmManager.RTC_WAKEUP,
+                            calendar.timeInMillis,
+                            pendingIntent
+                        )
+                    }
+                } catch (_: Throwable) {
+                    alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                }
+            }
+        }
+
+        fun cancelReminder(context: Context, type: String) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ReminderReceiver::class.java).apply {
+                putExtra("REMINDER_TYPE", type)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                if (type == "MORNING") 101 else 102,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent)
+                pendingIntent.cancel()
+            }
+        }
+
+        fun rescheduleAllIfEnabled(context: Context) {
+            val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+            val morningEnabled = sharedPref.getBoolean("morning_enabled", false)
+            val eveningEnabled = sharedPref.getBoolean("evening_enabled", false)
+
+            if (morningEnabled) {
+                scheduleDailyReminder(context, "MORNING", 7, 0)
+            }
+            if (eveningEnabled) {
+                scheduleDailyReminder(context, "EVENING", 17, 30)
+            }
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -57,7 +140,6 @@ class ReminderReceiver : BroadcastReceiver() {
             "Seek peace and protection. Tap to read the Evening Supplications."
         }
 
-        // Use standard system resource for small icon to be absolutely safe (e.g. android.R.drawable.ic_lock_idle_alarm or we can use mipmap ic_launcher)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_popup_reminder)
             .setContentTitle(title)
@@ -68,5 +150,19 @@ class ReminderReceiver : BroadcastReceiver() {
             .build()
 
         notificationManager.notify(if (type == "MORNING") NOTIFICATION_ID_MORNING else NOTIFICATION_ID_EVENING, notification)
+
+        // Reschedule for next day if still enabled in settings
+        val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val isStillEnabled = if (type == "MORNING") {
+            sharedPref.getBoolean("morning_enabled", false)
+        } else {
+            sharedPref.getBoolean("evening_enabled", false)
+        }
+
+        if (isStillEnabled) {
+            val hour = if (type == "MORNING") 7 else 17
+            val min = if (type == "MORNING") 0 else 30
+            scheduleDailyReminder(context, type, hour, min)
+        }
     }
 }

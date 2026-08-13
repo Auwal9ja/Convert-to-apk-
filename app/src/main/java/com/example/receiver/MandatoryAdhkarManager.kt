@@ -127,35 +127,38 @@ object MandatoryAdhkarManager {
         hour: Int,
         minute: Int
     ) {
+        val now = System.currentTimeMillis()
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            val now = System.currentTimeMillis()
+            // If target time is now or in the past, schedule for the next day
             if (timeInMillis <= now) {
-                // If set to the current minute (e.g. 14:05 and current time is 14:05:15),
-                // trigger immediately in 1 second instead of pushing to tomorrow!
-                if (now - timeInMillis < 60000) {
-                    timeInMillis = now + 1000
-                } else {
-                    add(Calendar.DAY_OF_YEAR, 1)
-                }
+                add(Calendar.DAY_OF_YEAR, 1)
             }
         }
 
         try {
             val alarmClockInfo = AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent)
             alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
-        } catch (_: SecurityException) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    pendingIntent
-                )
-            } else {
+        } catch (_: Throwable) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.set(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        pendingIntent
+                    )
+                }
+            } catch (_: Throwable) {
                 alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
