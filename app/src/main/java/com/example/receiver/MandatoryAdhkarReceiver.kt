@@ -33,19 +33,23 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
                 PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
                 "HisnulMuslim:MandatoryAdhkarWakeLock"
             )
-            wakeLock?.acquire(5000L) // Hold wake lock for 5 seconds
+            try {
+                wakeLock?.acquire(10000L) // Hold wake lock for 10 seconds
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
-            // Requirement 7: Show persistent notification (with fullScreenIntent)
+            // Show persistent high-priority notification (with fullScreenIntent for lockscreen & heads-up)
             MandatoryAdhkarManager.showPersistentNotification(context, type)
 
-            // Requirement 4: Full-Screen Reminder Activity wake screen if enabled
+            // Full-Screen Reminder Activity wake screen & open over any running app
             val fullscreenEnabled = prefs.getBoolean(MandatoryAdhkarManager.KEY_FULLSCREEN_ENABLED, true)
             if (fullscreenEnabled) {
                 val fullScreenIntent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TOP or
                             Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
-                            Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     putExtra("ADHKAR_TYPE", type)
                     putExtra(
                         "READING_DURATION",
@@ -55,7 +59,17 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
                 try {
                     context.startActivity(fullScreenIntent)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    try {
+                        val pi = android.app.PendingIntent.getActivity(
+                            context,
+                            if (isMorning) 401 else 402,
+                            fullScreenIntent,
+                            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+                        )
+                        pi.send()
+                    } catch (e2: Exception) {
+                        e2.printStackTrace()
+                    }
                 }
             }
         }

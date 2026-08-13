@@ -2810,5 +2810,99 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                 }
             )
         }
+
+        // Overlay (Display Over Other Apps) Permission Banner for Auto-Open
+        val canDrawOverlays = remember {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                android.provider.Settings.canDrawOverlays(context)
+            } else {
+                true
+            }
+        }
+
+        var hasOverlayPermission by remember { mutableStateOf(canDrawOverlays) }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (hasOverlayPermission) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                } else {
+                    MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                }
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = if (hasOverlayPermission) Icons.Default.CheckCircle else Icons.Default.OpenInNew,
+                        contentDescription = null,
+                        tint = if (hasOverlayPermission) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                    )
+                    Text(
+                        text = if (hasOverlayPermission) "Bude Kai Tsaye Yana Aiki (Auto-Open Active)" else "Bada Izinin Bude Kan Wasu Manhajoji",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Text(
+                    text = if (hasOverlayPermission) {
+                        "Wannan zai sa manhajar ta bude kai tsaye a kan wayarka ko da kana cikin wani aiki ko wata manhaja dazarar lokacin Azkar yayi."
+                    } else {
+                        "Domin manhajar ta iya bude shafin Azkar kai tsaye ko da kana cikin amfani da wata manhaja (kamar WhatsApp ko Chrome), danna nan don kunna izinin."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Button(
+                        onClick = {
+                            try {
+                                val intent = Intent(
+                                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:${context.packageName}")
+                                ).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {
+                                try {
+                                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Kunna Izinin Bude Kai Tsaye (Allow Auto-Popup)",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 }
