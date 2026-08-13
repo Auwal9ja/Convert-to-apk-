@@ -163,7 +163,7 @@ object AppLocalizer {
     fun getString(key: String, language: String): String {
         return when (language) {
             "Hausa" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "Garkuwar Musulmi"
                 "app_slogan" -> "Kariya ta kullum. Aminci na har abada."
                 "home" -> "Gida"
@@ -220,7 +220,7 @@ object AppLocalizer {
                 else -> key
             }
             "Yoruba" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "Ààbò Mùsùlùmí"
                 "app_slogan" -> "Ààbò ojoojúmọ́. Àlàáfíà títí láé."
                 "home" -> "Ilé"
@@ -277,7 +277,7 @@ object AppLocalizer {
                 else -> key
             }
             "Igbo" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "Ọta Ndị Muslim"
                 "app_slogan" -> "Nchebe nke ụbọchị niile. Udo ebighi ebi."
                 "home" -> "Ụlọ"
@@ -334,7 +334,7 @@ object AppLocalizer {
                 else -> key
             }
             "Spanish" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "Fortaleza del Musulmán"
                 "app_slogan" -> "Protección diaria. Paz eterna."
                 "home" -> "Inicio"
@@ -391,7 +391,7 @@ object AppLocalizer {
                 else -> key
             }
             "French" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "La Forteresse du Musulman"
                 "app_slogan" -> "Protection quotidienne. Paix éternelle."
                 "home" -> "Accueil"
@@ -448,7 +448,7 @@ object AppLocalizer {
                 else -> key
             }
             "Arabic" -> when (key) {
-                "app_title" -> "حصن المسلم"
+                "app_title" -> "نور الذكر"
                 "app_subtitle" -> "من أذكار الكتاب والسنة"
                 "app_slogan" -> "حماية يومية.. وطمأنينة دائمة"
                 "home" -> "الرئيسية"
@@ -505,7 +505,7 @@ object AppLocalizer {
                 else -> key
             }
             "Urdu" -> when (key) {
-                "app_title" -> "حصن المسلم"
+                "app_title" -> "نور الذکر"
                 "app_subtitle" -> "مسلمان کا قلعہ"
                 "app_slogan" -> "روزانہ کی حفاظت، ابدی سکون"
                 "home" -> "ہوم"
@@ -562,7 +562,7 @@ object AppLocalizer {
                 else -> key
             }
             "Chinese" -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "穆斯林的堡垒"
                 "app_slogan" -> "每日守护，永恒宁静"
                 "home" -> "首页"
@@ -619,7 +619,7 @@ object AppLocalizer {
                 else -> key
             }
             else -> when (key) {
-                "app_title" -> "Hisnul Muslim"
+                "app_title" -> "Noor zikir"
                 "app_subtitle" -> "Fortress of the Muslim"
                 "app_slogan" -> "Daily protection. Eternal peace."
                 "home" -> "Home"
