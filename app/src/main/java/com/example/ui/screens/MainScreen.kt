@@ -574,14 +574,14 @@ fun LibraryTab(
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
-                    "حصن المسلم",
+                    "نور الذكر",
                     color = Color.White,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif
                 )
                 Text(
-                    "Fortress of the Muslim • Supplications",
+                    "Noor zikir • The Light of Remembrance",
                     color = Color(0xFFECC76A),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
@@ -2141,47 +2141,34 @@ fun OnboardingLanguageSelection(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
-                // Moon and Stars Header (Light Canvas Compatible)
+                // Logo and Welcome Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(130.dp),
+                        .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        val center = Offset(size.width / 2, size.height / 2)
-                        // Draw moon
-                        drawCircle(
-                            color = Color(0xFFD4AF37), // Golden
-                            radius = 35.dp.toPx(),
-                            center = center
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.White,
+                        border = BorderStroke(2.dp, Brush.linearGradient(listOf(Color(0xFFD4AF37), Color(0xFF1B5E20)))),
+                        shadowElevation = 6.dp,
+                        modifier = Modifier.size(100.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.img_app_logo),
+                            contentDescription = "Noor zikir Logo",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(6.dp)
+                                .clip(CircleShape)
                         )
-                        drawCircle(
-                            color = Color(0xFFF4F9F6), // Mask matching light background
-                            radius = 33.dp.toPx(),
-                            center = center - Offset(10.dp.toPx(), 5.dp.toPx())
-                        )
-
-                        // Draw decorative dots for stars
-                        val stars = listOf(
-                            center + Offset(-60.dp.toPx(), -20.dp.toPx()),
-                            center + Offset(65.dp.toPx(), -10.dp.toPx()),
-                            center + Offset(30.dp.toPx(), -50.dp.toPx()),
-                            center + Offset(-35.dp.toPx(), 40.dp.toPx()),
-                            center + Offset(45.dp.toPx(), 35.dp.toPx())
-                        )
-                        stars.forEach { pos ->
-                            drawCircle(
-                                color = Color(0xFF1B5E20).copy(alpha = 0.6f),
-                                radius = 2.dp.toPx(),
-                                center = pos
-                            )
-                        }
                     }
                 }
 
                 Text(
-                    text = "Hisnul Muslim",
+                    text = "Noor zikir",
                     style = MaterialTheme.typography.headlineMedium,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
@@ -2190,7 +2177,7 @@ fun OnboardingLanguageSelection(
                 )
 
                 Text(
-                    text = "FORTRESS OF THE MUSLIM",
+                    text = "THE LIGHT OF REMEMBRANCE",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32),
