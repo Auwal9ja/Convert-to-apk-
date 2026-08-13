@@ -16,7 +16,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -130,26 +129,12 @@ fun MainScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.img_noor_zikir_logo),
-                            contentDescription = "Noor zikir Logo",
-                            modifier = Modifier
-                                .size(30.dp)
-                                .clip(CircleShape)
-                                .border(1.dp, Color(0xFFD4AF37), CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(
-                            AppLocalizer.getString("app_title", selectedLanguage),
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Serif,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Text(
+                        AppLocalizer.getString("app_title", selectedLanguage),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Serif,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 },
                 actions = {
                     var isLangMenuExpanded by remember { mutableStateOf(false) }
@@ -582,39 +567,25 @@ fun LibraryTab(
                     .fillMaxSize()
                     .background(Color(0x77000000))
             )
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.Bottom
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_noor_zikir_logo),
-                    contentDescription = "Noor zikir Logo",
-                    modifier = Modifier
-                        .size(46.dp)
-                        .clip(CircleShape)
-                        .border(1.5.dp, Color(0xFFECC76A), CircleShape),
-                    contentScale = ContentScale.Crop
+                Text(
+                    "حصن المسلم",
+                    color = Color.White,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Serif
                 )
-                Column(
-                    verticalArrangement = Arrangement.Bottom
-                ) {
-                    Text(
-                        "نور الذكر",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Serif
-                    )
-                    Text(
-                        "Noor zikir • Light of Remembrance",
-                        color = Color(0xFFECC76A),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Text(
+                    "Fortress of the Muslim • Supplications",
+                    color = Color(0xFFECC76A),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
@@ -2170,40 +2141,47 @@ fun OnboardingLanguageSelection(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
-                // Noor Zikir Logo Emblem Display on Welcome Screen
+                // Moon and Stars Header (Light Canvas Compatible)
                 Box(
                     modifier = Modifier
-                        .padding(top = 12.dp, bottom = 16.dp)
-                        .size(112.dp)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(Color(0xFFD4AF37).copy(alpha = 0.25f), Color.Transparent)
-                            )
-                        )
-                        .border(
-                            BorderStroke(
-                                2.5.dp,
-                                Brush.linearGradient(
-                                    listOf(Color(0xFFD4AF37), Color(0xFF1B5E20))
-                                )
-                            ),
-                            CircleShape
-                        ),
+                        .fillMaxWidth()
+                        .height(130.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.img_noor_zikir_logo),
-                        contentDescription = "Noor zikir Logo",
-                        modifier = Modifier
-                            .size(102.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val center = Offset(size.width / 2, size.height / 2)
+                        // Draw moon
+                        drawCircle(
+                            color = Color(0xFFD4AF37), // Golden
+                            radius = 35.dp.toPx(),
+                            center = center
+                        )
+                        drawCircle(
+                            color = Color(0xFFF4F9F6), // Mask matching light background
+                            radius = 33.dp.toPx(),
+                            center = center - Offset(10.dp.toPx(), 5.dp.toPx())
+                        )
+
+                        // Draw decorative dots for stars
+                        val stars = listOf(
+                            center + Offset(-60.dp.toPx(), -20.dp.toPx()),
+                            center + Offset(65.dp.toPx(), -10.dp.toPx()),
+                            center + Offset(30.dp.toPx(), -50.dp.toPx()),
+                            center + Offset(-35.dp.toPx(), 40.dp.toPx()),
+                            center + Offset(45.dp.toPx(), 35.dp.toPx())
+                        )
+                        stars.forEach { pos ->
+                            drawCircle(
+                                color = Color(0xFF1B5E20).copy(alpha = 0.6f),
+                                radius = 2.dp.toPx(),
+                                center = pos
+                            )
+                        }
+                    }
                 }
 
                 Text(
-                    text = "Noor zikir",
+                    text = "Hisnul Muslim",
                     style = MaterialTheme.typography.headlineMedium,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
@@ -2212,10 +2190,10 @@ fun OnboardingLanguageSelection(
                 )
 
                 Text(
-                    text = "نور الذكر • LIGHT OF REMEMBRANCE",
+                    text = "FORTRESS OF THE MUSLIM",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD4AF37),
+                    color = Color(0xFF2E7D32),
                     letterSpacing = 2.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
