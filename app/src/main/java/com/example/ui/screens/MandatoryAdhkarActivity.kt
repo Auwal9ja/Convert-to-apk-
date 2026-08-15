@@ -55,6 +55,7 @@ import com.example.data.local.AppLocalizer
 import com.example.data.local.DuaDatabase
 import com.example.data.local.DuaDatabaseSeeder
 import com.example.data.local.DuaEntity
+import com.example.data.local.DuaReferenceLocalization
 import com.example.receiver.MandatoryAdhkarManager
 import com.example.receiver.MandatorySessionState
 import com.example.ui.audio.DuaSpeaker
@@ -284,6 +285,44 @@ fun MandatoryAdhkarSessionScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        val localizedScheduleTitle = when (scheduleId) {
+                            MandatoryAdhkarManager.SCHEDULE_ID_MORNING -> when (selectedLanguage) {
+                                "Hausa" -> "Zikirin Safe na Wajibi"
+                                "Yoruba" -> "Zikiri Ọ̀sán Ti O Ṣe Kókó"
+                                "Igbo" -> "Ekpere Ụtụtụ nke Iwu"
+                                "Arabic" -> "أذكار الصباح الإلزامية"
+                                "French" -> "Adhkar du Matin Obligatoire"
+                                "Spanish" -> "Adhkar Matutino Obligatorio"
+                                "Urdu" -> "لازمی صبح کے اذکار"
+                                "Chinese" -> "早晨必念赞念"
+                                else -> scheduleTitle
+                            }
+                            MandatoryAdhkarManager.SCHEDULE_ID_EVENING -> when (selectedLanguage) {
+                                "Hausa" -> "Zikirin Yamma na Wajibi"
+                                "Yoruba" -> "Zikiri Irọlẹ Ti O Ṣe Kókó"
+                                "Igbo" -> "Ekpere Anyasị nke Iwu"
+                                "Arabic" -> "أذكار المساء الإلزامية"
+                                "French" -> "Adhkar du Soir Obligatoire"
+                                "Spanish" -> "Adhkar Vespertino Obligatorio"
+                                "Urdu" -> "لازمی شام کے اذکار"
+                                "Chinese" -> "傍晚必念赞念"
+                                else -> scheduleTitle
+                            }
+                            else -> scheduleTitle
+                        }
+
+                        val focusModeBadge = when (selectedLanguage) {
+                            "Hausa" -> if (isCompleted) "An Kammala ✓" else "Yanayin Natsuwa"
+                            "Yoruba" -> if (isCompleted) "A Ti Pari ✓" else "Ipo Ifọkanbalẹ"
+                            "Igbo" -> if (isCompleted) "Emechara ✓" else "Ọnọdụ Iche Echiche"
+                            "Arabic" -> if (isCompleted) "تم الإنجاز ✓" else "وضع التركيز"
+                            "French" -> if (isCompleted) "Terminé ✓" else "Mode Concentration"
+                            "Spanish" -> if (isCompleted) "Completado ✓" else "Modo Enfoque"
+                            "Urdu" -> if (isCompleted) "مکمل ہو گیا ✓" else "فوکس موڈ فعال"
+                            "Chinese" -> if (isCompleted) "已完成 ✓" else "专注模式"
+                            else -> if (isCompleted) "Completed ✓" else "Focus Mode Active"
+                        }
+
                         Column {
                             Text(
                                 text = "NOOR ZIKIR",
@@ -293,7 +332,7 @@ fun MandatoryAdhkarSessionScreen(
                                 letterSpacing = 2.sp
                             )
                             Text(
-                                text = scheduleTitle,
+                                text = localizedScheduleTitle,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -317,7 +356,7 @@ fun MandatoryAdhkarSessionScreen(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Text(
-                                    text = if (isCompleted) "Completed ✓" else "Focus Mode Active",
+                                    text = focusModeBadge,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -333,6 +372,30 @@ fun MandatoryAdhkarSessionScreen(
                         val secs = secondsLeft % 60
                         val timeFormatted = String.format("%02d:%02d", minutes, secs)
                         val progressFraction = 1f - (secondsLeft.toFloat() / totalSeconds.toFloat()).coerceIn(0f, 1f)
+
+                        val timeRemainingLabel = when (selectedLanguage) {
+                            "Hausa" -> "Lokacin da Ya Rage:"
+                            "Yoruba" -> "Akoko Ti O Kù:"
+                            "Igbo" -> "Oge Fọdụrụ:"
+                            "Arabic" -> "الوقت المتبقي:"
+                            "French" -> "Temps restant:"
+                            "Spanish" -> "Tiempo restante:"
+                            "Urdu" -> "باقی وقت:"
+                            "Chinese" -> "剩余时间："
+                            else -> "Time Remaining:"
+                        }
+
+                        val bannerInstruction = when (selectedLanguage) {
+                            "Hausa" -> "Da fatan za a karanta zikirin da natsuwa. Zikiri zai kammala da kansa idan lokaci ya cika."
+                            "Yoruba" -> "Jọwọ ka zikiri pẹlu ifọkanbalẹ. Yio pari laifọwọyi nigbati akoko ba pari."
+                            "Igbo" -> "Biko gụọ ekpere gị na udo. Oge ga-agwụ n'onwe ya mgbe elekere ruru 00:00."
+                            "Arabic" -> "يرجى قراءة الأذكار بخشوع وطمأنينة. ستنتهي الجلسة تلقائياً عند انتهاء الوقت."
+                            "French" -> "Veuillez réciter vos invocations avec recueillement. La session se terminera automatiquement."
+                            "Spanish" -> "Por favor recite sus súplicas con concentración. La sesión terminará automáticamente."
+                            "Urdu" -> "براہ کرم خشوع و خضوع کے ساتھ اپنے اذکار مکمل کریں۔"
+                            "Chinese" -> "请专注诵读赞念。倒计时结束后会话将自动完成。"
+                            else -> "Please complete your intentional Zikir session. The session ends automatically when the timer reaches 00:00."
+                        }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -350,7 +413,7 @@ fun MandatoryAdhkarSessionScreen(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
-                                    text = "Time Remaining:",
+                                    text = timeRemainingLabel,
                                     fontSize = 14.sp,
                                     color = Color(0xFFB0C4BE),
                                     fontWeight = FontWeight.Medium
@@ -380,7 +443,7 @@ fun MandatoryAdhkarSessionScreen(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "Please complete your intentional Zikir session. The session ends automatically when the timer reaches 00:00.",
+                            text = bannerInstruction,
                             fontSize = 11.5.sp,
                             color = Color(0xFF8EA89F),
                             textAlign = TextAlign.Center,
@@ -388,6 +451,30 @@ fun MandatoryAdhkarSessionScreen(
                         )
                     } else {
                         // Completed Celebration Banner
+                        val celebrationTitle = when (selectedLanguage) {
+                            "Hausa" -> "Alhamdulillah! An Kammala Zikiri"
+                            "Yoruba" -> "Alhamdulillah! A Ti Pari Zikiri"
+                            "Igbo" -> "Alhamdulillah! Emechara Ekpere"
+                            "Arabic" -> "الحمد لله! اكتملت الجلسة"
+                            "French" -> "Alhamdulillah! Session terminée"
+                            "Spanish" -> "¡Alhamdulillah! Sesión completada"
+                            "Urdu" -> "الحمد للہ! اذکار مکمل ہو گئے"
+                            "Chinese" -> "一切赞颂全归安拉！会话完成"
+                            else -> "Alhamdulillah! Session Complete"
+                        }
+
+                        val celebrationSub = when (selectedLanguage) {
+                            "Hausa" -> "Allah Ya karbi addu'o'inku, Ya ba ku natsuwa da albarka."
+                            "Yoruba" -> "Ki Allāhu gba awọn adura yin, ki O si fun yin ni alaafia ati ibukun."
+                            "Igbo" -> "Ka Chineke nara ekpere gị ma nye gị udo na ngọzi."
+                            "Arabic" -> "تقبل الله طاعاتكم ورزقكم السكينة والبركة."
+                            "French" -> "Qu'Allah accepte vos invocations et vous accorde paix et bénédictions."
+                            "Spanish" -> "Que Allah acepte sus súplicas y le conceda paz y bendiciones."
+                            "Urdu" -> "اللہ تعالیٰ آپ کی دعائیں قبول فرمائے اور برکت عطا فرمائے۔"
+                            "Chinese" -> "愿安拉接受您的祈祷，赐予您宁静与吉庆。"
+                            else -> "May Allah accept your supplications and grant you peace and barakah."
+                        }
+
                         Surface(
                             shape = RoundedCornerShape(16.dp),
                             color = deepGreen,
@@ -409,7 +496,7 @@ fun MandatoryAdhkarSessionScreen(
                                         modifier = Modifier.size(24.dp)
                                     )
                                     Text(
-                                        text = "Alhamdulillah! Session Complete",
+                                        text = celebrationTitle,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -417,7 +504,7 @@ fun MandatoryAdhkarSessionScreen(
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "May Allah accept your supplications and grant you peace and barakah.",
+                                    text = celebrationSub,
                                     fontSize = 12.sp,
                                     color = Color(0xFFD4E8DF),
                                     textAlign = TextAlign.Center
@@ -445,6 +532,24 @@ fun MandatoryAdhkarSessionScreen(
                         "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
                         "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
                         else -> dua.translation
+                    }
+
+                    val localizedReference = if (selectedLanguage == "English") {
+                        dua.reference
+                    } else {
+                        DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
+                    }
+
+                    val referencePrefix = when (selectedLanguage) {
+                        "Hausa" -> "Madogara"
+                        "Yoruba" -> "Ìtọ́kasí"
+                        "Igbo" -> "Ebe nsinyere"
+                        "Arabic" -> "المرجع"
+                        "French" -> "Référence"
+                        "Spanish" -> "Referencia"
+                        "Urdu" -> "حوالہ"
+                        "Chinese" -> "出处"
+                        else -> "Ref"
                     }
 
                     Card(
@@ -521,10 +626,10 @@ fun MandatoryAdhkarSessionScreen(
                                 color = Color(0xFFD0DFDA)
                             )
 
-                            if (dua.reference.isNotBlank()) {
+                            if (localizedReference.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Ref: ${dua.reference}",
+                                    text = "$referencePrefix: $localizedReference",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = goldAccent
@@ -539,6 +644,18 @@ fun MandatoryAdhkarSessionScreen(
 
             // Bottom Action Area
             AnimatedVisibility(visible = isCompleted) {
+                val finishButtonText = when (selectedLanguage) {
+                    "Hausa" -> "Kammala & Fita"
+                    "Yoruba" -> "Pari & Jade"
+                    "Igbo" -> "Mechie Ekpere"
+                    "Arabic" -> "إنهاء وإغلاق الجلسة"
+                    "French" -> "Terminer et fermer"
+                    "Spanish" -> "Terminar y cerrar"
+                    "Urdu" -> "مکمل کریں اور بند کریں"
+                    "Chinese" -> "完成并退出"
+                    else -> "Finish & Close Session"
+                }
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -564,7 +681,7 @@ fun MandatoryAdhkarSessionScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Finish & Close Session",
+                            text = finishButtonText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF091A14)
@@ -577,6 +694,54 @@ fun MandatoryAdhkarSessionScreen(
 
     // Friendly, Peaceful Premature Exit Warning Dialog
     if (showExitDialog) {
+        val dialogTitle = when (selectedLanguage) {
+            "Hausa" -> "Ana Cikin Karatun Zikirin Wajibi"
+            "Yoruba" -> "Ipo Zikiri Ti O Ṣe Kókó Wà Lọ́wọ́"
+            "Igbo" -> "Oge Ekpere nke Iwu Na-aga N'ihu"
+            "Arabic" -> "جلسة الأذكار الإلزامية نشطة حالياً"
+            "French" -> "Session d'Adhkar Obligatoire en cours"
+            "Spanish" -> "Sesión de Adhkar Obligatorio activa"
+            "Urdu" -> "لازمی اذکار سیشن جاری ہے"
+            "Chinese" -> "必念赞念正在进行中"
+            else -> "Mandatory Zikir Session is Active"
+        }
+
+        val dialogBody = when (selectedLanguage) {
+            "Hausa" -> "Da fatan za a kammala karatun zikirin da aka tsara kafin a rufe domin samun albarka da istiqama a kullum."
+            "Yoruba" -> "Jọwọ pari akoko zikiri rẹ ṣaaju ki o to jade lati kọ ifaramọ ẹmi ojoojumọ."
+            "Igbo" -> "Biko mezuo oge ekpere gị tupu ị pụọ iji wulite nkwụsi ike nke ime mmụọ kwa ụbọchị."
+            "Arabic" -> "يرجى استكمال جلسة الأذكار المحددة قبل المغادرة للحفاظ على الاستمرارية الإيمانية اليومية."
+            "French" -> "Veuillez terminer votre session d'adhkar avant de quitter afin de préserver votre régularité spirituelle."
+            "Spanish" -> "Por favor complete su sesión de adhkar antes de salir para mantener su constancia espiritual diaria."
+            "Urdu" -> "روزانہ روحانی استقامت کے لیے جانے سے پہلے اپنے مقررہ اذکار مکمل فرمائیں۔"
+            "Chinese" -> "请在离开前完成预定的赞念会话，以培养日常信仰的坚持。"
+            else -> "Please complete your scheduled Zikir session before leaving to build your daily spiritual consistency."
+        }
+
+        val dialogSub = when (selectedLanguage) {
+            "Hausa" -> "Zikiri zai kammala da kansa da zarar lokacin da ya rage ya cika."
+            "Yoruba" -> "Akoko zikiri yoo pari laifọwọyi nigbati akoko ba to."
+            "Igbo" -> "Oge ahụ ga-agwụ n'onwe ya mgbe oge fọdụrụnụ ruru."
+            "Arabic" -> "ستنتهي الجلسة تلقائياً عند انتهاء الوقت المتبقي."
+            "French" -> "La session se terminera automatiquement à l'expiration du temps restant."
+            "Spanish" -> "La sesión se completará automáticamente cuando expire el tiempo restante."
+            "Urdu" -> "باقی وقت ختم ہونے پر سیشن خود بخود مکمل ہو جائے گا۔"
+            "Chinese" -> "倒计时结束后，会话将自动完成。"
+            else -> "The session will complete automatically when the remaining time elapses."
+        }
+
+        val continueText = when (selectedLanguage) {
+            "Hausa" -> "Ci gaba da Zikiri"
+            "Yoruba" -> "Tẹsiwaju Zikiri"
+            "Igbo" -> "Gaa n'ihu n'Ekpere"
+            "Arabic" -> "متابعة الأذكار"
+            "French" -> "Continuer les Invocations"
+            "Spanish" -> "Continuar con el Zikir"
+            "Urdu" -> "اذکار جاری رکھیں"
+            "Chinese" -> "继续赞念"
+            else -> "Continue Zikir"
+        }
+
         AlertDialog(
             onDismissRequest = onDismissExitDialog,
             icon = {
@@ -589,7 +754,7 @@ fun MandatoryAdhkarSessionScreen(
             },
             title = {
                 Text(
-                    text = "Mandatory Zikir Session is Active",
+                    text = dialogTitle,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     textAlign = TextAlign.Center,
@@ -603,13 +768,13 @@ fun MandatoryAdhkarSessionScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Please complete your scheduled Zikir session before leaving to build your daily spiritual consistency.",
+                        text = dialogBody,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         color = Color(0xFFD0DFDA)
                     )
                     Text(
-                        text = "The session will complete automatically when the remaining time elapses.",
+                        text = dialogSub,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,
                         color = goldAccent
@@ -622,7 +787,7 @@ fun MandatoryAdhkarSessionScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = deepGreen),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Continue Zikir", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(continueText, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             },
             containerColor = Color(0xFF0F261E),
