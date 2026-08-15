@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.MainActivity
 import com.example.ui.screens.MandatoryAdhkarActivity
 import org.json.JSONArray
 import org.json.JSONObject
@@ -20,10 +21,11 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 object MandatoryAdhkarManager {
 
-    private const val TAG = "NOOR_ZIKIR_MANDATORY"
+    const val TAG = "NOOR_ZIKIR_MANDATORY"
     private const val PREFS_NAME = "noor_zikir_mandatory_prefs"
 
     // Master switch & General settings
@@ -68,7 +70,7 @@ object MandatoryAdhkarManager {
     const val KEY_LAST_STREAK_DATE = "mandatory_last_streak_date"
     const val KEY_COMPLETION_HISTORY = "mandatory_completion_history"
 
-    // Notification Channel
+    // Notification Channel & IDs
     const val CHANNEL_ID_MANDATORY = "noor_zikir_mandatory_session_channel"
     const val NOTIF_ID_ACTIVE_SESSION = 2000
     const val NOTIF_ID_MISSED_SESSION = 2010
@@ -81,6 +83,36 @@ object MandatoryAdhkarManager {
         return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
     }
 
+    fun formatTimestamp(millis: Long): String {
+        if (millis <= 0L) return "Not Scheduled"
+        return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(millis))
+    }
+
+    fun getOccurrenceId(scheduleId: String, timestampMillis: Long): String {
+        val datePart = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(timestampMillis))
+        return "${scheduleId}_$datePart"
+    }
+
+    /**
+     * Mathematically calculates the next trigger timestamp strictly in the future (> baselineMillis).
+     * Handles timezone and daylight savings adjustments accurately.
+     */
+    fun calculateNextOccurrence(hour: Int, minute: Int, baselineMillis: Long = System.currentTimeMillis()): Long {
+        val cal = Calendar.getInstance().apply {
+            timeInMillis = baselineMillis
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        // If the calculated time is <= baselineMillis (i.e., today's slot has already arrived or passed), step to tomorrow
+        if (cal.timeInMillis <= baselineMillis) {
+            cal.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        return cal.timeInMillis
+    }
+
     // ==========================================
     // SCHEDULE RETRIEVAL & PERSISTENCE
     // ==========================================
@@ -88,12 +120,17 @@ object MandatoryAdhkarManager {
     fun getAllSchedules(context: Context): List<MandatorySchedule> {
         val prefs = getPrefs(context)
         val list = mutableListOf<MandatorySchedule>()
+        val defaultTz = TimeZone.getDefault().id
 
         // 1. Morning Schedule
         val morningHour = prefs.getInt(KEY_MORNING_HOUR, 6)
         val morningMin = prefs.getInt(KEY_MORNING_MINUTE, 0)
         val morningDur = prefs.getInt("duration_$SCHEDULE_ID_MORNING", prefs.getInt(KEY_READING_DURATION, 15))
         val morningEnabled = prefs.getBoolean(KEY_MORNING_ENABLED, true)
+        val morningNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_MORNING", 0L)
+        val morningLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_MORNING", "") ?: ""
+        val morningLastCompleted = prefs.getString("last_completed_$SCHEDULE_ID_MORNING", "") ?: ""
+
         list.add(
             MandatorySchedule(
                 id = SCHEDULE_ID_MORNING,
@@ -102,7 +139,12 @@ object MandatoryAdhkarManager {
                 hour = morningHour,
                 minute = morningMin,
                 durationMinutes = morningDur,
-                enabled = morningEnabled
+                enabled = morningEnabled,
+                repeatType = "EVERY_DAY",
+                timezone = prefs.getString("tz_$SCHEDULE_ID_MORNING", defaultTz) ?: defaultTz,
+                nextOccurrence = morningNext,
+                lastTriggeredOccurrence = morningLastTriggered,
+                lastCompletedOccurrence = morningLastCompleted
             )
         )
 
@@ -111,6 +153,10 @@ object MandatoryAdhkarManager {
         val eveningMin = prefs.getInt(KEY_EVENING_MINUTE, 0)
         val eveningDur = prefs.getInt("duration_$SCHEDULE_ID_EVENING", prefs.getInt(KEY_READING_DURATION, 15))
         val eveningEnabled = prefs.getBoolean(KEY_EVENING_ENABLED, true)
+        val eveningNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_EVENING", 0L)
+        val eveningLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_EVENING", "") ?: ""
+        val eveningLastCompleted = prefs.getString("last_completed_$SCHEDULE_ID_EVENING", "") ?: ""
+
         list.add(
             MandatorySchedule(
                 id = SCHEDULE_ID_EVENING,
@@ -119,7 +165,12 @@ object MandatoryAdhkarManager {
                 hour = eveningHour,
                 minute = eveningMin,
                 durationMinutes = eveningDur,
-                enabled = eveningEnabled
+                enabled = eveningEnabled,
+                repeatType = "EVERY_DAY",
+                timezone = prefs.getString("tz_$SCHEDULE_ID_EVENING", defaultTz) ?: defaultTz,
+                nextOccurrence = eveningNext,
+                lastTriggeredOccurrence = eveningLastTriggered,
+                lastCompletedOccurrence = eveningLastCompleted
             )
         )
 
@@ -128,6 +179,10 @@ object MandatoryAdhkarManager {
         val ishaMin = prefs.getInt("min_$SCHEDULE_ID_ISHA", 30)
         val ishaDur = prefs.getInt("duration_$SCHEDULE_ID_ISHA", 10)
         val ishaEnabled = prefs.getBoolean("enabled_$SCHEDULE_ID_ISHA", false)
+        val ishaNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_ISHA", 0L)
+        val ishaLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_ISHA", "") ?: ""
+        val ishaLastCompleted = prefs.getString("last_completed_$SCHEDULE_ID_ISHA", "") ?: ""
+
         list.add(
             MandatorySchedule(
                 id = SCHEDULE_ID_ISHA,
@@ -136,7 +191,12 @@ object MandatoryAdhkarManager {
                 hour = ishaHour,
                 minute = ishaMin,
                 durationMinutes = ishaDur,
-                enabled = ishaEnabled
+                enabled = ishaEnabled,
+                repeatType = "EVERY_DAY",
+                timezone = prefs.getString("tz_$SCHEDULE_ID_ISHA", defaultTz) ?: defaultTz,
+                nextOccurrence = ishaNext,
+                lastTriggeredOccurrence = ishaLastTriggered,
+                lastCompletedOccurrence = ishaLastCompleted
             )
         )
 
@@ -147,67 +207,102 @@ object MandatoryAdhkarManager {
                 val array = JSONArray(customJson)
                 for (i in 0 until array.length()) {
                     val obj = array.getJSONObject(i)
+                    val id = obj.getString("id")
                     list.add(
                         MandatorySchedule(
-                            id = obj.getString("id"),
+                            id = id,
                             title = obj.getString("title"),
                             category = obj.getString("category"),
                             hour = obj.getInt("hour"),
                             minute = obj.getInt("minute"),
                             durationMinutes = obj.getInt("durationMinutes"),
-                            enabled = obj.getBoolean("enabled")
+                            enabled = obj.getBoolean("enabled"),
+                            repeatType = obj.optString("repeatType", "EVERY_DAY"),
+                            timezone = obj.optString("timezone", defaultTz),
+                            nextOccurrence = prefs.getLong("next_occurrence_$id", 0L),
+                            lastTriggeredOccurrence = prefs.getString("last_triggered_$id", "") ?: "",
+                            lastCompletedOccurrence = prefs.getString("last_completed_$id", "") ?: ""
                         )
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error parsing custom schedules JSON: ${e.message}", e)
+                Log.e(TAG, "errors: Error parsing custom schedules JSON: ${e.message}", e)
             }
         }
 
         return list
     }
 
+    /**
+     * Validates and persists a schedule, updating AlarmManager immediately.
+     */
     fun saveSchedule(context: Context, schedule: MandatorySchedule) {
         val prefs = getPrefs(context)
-        Log.d(TAG, "saveSchedule: id=${schedule.id}, title=${schedule.title}, time=${schedule.hour}:${schedule.minute}, duration=${schedule.durationMinutes}, enabled=${schedule.enabled}")
+        val validHour = schedule.hour.coerceIn(0, 23)
+        val validMinute = schedule.minute.coerceIn(0, 59)
+        val validDuration = schedule.durationMinutes.coerceIn(1, 120)
+        val currentTz = TimeZone.getDefault().id
+
+        Log.d(TAG, "schedule updated: id=${schedule.id}, title=${schedule.title}, time=$validHour:$validMinute, duration=${validDuration}m, enabled=${schedule.enabled}, tz=$currentTz")
+
+        val editor = prefs.edit()
         when (schedule.id) {
             SCHEDULE_ID_MORNING -> {
-                prefs.edit()
-                    .putBoolean(KEY_MORNING_ENABLED, schedule.enabled)
-                    .putInt(KEY_MORNING_HOUR, schedule.hour)
-                    .putInt(KEY_MORNING_MINUTE, schedule.minute)
-                    .putInt("duration_$SCHEDULE_ID_MORNING", schedule.durationMinutes)
-                    .apply()
+                editor.putBoolean(KEY_MORNING_ENABLED, schedule.enabled)
+                    .putInt(KEY_MORNING_HOUR, validHour)
+                    .putInt(KEY_MORNING_MINUTE, validMinute)
+                    .putInt("duration_$SCHEDULE_ID_MORNING", validDuration)
+                    .putString("tz_$SCHEDULE_ID_MORNING", currentTz)
             }
             SCHEDULE_ID_EVENING -> {
-                prefs.edit()
-                    .putBoolean(KEY_EVENING_ENABLED, schedule.enabled)
-                    .putInt(KEY_EVENING_HOUR, schedule.hour)
-                    .putInt(KEY_EVENING_MINUTE, schedule.minute)
-                    .putInt("duration_$SCHEDULE_ID_EVENING", schedule.durationMinutes)
-                    .apply()
+                editor.putBoolean(KEY_EVENING_ENABLED, schedule.enabled)
+                    .putInt(KEY_EVENING_HOUR, validHour)
+                    .putInt(KEY_EVENING_MINUTE, validMinute)
+                    .putInt("duration_$SCHEDULE_ID_EVENING", validDuration)
+                    .putString("tz_$SCHEDULE_ID_EVENING", currentTz)
             }
             SCHEDULE_ID_ISHA -> {
-                prefs.edit()
-                    .putBoolean("enabled_$SCHEDULE_ID_ISHA", schedule.enabled)
-                    .putInt("hour_$SCHEDULE_ID_ISHA", schedule.hour)
-                    .putInt("min_$SCHEDULE_ID_ISHA", schedule.minute)
-                    .putInt("duration_$SCHEDULE_ID_ISHA", schedule.durationMinutes)
-                    .apply()
+                editor.putBoolean("enabled_$SCHEDULE_ID_ISHA", schedule.enabled)
+                    .putInt("hour_$SCHEDULE_ID_ISHA", validHour)
+                    .putInt("min_$SCHEDULE_ID_ISHA", validMinute)
+                    .putInt("duration_$SCHEDULE_ID_ISHA", validDuration)
+                    .putString("tz_$SCHEDULE_ID_ISHA", currentTz)
             }
             else -> {
-                // Custom schedule update
-                val customSchedules = getAllSchedules(context).filter { it.id != SCHEDULE_ID_MORNING && it.id != SCHEDULE_ID_EVENING && it.id != SCHEDULE_ID_ISHA }.toMutableList()
+                val customSchedules = getAllSchedules(context)
+                    .filter { it.id != SCHEDULE_ID_MORNING && it.id != SCHEDULE_ID_EVENING && it.id != SCHEDULE_ID_ISHA }
+                    .toMutableList()
                 val idx = customSchedules.indexOfFirst { it.id == schedule.id }
+                val updated = schedule.copy(hour = validHour, minute = validMinute, durationMinutes = validDuration, timezone = currentTz)
                 if (idx >= 0) {
-                    customSchedules[idx] = schedule
+                    customSchedules[idx] = updated
                 } else {
-                    customSchedules.add(schedule)
+                    customSchedules.add(updated)
                 }
                 saveCustomSchedules(context, customSchedules)
             }
         }
-        scheduleAlarms(context)
+        editor.apply()
+
+        if (!schedule.enabled) {
+            cancelAlarmForSchedule(context, schedule.id)
+            prefs.edit().putLong("next_occurrence_${schedule.id}", 0L).apply()
+            Log.d(TAG, "schedule disabled: Cancelled alarm for schedule ID=${schedule.id}")
+        } else {
+            // First cancel any existing alarm to avoid stale triggers at old time
+            cancelAlarmForSchedule(context, schedule.id)
+            val nextTime = calculateNextOccurrence(validHour, validMinute, System.currentTimeMillis())
+            prefs.edit().putLong("next_occurrence_${schedule.id}", nextTime).apply()
+            val cleanSchedule = schedule.copy(
+                hour = validHour,
+                minute = validMinute,
+                durationMinutes = validDuration,
+                nextOccurrence = nextTime,
+                timezone = currentTz
+            )
+            registerAlarmForSchedule(context, cleanSchedule)
+            Log.d(TAG, "schedule enabled: Registered exact alarm for schedule ID=${schedule.id} at ${formatTimestamp(nextTime)}")
+        }
     }
 
     private fun saveCustomSchedules(context: Context, schedules: List<MandatorySchedule>) {
@@ -221,10 +316,283 @@ object MandatoryAdhkarManager {
                 put("minute", s.minute)
                 put("durationMinutes", s.durationMinutes)
                 put("enabled", s.enabled)
+                put("repeatType", s.repeatType)
+                put("timezone", s.timezone)
             }
             array.put(obj)
         }
         getPrefs(context).edit().putString(KEY_CUSTOM_SCHEDULES_JSON, array.toString()).apply()
+    }
+
+    // ==========================================
+    // EXACT ALARM REGISTRATION & CANCELLATION
+    // ==========================================
+
+    fun registerAlarmForSchedule(context: Context, schedule: MandatorySchedule) {
+        if (!schedule.enabled) {
+            Log.d(TAG, "alarm registration: Skipping disabled schedule ID=${schedule.id}")
+            return
+        }
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        if (alarmManager == null) {
+            Log.e(TAG, "errors: AlarmManager is null during registration for ${schedule.id}")
+            return
+        }
+
+        val now = System.currentTimeMillis()
+        var triggerTime = schedule.nextOccurrence
+        if (triggerTime <= now) {
+            triggerTime = calculateNextOccurrence(schedule.hour, schedule.minute, now)
+            getPrefs(context).edit().putLong("next_occurrence_${schedule.id}", triggerTime).apply()
+        }
+
+        val requestCode = getRequestCode(schedule.id)
+        val occurrenceId = getOccurrenceId(schedule.id, triggerTime)
+
+        val intent = Intent(context, MandatoryAdhkarReceiver::class.java).apply {
+            action = "com.example.ACTION_MANDATORY_ZIKIR_${schedule.id}"
+            putExtra("SCHEDULE_ID", schedule.id)
+            putExtra("SCHEDULE_TITLE", schedule.title)
+            putExtra("CATEGORY", schedule.category)
+            putExtra("DURATION_MINUTES", schedule.durationMinutes)
+            putExtra("EXPECTED_OCCURRENCE_ID", occurrenceId)
+            putExtra("EXPECTED_TIMESTAMP", triggerTime)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Show intent for AlarmClockInfo (tapping status bar clock icon opens app)
+        val showIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val showPendingIntent = PendingIntent.getActivity(
+            context,
+            requestCode + 1000,
+            showIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val canExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+        Log.d(TAG, "exact alarm permission status: canScheduleExactAlarms=$canExact for schedule=${schedule.id}")
+
+        try {
+            // AlarmClockInfo guarantees exact wakeups across Doze mode and all OEM restrictions
+            val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, showPendingIntent)
+            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            Log.d(TAG, "alarm registered: schedule ID=${schedule.id} (${schedule.title}), triggerTime=${formatTimestamp(triggerTime)} (reqCode=$requestCode) via setAlarmClock")
+        } catch (e: Exception) {
+            Log.w(TAG, "errors: setAlarmClock failed (${e.message}), attempting fallback exact alarm")
+            try {
+                if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                    Log.d(TAG, "alarm registered: schedule ID=${schedule.id} via setExactAndAllowWhileIdle at ${formatTimestamp(triggerTime)}")
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                    Log.d(TAG, "alarm registered: schedule ID=${schedule.id} via setAndAllowWhileIdle at ${formatTimestamp(triggerTime)}")
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+                    Log.d(TAG, "alarm registered: schedule ID=${schedule.id} via standard set at ${formatTimestamp(triggerTime)}")
+                }
+            } catch (e2: Exception) {
+                Log.e(TAG, "errors: Failed completely to register alarm for schedule ${schedule.id}: ${e2.message}", e2)
+            }
+        }
+    }
+
+    fun cancelAlarmForSchedule(context: Context, scheduleId: String) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        val requestCode = getRequestCode(scheduleId)
+        val intent = Intent(context, MandatoryAdhkarReceiver::class.java).apply {
+            action = "com.example.ACTION_MANDATORY_ZIKIR_$scheduleId"
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+            Log.d(TAG, "alarm cancelled: schedule ID=$scheduleId (reqCode=$requestCode)")
+        }
+    }
+
+    fun scheduleAlarms(context: Context) {
+        val schedules = getAllSchedules(context)
+        Log.d(TAG, "schedule registration: Syncing all active schedules (count=${schedules.size})")
+        for (schedule in schedules) {
+            if (schedule.enabled) {
+                registerAlarmForSchedule(context, schedule)
+            } else {
+                cancelAlarmForSchedule(context, schedule.id)
+            }
+        }
+    }
+
+    // ==========================================
+    // ALARM TRIGGER / RECEIVER EXECUTION PIPELINE
+    // ==========================================
+
+    /**
+     * Executes when an alarm fires.
+     * Guaranteed sequence:
+     * 1. Validate schedule.
+     * 2. Prevent duplicates (check lastTriggeredOccurrence).
+     * 3. Persist current occurrence as triggered.
+     * 4. IMMEDIATELY CALCULATE AND REGISTER NEXT OCCURRENCE with AlarmManager.
+     * 5. Launch WakeLock, Notification with FullScreenIntent, and session UI.
+     */
+    fun onAlarmTriggered(
+        context: Context,
+        scheduleId: String,
+        scheduleTitle: String,
+        category: String,
+        durationMinutes: Int,
+        isTest: Boolean
+    ) {
+        val currentTimestamp = System.currentTimeMillis()
+        val occurrenceId = getOccurrenceId(scheduleId, currentTimestamp)
+        val prefs = getPrefs(context)
+
+        Log.d(TAG, "alarm fired: schedule ID=$scheduleId, occurrence ID=$occurrenceId, current timestamp=${formatTimestamp(currentTimestamp)}, isTest=$isTest")
+
+        // 1. Verify schedule enabled
+        val allSchedules = getAllSchedules(context)
+        val schedule = allSchedules.find { it.id == scheduleId }
+        val isEnabled = schedule?.enabled ?: true
+
+        if (!isEnabled && !isTest) {
+            Log.d(TAG, "receiver execution: Schedule $scheduleId is currently disabled. Cancelling downstream actions.")
+            cancelAlarmForSchedule(context, scheduleId)
+            return
+        }
+
+        // 2. Duplicate Detection
+        val lastTriggered = prefs.getString("last_triggered_$scheduleId", "")
+        if (lastTriggered == occurrenceId && !isTest) {
+            Log.w(TAG, "duplicate detection: Occurrence ID $occurrenceId already processed. Skipping duplicate trigger.")
+            // Ensure next alarm is in place
+            if (schedule != null) {
+                registerAlarmForSchedule(context, schedule)
+            }
+            return
+        }
+
+        // 3. Mark current occurrence as triggered
+        prefs.edit().putString("last_triggered_$scheduleId", occurrenceId).apply()
+        setSessionState(context, MandatorySessionState.TRIGGERED)
+
+        // 4. CRITICAL: CALCULATE AND REGISTER NEXT ALARM IMMEDIATELY BEFORE SESSION UI
+        if (!isTest && schedule != null) {
+            val nextOccurrence = calculateNextOccurrence(schedule.hour, schedule.minute, currentTimestamp)
+            prefs.edit().putLong("next_occurrence_$scheduleId", nextOccurrence).apply()
+            registerAlarmForSchedule(context, schedule.copy(nextOccurrence = nextOccurrence))
+            Log.d(TAG, "next alarm registration: Next occurrence for schedule ID=$scheduleId registered for ${formatTimestamp(nextOccurrence)}")
+        }
+
+        // 5. Acquire temporary WakeLock to wake up screen
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        @Suppress("DEPRECATION")
+        val wakeLock = powerManager?.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+            "NoorZikir:MandatoryWakeLock"
+        )
+        try {
+            wakeLock?.acquire(15000L)
+            Log.d(TAG, "alarm trigger: WakeLock acquired for screen wakeup (15s)")
+        } catch (e: Exception) {
+            Log.w(TAG, "errors: WakeLock acquire failed: ${e.message}")
+        }
+
+        // 6. Show persistent notification with FullScreenIntent
+        setSessionState(context, MandatorySessionState.STARTING)
+        showPersistentNotification(
+            context = context,
+            scheduleId = scheduleId,
+            scheduleTitle = scheduleTitle,
+            category = category,
+            durationMinutes = durationMinutes
+        )
+
+        // 7. Direct activity launch where permitted
+        val fullScreenIntent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            putExtra("SCHEDULE_ID", scheduleId)
+            putExtra("SCHEDULE_TITLE", scheduleTitle)
+            putExtra("CATEGORY", category)
+            putExtra("DURATION_MINUTES", durationMinutes)
+        }
+
+        try {
+            context.startActivity(fullScreenIntent)
+            Log.d(TAG, "session start: Direct activity launch initiated for $scheduleTitle")
+        } catch (e: Exception) {
+            Log.d(TAG, "session start: Direct launch constrained (${e.message}). High priority FullScreenIntent notification is active.")
+            try {
+                val pi = PendingIntent.getActivity(
+                    context,
+                    999,
+                    fullScreenIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                pi.send()
+            } catch (e2: Exception) {
+                Log.w(TAG, "errors: PendingIntent send fallback error: ${e2.message}")
+            }
+        }
+    }
+
+    // ==========================================
+    // REBOOT RECOVERY & MISSED ALARM RESTORATION
+    // ==========================================
+
+    fun recoverAndRescheduleAll(context: Context, reason: String) {
+        Log.d(TAG, "reboot recovery: Initiated recovery pipeline. Reason = $reason")
+        createNotificationChannel(context)
+
+        val prefs = getPrefs(context)
+        val now = System.currentTimeMillis()
+        val schedules = getAllSchedules(context)
+
+        for (schedule in schedules) {
+            if (!schedule.enabled) {
+                cancelAlarmForSchedule(context, schedule.id)
+                continue
+            }
+
+            val savedNext = schedule.nextOccurrence
+            val occurrenceIdForSavedNext = if (savedNext > 0L) getOccurrenceId(schedule.id, savedNext) else ""
+
+            // Check if alarm was missed during shutdown / sleep
+            if (savedNext in 1..(now - 60000L)) {
+                val wasTriggered = prefs.getString("last_triggered_${schedule.id}", "") == occurrenceIdForSavedNext
+                if (!wasTriggered) {
+                    Log.w(TAG, "missed alarm recovery: Detected missed occurrence for schedule ID=${schedule.id} at ${formatTimestamp(savedNext)} (current time: ${formatTimestamp(now)})")
+                    recordHistory(context, schedule.title, "MISSED")
+                }
+            }
+
+            // Calculate next valid future occurrence
+            val nextOccurrence = calculateNextOccurrence(schedule.hour, schedule.minute, now)
+            prefs.edit().putLong("next_occurrence_${schedule.id}", nextOccurrence).apply()
+            registerAlarmForSchedule(context, schedule.copy(nextOccurrence = nextOccurrence))
+            Log.d(TAG, "reboot recovery: Successfully restored schedule ID=${schedule.id} (${schedule.title}) -> next trigger at ${formatTimestamp(nextOccurrence)}")
+        }
     }
 
     // ==========================================
@@ -256,7 +624,7 @@ object MandatoryAdhkarManager {
         val startTime = System.currentTimeMillis()
         val targetEndTime = startTime + (durationMinutes * 60 * 1000L)
 
-        Log.d(TAG, "session start: sessionId=$sessionId, schedule=$scheduleTitle, duration=${durationMinutes}m, targetEndTime=$targetEndTime")
+        Log.d(TAG, "session start: sessionId=$sessionId, schedule=$scheduleTitle, duration=${durationMinutes}m, targetEndTime=${formatTimestamp(targetEndTime)}")
 
         getPrefs(context).edit()
             .putString(KEY_SESSION_STATE, MandatorySessionState.ACTIVE.name)
@@ -274,28 +642,33 @@ object MandatoryAdhkarManager {
     }
 
     fun completeSession(context: Context, scheduleId: String, scheduleTitle: String) {
-        Log.d(TAG, "session completion: scheduleId=$scheduleId, title=$scheduleTitle")
+        Log.d(TAG, "session completion: schedule ID=$scheduleId, title=$scheduleTitle")
         setSessionState(context, MandatorySessionState.COMPLETED)
         cancelPersistentNotification(context)
 
-        // Record completion for today
         val today = getTodayDateString()
+        val occurrenceId = getOccurrenceId(scheduleId, System.currentTimeMillis())
         val prefs = getPrefs(context)
+
         if (scheduleId == SCHEDULE_ID_MORNING) {
             prefs.edit().putString(KEY_MORNING_COMPLETED_DATE, today).apply()
         } else if (scheduleId == SCHEDULE_ID_EVENING) {
             prefs.edit().putString(KEY_EVENING_COMPLETED_DATE, today).apply()
         }
-        prefs.edit().putString("completed_${scheduleId}_$today", today).apply()
+        prefs.edit()
+            .putString("completed_${scheduleId}_$today", today)
+            .putString("last_completed_$scheduleId", occurrenceId)
+            .apply()
 
-        // Update streak
         updateStreakOnCompletion(context)
-
-        // Record in history log
         recordHistory(context, scheduleTitle, "COMPLETED")
 
-        // Schedule next occurrence
-        scheduleAlarms(context)
+        // Ensure next occurrence is intact
+        val allSchedules = getAllSchedules(context)
+        val schedule = allSchedules.find { it.id == scheduleId }
+        if (schedule != null && schedule.enabled) {
+            registerAlarmForSchedule(context, schedule)
+        }
     }
 
     fun cancelSession(context: Context, scheduleId: String, scheduleTitle: String) {
@@ -303,7 +676,6 @@ object MandatoryAdhkarManager {
         setSessionState(context, MandatorySessionState.CANCELLED)
         cancelPersistentNotification(context)
         recordHistory(context, scheduleTitle, "CANCELLED")
-        scheduleAlarms(context)
     }
 
     private fun updateStreakOnCompletion(context: Context) {
@@ -337,7 +709,6 @@ object MandatoryAdhkarManager {
                 put("date", getTodayDateString())
                 put("status", status)
             }
-            // Keep last 50 entries
             val updated = JSONArray()
             updated.put(obj)
             for (i in 0 until minOf(array.length(), 49)) {
@@ -345,7 +716,7 @@ object MandatoryAdhkarManager {
             }
             prefs.edit().putString(KEY_COMPLETION_HISTORY, updated.toString()).apply()
         } catch (e: Exception) {
-            Log.e(TAG, "Error recording history: ${e.message}")
+            Log.e(TAG, "errors: Error recording history: ${e.message}")
         }
     }
 
@@ -356,97 +727,6 @@ object MandatoryAdhkarManager {
             SCHEDULE_ID_MORNING -> prefs.getString(KEY_MORNING_COMPLETED_DATE, "") == today
             SCHEDULE_ID_EVENING -> prefs.getString(KEY_EVENING_COMPLETED_DATE, "") == today
             else -> prefs.getString("completed_${scheduleId}_$today", "") == today
-        }
-    }
-
-    // ==========================================
-    // ALARM MANAGER SCHEDULING (EXACT / COMPLIANT)
-    // ==========================================
-
-    fun scheduleAlarms(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        if (alarmManager == null) {
-            Log.e(TAG, "permission problems: AlarmManager is null")
-            return
-        }
-
-        val schedules = getAllSchedules(context)
-        Log.d(TAG, "schedule registration: Total schedules configured = ${schedules.size}")
-
-        // Check exact alarm permissions
-        val canExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
-        Log.d(TAG, "schedule registration: Exact alarm permitted = $canExact")
-
-        for (schedule in schedules) {
-            val requestCode = getRequestCode(schedule.id)
-            val intent = Intent(context, MandatoryAdhkarReceiver::class.java).apply {
-                action = "ACTION_MANDATORY_ZIKIR_ALARM_${schedule.id}"
-                putExtra("SCHEDULE_ID", schedule.id)
-                putExtra("SCHEDULE_TITLE", schedule.title)
-                putExtra("CATEGORY", schedule.category)
-                putExtra("DURATION_MINUTES", schedule.durationMinutes)
-            }
-
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            if (!schedule.enabled) {
-                alarmManager.cancel(pendingIntent)
-                Log.d(TAG, "schedule registration: Cancelled disabled alarm for schedule=${schedule.id} (${schedule.title})")
-                continue
-            }
-
-            // Calculate next trigger time
-            val now = System.currentTimeMillis()
-            val cal = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, schedule.hour)
-                set(Calendar.MINUTE, schedule.minute)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-
-                // If already passed today or completed today, schedule for tomorrow
-                val completedToday = isScheduleCompletedToday(context, schedule.id)
-                if (timeInMillis <= now || completedToday) {
-                    add(Calendar.DAY_OF_YEAR, 1)
-                }
-            }
-
-            val triggerTime = cal.timeInMillis
-            val formattedTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(triggerTime))
-            Log.d(TAG, "schedule registration: Registering alarm for '${schedule.title}' at $formattedTime (reqCode=$requestCode)")
-
-            try {
-                // Best practice: AlarmClockInfo ensures reliable wakeups even in Doze Mode and on locked screens
-                val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
-                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
-                Log.d(TAG, "schedule registration: setAlarmClock succeeded for '${schedule.title}'")
-            } catch (e: Exception) {
-                Log.w(TAG, "schedule registration: setAlarmClock failed (${e.message}), trying fallback exact alarm")
-                try {
-                    if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-                    } else {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-                    }
-                } catch (e2: Exception) {
-                    Log.e(TAG, "schedule registration: Failed to set alarm for '${schedule.title}': ${e2.message}", e2)
-                }
-            }
-        }
-
-        // Set overall state to SCHEDULED if idle
-        if (getSessionState(context) == MandatorySessionState.IDLE) {
-            setSessionState(context, MandatorySessionState.SCHEDULED)
         }
     }
 
@@ -545,7 +825,7 @@ object MandatoryAdhkarManager {
     }
 
     fun cancelPersistentNotification(context: Context) {
-        Log.d(TAG, "service start/stop: Removing active session notification ID=$NOTIF_ID_ACTIVE_SESSION")
+        Log.d(TAG, "notification cancelled: Removing active session notification ID=$NOTIF_ID_ACTIVE_SESSION")
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIF_ID_ACTIVE_SESSION)
     }
@@ -566,10 +846,10 @@ object MandatoryAdhkarManager {
             enabled = true
         )
 
-        Log.d(TAG, "alarm trigger: Test alarm triggered manually for schedule=${schedule.id} (${schedule.title})")
+        Log.d(TAG, "alarm fired: Test alarm manually triggered for schedule=${schedule.id} (${schedule.title})")
 
         val intent = Intent(context, MandatoryAdhkarReceiver::class.java).apply {
-            action = "ACTION_MANDATORY_ZIKIR_ALARM_${schedule.id}"
+            action = "com.example.ACTION_MANDATORY_ZIKIR_${schedule.id}"
             putExtra("SCHEDULE_ID", schedule.id)
             putExtra("SCHEDULE_TITLE", schedule.title)
             putExtra("CATEGORY", schedule.category)

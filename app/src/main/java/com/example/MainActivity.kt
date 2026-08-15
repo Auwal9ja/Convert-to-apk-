@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
     // Ensure notification channels & exact alarms are scheduled if enabled
     com.example.receiver.MandatoryAdhkarManager.createNotificationChannel(this)
-    com.example.receiver.MandatoryAdhkarManager.scheduleAlarms(this)
+    com.example.receiver.MandatoryAdhkarManager.recoverAndRescheduleAll(this, "APP_STARTUP")
     com.example.receiver.ReminderReceiver.rescheduleAllIfEnabled(this)
 
     // Initialize database, repository, and ViewModel using constructor injection

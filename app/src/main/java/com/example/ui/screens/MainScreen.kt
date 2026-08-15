@@ -3578,5 +3578,219 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                 }
             }
         }
+
+        // =========================================================================
+        // DEVELOPER / DEBUG DIAGNOSTICS SECTION (System Verification)
+        // =========================================================================
+        var isDebugExpanded by remember { mutableStateOf(false) }
+        val schedulesList = remember(morningHour, morningMin, morningEnabled, eveningHour, eveningMin, eveningEnabled, ishaHour, ishaMin, ishaEnabled) {
+            MandatoryAdhkarManager.getAllSchedules(context)
+        }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            ),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.BugReport,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Mandatory Schedule Diagnostics",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                    IconButton(
+                        onClick = { isDebugExpanded = !isDebugExpanded },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isDebugExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = "Toggle Diagnostics"
+                        )
+                    }
+                }
+
+                if (isDebugExpanded) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                    // System Permissions Status
+                    Text(
+                        text = "SYSTEM PERMISSION STATUS:",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    val hasNotif = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        androidx.core.content.ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    } else {
+                        androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("• Exact Alarm Permission:", fontSize = 12.sp)
+                        Text(
+                            text = if (canScheduleExact) "YES (Granted)" else "NO (Restricted)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (canScheduleExact) Color(0xFF2E7D32) else Color(0xFFC62828)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("• Notification Permission:", fontSize = 12.sp)
+                        Text(
+                            text = if (hasNotif) "YES (Granted)" else "NO (Disabled)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (hasNotif) Color(0xFF2E7D32) else Color(0xFFC62828)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("• Battery Exemption:", fontSize = 12.sp)
+                        Text(
+                            text = if (hasBatteryExemption) "YES (Unrestricted)" else "NO (Optimized)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (hasBatteryExemption) Color(0xFF2E7D32) else Color(0xFFF57F17)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("• Screen Overlay (Popup):", fontSize = 12.sp)
+                        Text(
+                            text = if (hasOverlayPermission) "YES (Granted)" else "NO (Manual Launch)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (hasOverlayPermission) Color(0xFF2E7D32) else Color(0xFFF57F17)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+
+                    Text(
+                        text = "LIVE SCHEDULE REGISTRATIONS:",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    schedulesList.forEach { sch ->
+                        val amPm = if (sch.hour >= 12) "PM" else "AM"
+                        val h12 = if (sch.hour % 12 == 0) 12 else sch.hour % 12
+                        val formattedConfigured = String.format("%02d:%02d %s", h12, sch.minute, amPm)
+                        val formattedNext = MandatoryAdhkarManager.formatTimestamp(sch.nextOccurrence)
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Schedule: ${sch.title}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (sch.enabled) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
+                                    ) {
+                                        Text(
+                                            text = if (sch.enabled) "ENABLED" else "DISABLED",
+                                            color = if (sch.enabled) Color(0xFF2E7D32) else Color(0xFFC62828),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+
+                                Text("• Configured time: $formattedConfigured (${sch.durationMinutes} min)", fontSize = 11.sp)
+                                Text(
+                                    text = "• Next occurrence: $formattedNext",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (sch.enabled) Color(0xFF1B5E20) else Color.Gray
+                                )
+                                Text(
+                                    text = "• Last triggered: ${if (sch.lastTriggeredOccurrence.isNotBlank()) sch.lastTriggeredOccurrence else "None"}",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "• Last completed: ${if (sch.lastCompletedOccurrence.isNotBlank()) sch.lastCompletedOccurrence else "None"}",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "• Alarm registered: ${if (sch.enabled && sch.nextOccurrence > 0L) "YES (Exact AlarmClock Active)" else "NO"}",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (sch.enabled) Color(0xFF2E7D32) else Color.Gray
+                                )
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            MandatoryAdhkarManager.recoverAndRescheduleAll(context, "MANUAL_DIAGNOSTICS_RESYNC")
+                            Toast.makeText(context, "All schedules recalculated and alarms re-registered ✓", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Force Recalculate & Resync Alarms", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
     }
 }
