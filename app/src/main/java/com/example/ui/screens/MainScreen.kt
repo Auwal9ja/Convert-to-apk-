@@ -7,9 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
@@ -2011,7 +2017,83 @@ fun OnboardingLanguageSelection(
     onLanguageSelected: (String) -> Unit,
     onComplete: () -> Unit
 ) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var currentStep by remember { mutableIntStateOf(0) } // 0: Language, 1: Permissions/Overlay/Battery
     var tempSelectedLanguage by remember { mutableStateOf(selectedLanguage) }
+
+    // Live permission states
+    var hasOverlayPermission by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Settings.canDrawOverlays(context) else true
+        )
+    }
+
+    var hasBatteryExemption by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                pm.isIgnoringBatteryOptimizations(context.packageName)
+            } else true
+        )
+    }
+
+    var hasNotificationPermission by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            } else {
+                NotificationManagerCompat.from(context).areNotificationsEnabled()
+            }
+        )
+    }
+
+    var canScheduleExact by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                am.canScheduleExactAlarms()
+            } else true
+        )
+    }
+
+    // Permission launcher for Android 13+ Notifications
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasNotificationPermission = isGranted
+        if (isGranted) {
+            Toast.makeText(context, "Notifications enabled ✓", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Refresh permission states upon returning from system settings
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    hasOverlayPermission = Settings.canDrawOverlays(context)
+                    val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                    hasBatteryExemption = pm.isIgnoringBatteryOptimizations(context.packageName)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    hasNotificationPermission = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    hasNotificationPermission = NotificationManagerCompat.from(context).areNotificationsEnabled()
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    canScheduleExact = am.canScheduleExactAlarms()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -2026,170 +2108,566 @@ fun OnboardingLanguageSelection(
             )
             .safeDrawingPadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+        if (currentStep == 0) {
+            // STEP 0: LANGUAGE SELECTION
             Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(1f)
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Moon and Stars Header (Light Canvas Compatible)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(130.dp),
-                    contentAlignment = Alignment.Center
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        val center = Offset(size.width / 2, size.height / 2)
-                        // Draw moon
-                        drawCircle(
-                            color = Color(0xFFD4AF37), // Golden
-                            radius = 35.dp.toPx(),
-                            center = center
-                        )
-                        drawCircle(
-                            color = Color(0xFFF4F9F6), // Mask matching light background
-                            radius = 33.dp.toPx(),
-                            center = center - Offset(10.dp.toPx(), 5.dp.toPx())
+                    // Moon and Stars Header
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(115.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val center = Offset(size.width / 2, size.height / 2)
+                            // Draw golden crescent moon
+                            drawCircle(
+                                color = Color(0xFFD4AF37),
+                                radius = 32.dp.toPx(),
+                                center = center
+                            )
+                            drawCircle(
+                                color = Color(0xFFF4F9F6),
+                                radius = 30.dp.toPx(),
+                                center = center - Offset(9.dp.toPx(), 4.dp.toPx())
+                            )
+
+                            val stars = listOf(
+                                center + Offset(-55.dp.toPx(), -18.dp.toPx()),
+                                center + Offset(60.dp.toPx(), -10.dp.toPx()),
+                                center + Offset(28.dp.toPx(), -45.dp.toPx()),
+                                center + Offset(-30.dp.toPx(), 36.dp.toPx()),
+                                center + Offset(40.dp.toPx(), 30.dp.toPx())
+                            )
+                            stars.forEach { pos ->
+                                drawCircle(
+                                    color = Color(0xFF1B5E20).copy(alpha = 0.6f),
+                                    radius = 2.dp.toPx(),
+                                    center = pos
+                                )
+                            }
+                        }
+                    }
+
+                    Text(
+                        text = "Noor zikir",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1B5E20),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "THE LIGHT OF REMEMBRANCE",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32),
+                        letterSpacing = 2.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                    )
+
+                    Text(
+                        text = "Select your preferred translation language / Zaɓi harshen da kake so:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF2E4039),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 14.dp)
+                    )
+
+                    // Scrollable Languages List
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        val languages = listOf(
+                            "English" to "🇬🇧 English (English)",
+                            "Hausa" to "🇳🇬 Hausa (Harshen Hausa)",
+                            "Yoruba" to "🇳🇬 Yoruba (Èdè Yorùbá)",
+                            "Igbo" to "🇳🇬 Igbo (Asụsụ Igbo)",
+                            "Spanish" to "🇪🇸 Spanish (Español)",
+                            "French" to "🇫🇷 French (Français)",
+                            "Arabic" to "🇸🇦 Arabic (العربية)",
+                            "Urdu" to "🇵🇰 Urdu (اردو)",
+                            "Chinese" to "🇨🇳 Chinese (中文)"
                         )
 
-                        // Draw decorative dots for stars
-                        val stars = listOf(
-                            center + Offset(-60.dp.toPx(), -20.dp.toPx()),
-                            center + Offset(65.dp.toPx(), -10.dp.toPx()),
-                            center + Offset(30.dp.toPx(), -50.dp.toPx()),
-                            center + Offset(-35.dp.toPx(), 40.dp.toPx()),
-                            center + Offset(45.dp.toPx(), 35.dp.toPx())
-                        )
-                        stars.forEach { pos ->
-                            drawCircle(
-                                color = Color(0xFF1B5E20).copy(alpha = 0.6f),
-                                radius = 2.dp.toPx(),
-                                center = pos
-                            )
+                        items(languages) { (langCode, displayName) ->
+                            val isSelected = tempSelectedLanguage == langCode
+                            Surface(
+                                onClick = {
+                                    tempSelectedLanguage = langCode
+                                    onLanguageSelected(langCode)
+                                },
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (isSelected) Color(0xFFE8F5E9) else Color.White,
+                                border = BorderStroke(
+                                    width = if (isSelected) 2.dp else 1.dp,
+                                    color = if (isSelected) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(54.dp)
+                                    .testTag("lang_onboarding_$langCode")
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 18.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = displayName,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) Color(0xFF1B5E20) else Color(0xFF132D27)
+                                    )
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected",
+                                            tint = Color(0xFF1B5E20),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
-                Text(
-                    text = "Noor zikir",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B5E20), // Emerald Green
-                    textAlign = TextAlign.Center
-                )
+                Spacer(modifier = Modifier.height(14.dp))
 
-                Text(
-                    text = "THE LIGHT OF REMEMBRANCE",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2E7D32),
-                    letterSpacing = 2.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
-                )
-
-                Text(
-                    text = "Select your default translation language. You can change this anytime from the top bar.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF2E4039),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 20.dp)
-                )
-
-                // Scrollable Languages List
-                LazyColumn(
+                // Next Step Button
+                Button(
+                    onClick = { currentStep = 1 },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1B5E20),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(24.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(vertical = 4.dp)
+                        .height(52.dp)
+                        .testTag("btn_onboarding_next_setup"),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
-                    val languages = listOf(
-                        "English" to "🇬🇧 English (English)",
-                        "Hausa" to "🇳🇬 Hausa (Harshen Hausa)",
-                        "Yoruba" to "🇳🇬 Yoruba (Èdè Yorùbá)",
-                        "Igbo" to "🇳🇬 Igbo (Asụsụ Igbo)",
-                        "Spanish" to "🇪🇸 Spanish (Español)",
-                        "French" to "🇫🇷 French (Français)",
-                        "Arabic" to "🇸🇦 Arabic (العربية)",
-                        "Urdu" to "🇵🇰 Urdu (اردو)",
-                        "Chinese" to "🇨🇳 Chinese (中文)"
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = if (tempSelectedLanguage == "Hausa") "CI GABA ZUWA SAITIN IZINI" else "CONTINUE TO PERMISSIONS SETUP",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            letterSpacing = 0.5.sp
+                        )
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }
+        } else {
+            // STEP 1: PERMISSIONS, SCREEN OVERLAY & BATTERY SETUP
+            val isHausa = tempSelectedLanguage == "Hausa"
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    // Shield / Settings Header Icon
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8F5E9)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = Color(0xFF1B5E20),
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+
+                    Text(
+                        text = if (isHausa) "Saitin Izini & Allon Zikiri" else "Permissions & System Setup",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1B5E20),
+                        textAlign = TextAlign.Center
                     )
 
-                    items(languages) { (langCode, displayName) ->
-                        val isSelected = tempSelectedLanguage == langCode
-                        Surface(
-                            onClick = {
-                                tempSelectedLanguage = langCode
-                                onLanguageSelected(langCode)
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            color = if (isSelected) Color(0xFFE8F5E9) else Color.White,
-                            border = androidx.compose.foundation.BorderStroke(
-                                width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .testTag("lang_onboarding_$langCode")
+                    Text(
+                        text = if (isHausa)
+                            "Domin allon zikiri na wajibi (Mandatory Adhkar) ya fito kai tsaye koda kana amfani da wani app ko wayarka tana kulle, da fatan a saita waɗannan izini:"
+                        else
+                            "To ensure your mandatory morning and evening focus sessions trigger reliably and display over other apps when scheduled, please configure these permissions:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF334B42),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                    // CARD 1: SCREEN OVERLAY (DISPLAY OVER OTHER APPS)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (hasOverlayPermission) Color(0xFFE8F5E9) else Color.White,
+                        border = BorderStroke(
+                            width = if (hasOverlayPermission) 1.5.dp else 1.dp,
+                            color = if (hasOverlayPermission) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = displayName,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) Color(0xFF1B5E20) else Color(0xFF132D27)
-                                )
-                                if (isSelected) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "Selected",
-                                        tint = Color(0xFF1B5E20),
-                                        modifier = Modifier.size(20.dp)
+                                        imageVector = Icons.Default.Layers,
+                                        contentDescription = null,
+                                        tint = if (hasOverlayPermission) Color(0xFF1B5E20) else Color(0xFFD4AF37)
+                                    )
+                                    Text(
+                                        text = if (isHausa) "1. Allon Zikiri (Screen Overlay)" else "1. Display Over Other Apps",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF132D27)
+                                    )
+                                }
+                                if (hasOverlayPermission) {
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = Color(0xFF1B5E20)
+                                    ) {
+                                        Text(
+                                            text = if (isHausa) "An Bada ✓" else "Granted ✓",
+                                            color = Color.White,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Text(
+                                text = if (isHausa)
+                                    "Yana ba Noor Zikir damar buɗe allon zikiri kai tsaye lokacin da lokacin zikirin safe ko na yamma yayi."
+                                else
+                                    "Allows Noor Zikir to pop up full-screen Adhkar recitation sessions directly over other apps at scheduled times.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4A6058)
+                            )
+
+                            if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                Button(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(
+                                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                                Uri.parse("package:${context.packageName}")
+                                            ).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            }
+                                            context.startActivity(intent)
+                                        } catch (_: Exception) {
+                                            Toast.makeText(context, "Please enable Display Over Apps in Settings", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
+                                ) {
+                                    Text(
+                                        text = if (isHausa) "Bada Izinin Allon Zikiri (Overlay)" else "Grant Screen Overlay Permission",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // CARD 2: BATTERY OPTIMIZATION EXEMPTION
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (hasBatteryExemption) Color(0xFFE8F5E9) else Color.White,
+                        border = BorderStroke(
+                            width = if (hasBatteryExemption) 1.5.dp else 1.dp,
+                            color = if (hasBatteryExemption) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.BatteryChargingFull,
+                                        contentDescription = null,
+                                        tint = if (hasBatteryExemption) Color(0xFF1B5E20) else Color(0xFFD4AF37)
+                                    )
+                                    Text(
+                                        text = if (isHausa) "2. Cire Takunkumin Baturi" else "2. Battery Optimization",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF132D27)
+                                    )
+                                }
+                                if (hasBatteryExemption) {
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = Color(0xFF1B5E20)
+                                    ) {
+                                        Text(
+                                            text = if (isHausa) "An Shirya ✓" else "Configured ✓",
+                                            color = Color.White,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Text(
+                                text = if (isHausa)
+                                    "Kada tsarin wayarka (Samsung, Tecno, Infinix, Xiaomi) ya kashe ko ya toshe zikirin safe da yamma a bayan fage."
+                                else
+                                    "Ensures device power savers (Samsung, Tecno, Infinix, Xiaomi, Oppo) don't delay or kill scheduled Zikir alarm sessions.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4A6058)
+                            )
+
+                            if (!hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                Button(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(
+                                                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                                                Uri.parse("package:${context.packageName}")
+                                            ).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            }
+                                            context.startActivity(intent)
+                                        } catch (_: Exception) {
+                                            try {
+                                                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                }
+                                                context.startActivity(intent)
+                                            } catch (_: Exception) {}
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
+                                ) {
+                                    Text(
+                                        text = if (isHausa) "Cire Takunkumin Baturi (Allow Background)" else "Disable Battery Optimization",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // CARD 3: NOTIFICATIONS & EXACT ALARM
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (hasNotificationPermission && canScheduleExact) Color(0xFFE8F5E9) else Color.White,
+                        border = BorderStroke(
+                            width = if (hasNotificationPermission && canScheduleExact) 1.5.dp else 1.dp,
+                            color = if (hasNotificationPermission && canScheduleExact) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.NotificationsActive,
+                                        contentDescription = null,
+                                        tint = if (hasNotificationPermission) Color(0xFF1B5E20) else Color(0xFFD4AF37)
+                                    )
+                                    Text(
+                                        text = if (isHausa) "3. Sanarwa & Kararrawa" else "3. Notifications & Alarms",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF132D27)
+                                    )
+                                }
+                                if (hasNotificationPermission && canScheduleExact) {
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = Color(0xFF1B5E20)
+                                    ) {
+                                        Text(
+                                            text = if (isHausa) "An Kunna ✓" else "Enabled ✓",
+                                            color = Color.White,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Text(
+                                text = if (isHausa)
+                                    "Yana ba da damar aiko maka da sanarwa da kararrawar zikiri da sauran addu'o'in yau da kullum a ainihin lokaci."
+                                else
+                                    "Allows Noor Zikir to deliver exact time alerts, vibrations, and notifications for all daily supplications.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4A6058)
+                            )
+
+                            if (!hasNotificationPermission) {
+                                Button(
+                                    onClick = {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        } else {
+                                            try {
+                                                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                }
+                                                context.startActivity(intent)
+                                            } catch (_: Exception) {}
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
+                                ) {
+                                    Text(
+                                        text = if (isHausa) "Kunna Izinin Sanarwa" else "Allow Notifications",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+
+                            if (!canScheduleExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                OutlinedButton(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(
+                                                Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                                Uri.parse("package:${context.packageName}")
+                                            ).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            }
+                                            context.startActivity(intent)
+                                        } catch (_: Exception) {}
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = if (isHausa) "Bada Izinin Kararrawa (Exact Alarm)" else "Allow Exact Alarms",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-            // Confirm Button
-            Button(
-                onClick = onComplete,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1B5E20),
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .testTag("btn_complete_onboarding"),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-            ) {
-                Text(
-                    text = "BEGIN SUPPLICATIONS",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    letterSpacing = 1.sp
-                )
+                // Bottom Action Buttons
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onComplete,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1B5E20),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .testTag("btn_complete_onboarding"),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                    ) {
+                        Text(
+                            text = if (isHausa) "FARA AMFANI DA NOOR ZIKIR" else "START USING NOOR ZIKIR",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            letterSpacing = 1.sp
+                        )
+                    }
+
+                    TextButton(
+                        onClick = { currentStep = 0 },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (isHausa) "← Koma Zaɓin Harshe" else "← Back to Language Selection",
+                            color = Color(0xFF1B5E20),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }

@@ -130,13 +130,6 @@ class MandatoryAdhkarActivity : ComponentActivity() {
                     speaker = speaker!!,
                     showExitDialog = showExitWarningDialog,
                     onDismissExitDialog = { showExitWarningDialog = false },
-                    onConfirmEmergencyExit = {
-                        showExitWarningDialog = false
-                        speaker?.stop()
-                        MandatoryAdhkarManager.cancelSession(this@MandatoryAdhkarActivity, scheduleId, scheduleTitle)
-                        Toast.makeText(this@MandatoryAdhkarActivity, "Session interrupted.", Toast.LENGTH_SHORT).show()
-                        finish()
-                    },
                     onSessionCompleted = {
                         isSessionCompletedState = true
                         speaker?.stop()
@@ -173,7 +166,6 @@ fun MandatoryAdhkarSessionScreen(
     speaker: DuaSpeaker,
     showExitDialog: Boolean,
     onDismissExitDialog: () -> Unit,
-    onConfirmEmergencyExit: () -> Unit,
     onSessionCompleted: () -> Unit,
     onCloseAfterCompletion: () -> Unit
 ) {
@@ -627,14 +619,10 @@ fun MandatoryAdhkarSessionScreen(
             confirmButton = {
                 Button(
                     onClick = onDismissExitDialog,
-                    colors = ButtonDefaults.buttonColors(containerColor = deepGreen)
+                    colors = ButtonDefaults.buttonColors(containerColor = deepGreen),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Continue Zikir", fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onConfirmEmergencyExit) {
-                    Text("Emergency Exit", color = Color(0xFFE57373))
                 }
             },
             containerColor = Color(0xFF0F261E),
