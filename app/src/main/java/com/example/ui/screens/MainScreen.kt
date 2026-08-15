@@ -1603,8 +1603,6 @@ fun HomeTab(
     val progressFraction = (displayCompleted.toFloat() / displayTotal.toFloat()).coerceIn(0f, 1f)
     val progressPercent = (progressFraction * 100).toInt()
 
-    var showMoreCategoriesDialog by remember { mutableStateOf(false) }
-
     val bgGradient = if (isDarkTheme) {
         Brush.verticalGradient(
             colors = listOf(
@@ -1780,15 +1778,25 @@ fun HomeTab(
             }
         }
 
-        // Grid of Categories (2 Columns, 3 Rows)
+        // Grid of All Categories and Azkar
         item {
             val categoriesList = listOf(
-                CategoryGridItem(AppLocalizer.getString("morning_azkar", selectedLanguage), "Morning & Evening", "☀️", Icons.Default.WbSunny),
-                CategoryGridItem(AppLocalizer.getString("evening_azkar", selectedLanguage), "Morning & Evening", "🌙", Icons.Default.NightsStay),
-                CategoryGridItem(AppLocalizer.getString("daily_azkar", selectedLanguage), "Post-Salah Adhkar", "📅", Icons.Default.CalendarToday),
-                CategoryGridItem(AppLocalizer.getString("sleep_azkar", selectedLanguage), "Sleeping & Waking Up", "🛌", Icons.Default.Hotel),
-                CategoryGridItem(AppLocalizer.getString("quranic_azkar", selectedLanguage), "Hardship & Anxiety", "📖", Icons.Default.MenuBook),
-                CategoryGridItem(AppLocalizer.getString("all_duas", selectedLanguage), "MORE_TRIGGER", "🔢", Icons.Default.FormatListNumbered)
+                CategoryGridItem(AppLocalizer.getCategoryName("Morning & Evening", selectedLanguage), "Morning & Evening", "☀️", Icons.Default.WbSunny),
+                CategoryGridItem(AppLocalizer.getCategoryName("Sleeping & Waking Up", selectedLanguage), "Sleeping & Waking Up", "🛌", Icons.Default.Hotel),
+                CategoryGridItem(AppLocalizer.getCategoryName("Prayers & Mosque", selectedLanguage), "Prayers & Mosque", "🕌", Icons.Default.Place),
+                CategoryGridItem(AppLocalizer.getCategoryName("Post-Salah Adhkar", selectedLanguage), "Post-Salah Adhkar", "📿", Icons.Default.CheckCircle),
+                CategoryGridItem(AppLocalizer.getCategoryName("Ablution & Purification", selectedLanguage), "Ablution & Purification", "💧", Icons.Default.WaterDrop),
+                CategoryGridItem(AppLocalizer.getCategoryName("Eating & Drinking", selectedLanguage), "Eating & Drinking", "🍽️", Icons.Default.Restaurant),
+                CategoryGridItem(AppLocalizer.getCategoryName("Dressing", selectedLanguage), "Dressing", "👕", Icons.Default.Checkroom),
+                CategoryGridItem(AppLocalizer.getCategoryName("Travel & Home", selectedLanguage), "Travel & Home", "🚗", Icons.Default.DirectionsCar),
+                CategoryGridItem(AppLocalizer.getCategoryName("Hardship & Anxiety", selectedLanguage), "Hardship & Anxiety", "🤲", Icons.Default.Healing),
+                CategoryGridItem(AppLocalizer.getCategoryName("Protection & Evil Eye", selectedLanguage), "Protection & Evil Eye", "🛡️", Icons.Default.Security),
+                CategoryGridItem(AppLocalizer.getCategoryName("Visiting the Sick", selectedLanguage), "Visiting the Sick", "🩺", Icons.Default.LocalHospital),
+                CategoryGridItem(AppLocalizer.getCategoryName("Good Manners", selectedLanguage), "Good Manners", "🤝", Icons.Default.People),
+                CategoryGridItem(AppLocalizer.getCategoryName("Greetings & Social", selectedLanguage), "Greetings & Social", "💬", Icons.Default.Chat),
+                CategoryGridItem(AppLocalizer.getCategoryName("Rain & Wind", selectedLanguage), "Rain & Wind", "🌧️", Icons.Default.Cloud),
+                CategoryGridItem(AppLocalizer.getCategoryName("Market & Shopping", selectedLanguage), "Market & Shopping", "🛒", Icons.Default.ShoppingCart),
+                CategoryGridItem(AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage), "Grave & Funeral", "⚰️", Icons.Default.HourglassEmpty)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -1804,13 +1812,7 @@ fun HomeTab(
                             textPrimary = textPrimary,
                             goldAccent = goldAccent,
                             isDarkTheme = isDarkTheme,
-                            onClick = {
-                                if (categoriesList[i].dbCategory == "MORE_TRIGGER") {
-                                    showMoreCategoriesDialog = true
-                                } else {
-                                    onCategoryClick(categoriesList[i].dbCategory)
-                                }
-                            },
+                            onClick = { onCategoryClick(categoriesList[i].dbCategory) },
                             modifier = Modifier.weight(1f)
                         )
                         if (i + 1 < categoriesList.size) {
@@ -1821,13 +1823,7 @@ fun HomeTab(
                                 textPrimary = textPrimary,
                                 goldAccent = goldAccent,
                                 isDarkTheme = isDarkTheme,
-                                onClick = {
-                                    if (categoriesList[i + 1].dbCategory == "MORE_TRIGGER") {
-                                        showMoreCategoriesDialog = true
-                                    } else {
-                                        onCategoryClick(categoriesList[i + 1].dbCategory)
-                                    }
-                                },
+                                onClick = { onCategoryClick(categoriesList[i + 1].dbCategory) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -1938,172 +1934,6 @@ fun HomeTab(
             }
         }
     }
-
-    if (showMoreCategoriesDialog) {
-        var dialogSearchQuery by remember { mutableStateOf("") }
-        val filteredDuas = if (dialogSearchQuery.isBlank()) {
-            allDuas
-        } else {
-            val q = dialogSearchQuery.trim()
-            allDuas.filter {
-                it.id.toString() == q ||
-                it.title.contains(q, ignoreCase = true) ||
-                AppLocalizer.getDuaTitle(it.id, it.title, selectedLanguage).contains(q, ignoreCase = true) ||
-                it.category.contains(q, ignoreCase = true) ||
-                AppLocalizer.getCategoryName(it.category, selectedLanguage).contains(q, ignoreCase = true) ||
-                it.transliteration.contains(q, ignoreCase = true) ||
-                it.arabic.contains(q, ignoreCase = true) ||
-                it.translation.contains(q, ignoreCase = true) ||
-                it.translationHausa.contains(q, ignoreCase = true) ||
-                it.translationYoruba.contains(q, ignoreCase = true) ||
-                it.translationIgbo.contains(q, ignoreCase = true)
-            }
-        }
-
-        AlertDialog(
-            onDismissRequest = { showMoreCategoriesDialog = false },
-            title = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = AppLocalizer.getString("all_duas", selectedLanguage) + " (${allDuas.size})",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    OutlinedTextField(
-                        value = dialogSearchQuery,
-                        onValueChange = { dialogSearchQuery = it },
-                        placeholder = { Text(AppLocalizer.getString("search_placeholder", selectedLanguage), fontSize = 13.sp) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                        trailingIcon = {
-                            if (dialogSearchQuery.isNotEmpty()) {
-                                IconButton(onClick = { dialogSearchQuery = "" }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear", modifier = Modifier.size(18.dp))
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    Surface(
-                        onClick = {
-                            showMoreCategoriesDialog = false
-                            onCategoryClick(null)
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("📜 ", fontSize = 16.sp)
-                            Text(
-                                AppLocalizer.getString("all_topics", selectedLanguage) + " (${allDuas.size} Duas)",
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(340.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filteredDuas, key = { it.id }) { dua ->
-                            Surface(
-                                onClick = {
-                                    showMoreCategoriesDialog = false
-                                    onSelectDua(dua)
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier
-                                            .size(34.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                    ) {
-                                        Text(
-                                            text = "${dua.id}",
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp
-                                        )
-                                    }
-
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage),
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 14.sp,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        val snippet = when (selectedLanguage) {
-                                            "Hausa" -> if (dua.translationHausa.isNotBlank()) dua.translationHausa else dua.translation
-                                            "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
-                                            "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
-                                            else -> dua.translation
-                                        }
-                                        Text(
-                                            text = "${AppLocalizer.getCategoryName(dua.category, selectedLanguage)} • $snippet",
-                                            fontSize = 11.sp,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-
-                                    Icon(
-                                        Icons.Default.ChevronRight,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showMoreCategoriesDialog = false }) {
-                    Text(AppLocalizer.getString("done", selectedLanguage))
-                }
-            }
-        )
-    }
 }
 
 data class CategoryGridItem(
@@ -2129,13 +1959,13 @@ fun CategoryCard(
         colors = CardDefaults.cardColors(containerColor = cardBg),
         border = BorderStroke(1.dp, cardBorder),
         modifier = modifier
-            .height(96.dp)
+            .height(108.dp)
             .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(14.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -2166,7 +1996,10 @@ fun CategoryCard(
                 text = item.title,
                 color = textPrimary,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 16.sp
             )
         }
     }
@@ -2598,323 +2431,565 @@ fun SettingsDialog(
 fun MandatoryAdhkarSettingsSection(context: Context) {
     val prefs = remember { MandatoryAdhkarManager.getPrefs(context) }
 
-    var morningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_MORNING_ENABLED, false)) }
-    var eveningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, false)) }
+    var morningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_MORNING_ENABLED, true)) }
+    var eveningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, true)) }
+    var ishaEnabled by remember { mutableStateOf(prefs.getBoolean("enabled_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", false)) }
+
     var morningHour by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_MORNING_HOUR, 6)) }
     var morningMin by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_MORNING_MINUTE, 0)) }
+    var morningDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_MORNING}", prefs.getInt(MandatoryAdhkarManager.KEY_READING_DURATION, 15))) }
+
     var eveningHour by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_EVENING_HOUR, 18)) }
     var eveningMin by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_EVENING_MINUTE, 0)) }
-    var durationMinutes by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_READING_DURATION, 3)) }
+    var eveningDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_EVENING}", prefs.getInt(MandatoryAdhkarManager.KEY_READING_DURATION, 15))) }
+
+    var ishaHour by remember { mutableIntStateOf(prefs.getInt("hour_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 21)) }
+    var ishaMin by remember { mutableIntStateOf(prefs.getInt("min_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 30)) }
+    var ishaDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 10)) }
+
+    var soundEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_SOUND_ENABLED, true)) }
+    var vibrationEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_VIBRATION_ENABLED, true)) }
     var fullscreenEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_FULLSCREEN_ENABLED, true)) }
 
-    var isDurationDropdownExpanded by remember { mutableStateOf(false) }
+    var isMorningDurExpanded by remember { mutableStateOf(false) }
+    var isEveningDurExpanded by remember { mutableStateOf(false) }
+    var isIshaDurExpanded by remember { mutableStateOf(false) }
+
+    val isIgnoringBattery = remember { MandatoryAdhkarManager.isIgnoringBatteryOptimizations(context) }
+    var hasBatteryExemption by remember { mutableStateOf(isIgnoringBattery) }
+
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+    val canScheduleExact = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager?.canScheduleExactAlarms() ?: true
+        } else {
+            true
+        }
+    }
+
+    val canDrawOverlays = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            android.provider.Settings.canDrawOverlays(context)
+        } else {
+            true
+        }
+    }
+    var hasOverlayPermission by remember { mutableStateOf(canDrawOverlays) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Schedule,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "Scheduled Zikir Sessions (Mandatory Mode)",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
         Text(
-            text = "Mandatory Adhkar",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            text = "Automated daily focus sessions to build steadfast consistency in your morning and evening supplications.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // Morning Switch
-        Row(
+        // 1. Morning Schedule Card
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            shape = RoundedCornerShape(14.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.WbSunny,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "Enable Mandatory Morning Adhkar",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Switch(
-                checked = morningEnabled,
-                onCheckedChange = { checked ->
-                    morningEnabled = checked
-                    prefs.edit().putBoolean(MandatoryAdhkarManager.KEY_MORNING_ENABLED, checked).apply()
-                    MandatoryAdhkarManager.scheduleAlarms(context)
-                }
-            )
-        }
-
-        if (morningEnabled) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 34.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Morning Reminder Time",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedButton(
-                    onClick = {
-                        android.app.TimePickerDialog(
-                            context,
-                            { _, h, m ->
-                                morningHour = h
-                                morningMin = m
-                                prefs.edit()
-                                    .putInt(MandatoryAdhkarManager.KEY_MORNING_HOUR, h)
-                                    .putInt(MandatoryAdhkarManager.KEY_MORNING_MINUTE, m)
-                                    .apply()
-                                MandatoryAdhkarManager.scheduleAlarms(context)
-                            },
-                            morningHour,
-                            morningMin,
-                            false
-                        ).show()
-                    },
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    val amPm = if (morningHour >= 12) "PM" else "AM"
-                    val h12 = if (morningHour % 12 == 0) 12 else morningHour % 12
-                    Text(
-                        text = String.format("%02d:%02d %s", h12, morningMin, amPm),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-                }
-            }
-        }
-
-        // Evening Switch
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.NightsStay,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "Enable Mandatory Evening Adhkar",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Switch(
-                checked = eveningEnabled,
-                onCheckedChange = { checked ->
-                    eveningEnabled = checked
-                    prefs.edit().putBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, checked).apply()
-                    MandatoryAdhkarManager.scheduleAlarms(context)
-                }
-            )
-        }
-
-        if (eveningEnabled) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 34.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Evening Reminder Time",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedButton(
-                    onClick = {
-                        android.app.TimePickerDialog(
-                            context,
-                            { _, h, m ->
-                                eveningHour = h
-                                eveningMin = m
-                                prefs.edit()
-                                    .putInt(MandatoryAdhkarManager.KEY_EVENING_HOUR, h)
-                                    .putInt(MandatoryAdhkarManager.KEY_EVENING_MINUTE, m)
-                                    .apply()
-                                MandatoryAdhkarManager.scheduleAlarms(context)
-                            },
-                            eveningHour,
-                            eveningMin,
-                            false
-                        ).show()
-                    },
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    val amPm = if (eveningHour >= 12) "PM" else "AM"
-                    val h12 = if (eveningHour % 12 == 0) 12 else eveningHour % 12
-                    Text(
-                        text = String.format("%02d:%02d %s", h12, eveningMin, amPm),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-                }
-            }
-        }
-
-        // Reading Duration
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Timer,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "Reading Duration",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Box {
-                OutlinedButton(
-                    onClick = { isDurationDropdownExpanded = true },
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "$durationMinutes min",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        modifier = Modifier.padding(start = 2.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WbSunny,
+                            contentDescription = null,
+                            tint = Color(0xFFE65100),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Morning Zikir (Safe)",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Switch(
+                        checked = morningEnabled,
+                        onCheckedChange = { checked ->
+                            morningEnabled = checked
+                            MandatoryAdhkarManager.saveSchedule(
+                                context,
+                                com.example.receiver.MandatorySchedule(
+                                    id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
+                                    title = "Morning Zikir",
+                                    category = "Morning & Evening",
+                                    hour = morningHour,
+                                    minute = morningMin,
+                                    durationMinutes = morningDuration,
+                                    enabled = checked
+                                )
+                            )
+                        }
                     )
                 }
 
-                DropdownMenu(
-                    expanded = isDurationDropdownExpanded,
-                    onDismissRequest = { isDurationDropdownExpanded = false }
-                ) {
-                    listOf(1, 3, 5, 10).forEach { mins ->
-                        DropdownMenuItem(
-                            text = { Text("$mins minutes") },
+                if (morningEnabled) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Start Time:", style = MaterialTheme.typography.bodySmall)
+                        OutlinedButton(
                             onClick = {
-                                durationMinutes = mins
-                                prefs.edit().putInt(MandatoryAdhkarManager.KEY_READING_DURATION, mins).apply()
-                                isDurationDropdownExpanded = false
+                                android.app.TimePickerDialog(
+                                    context,
+                                    { _, h, m ->
+                                        morningHour = h
+                                        morningMin = m
+                                        MandatoryAdhkarManager.saveSchedule(
+                                            context,
+                                            com.example.receiver.MandatorySchedule(
+                                                id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
+                                                title = "Morning Zikir",
+                                                category = "Morning & Evening",
+                                                hour = h,
+                                                minute = m,
+                                                durationMinutes = morningDuration,
+                                                enabled = morningEnabled
+                                            )
+                                        )
+                                    },
+                                    morningHour,
+                                    morningMin,
+                                    false
+                                ).show()
                             },
-                            leadingIcon = {
-                                if (durationMinutes == mins) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            val amPm = if (morningHour >= 12) "PM" else "AM"
+                            val h12 = if (morningHour % 12 == 0) 12 else morningHour % 12
+                            Text(
+                                text = String.format("%02d:%02d %s", h12, morningMin, amPm),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Duration:", style = MaterialTheme.typography.bodySmall)
+                        Box {
+                            OutlinedButton(
+                                onClick = { isMorningDurExpanded = true },
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text("$morningDuration min", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, modifier = Modifier.padding(start = 2.dp))
+                            }
+                            DropdownMenu(
+                                expanded = isMorningDurExpanded,
+                                onDismissRequest = { isMorningDurExpanded = false }
+                            ) {
+                                listOf(3, 5, 10, 15, 20, 30).forEach { mins ->
+                                    DropdownMenuItem(
+                                        text = { Text("$mins minutes") },
+                                        onClick = {
+                                            morningDuration = mins
+                                            isMorningDurExpanded = false
+                                            MandatoryAdhkarManager.saveSchedule(
+                                                context,
+                                                com.example.receiver.MandatorySchedule(
+                                                    id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
+                                                    title = "Morning Zikir",
+                                                    category = "Morning & Evening",
+                                                    hour = morningHour,
+                                                    minute = morningMin,
+                                                    durationMinutes = mins,
+                                                    enabled = morningEnabled
+                                                )
+                                            )
+                                        }
                                     )
                                 }
                             }
-                        )
+                        }
                     }
                 }
             }
         }
 
-        // Enable Full Screen Reminder Switch
+        // 2. Evening Schedule Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.NightsStay,
+                            contentDescription = null,
+                            tint = Color(0xFF1E88E5),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Evening Zikir (Yamma)",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Switch(
+                        checked = eveningEnabled,
+                        onCheckedChange = { checked ->
+                            eveningEnabled = checked
+                            MandatoryAdhkarManager.saveSchedule(
+                                context,
+                                com.example.receiver.MandatorySchedule(
+                                    id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
+                                    title = "Evening Zikir",
+                                    category = "Morning & Evening",
+                                    hour = eveningHour,
+                                    minute = eveningMin,
+                                    durationMinutes = eveningDuration,
+                                    enabled = checked
+                                )
+                            )
+                        }
+                    )
+                }
+
+                if (eveningEnabled) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Start Time:", style = MaterialTheme.typography.bodySmall)
+                        OutlinedButton(
+                            onClick = {
+                                android.app.TimePickerDialog(
+                                    context,
+                                    { _, h, m ->
+                                        eveningHour = h
+                                        eveningMin = m
+                                        MandatoryAdhkarManager.saveSchedule(
+                                            context,
+                                            com.example.receiver.MandatorySchedule(
+                                                id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
+                                                title = "Evening Zikir",
+                                                category = "Morning & Evening",
+                                                hour = h,
+                                                minute = m,
+                                                durationMinutes = eveningDuration,
+                                                enabled = eveningEnabled
+                                            )
+                                        )
+                                    },
+                                    eveningHour,
+                                    eveningMin,
+                                    false
+                                ).show()
+                            },
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            val amPm = if (eveningHour >= 12) "PM" else "AM"
+                            val h12 = if (eveningHour % 12 == 0) 12 else eveningHour % 12
+                            Text(
+                                text = String.format("%02d:%02d %s", h12, eveningMin, amPm),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Duration:", style = MaterialTheme.typography.bodySmall)
+                        Box {
+                            OutlinedButton(
+                                onClick = { isEveningDurExpanded = true },
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text("$eveningDuration min", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, modifier = Modifier.padding(start = 2.dp))
+                            }
+                            DropdownMenu(
+                                expanded = isEveningDurExpanded,
+                                onDismissRequest = { isEveningDurExpanded = false }
+                            ) {
+                                listOf(3, 5, 10, 15, 20, 30).forEach { mins ->
+                                    DropdownMenuItem(
+                                        text = { Text("$mins minutes") },
+                                        onClick = {
+                                            eveningDuration = mins
+                                            isEveningDurExpanded = false
+                                            MandatoryAdhkarManager.saveSchedule(
+                                                context,
+                                                com.example.receiver.MandatorySchedule(
+                                                    id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
+                                                    title = "Evening Zikir",
+                                                    category = "Morning & Evening",
+                                                    hour = eveningHour,
+                                                    minute = eveningMin,
+                                                    durationMinutes = mins,
+                                                    enabled = eveningEnabled
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. After Isha / Night Schedule Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Bedtime,
+                            contentDescription = null,
+                            tint = Color(0xFF7E57C2),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "After Isha / Night Zikir",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Switch(
+                        checked = ishaEnabled,
+                        onCheckedChange = { checked ->
+                            ishaEnabled = checked
+                            MandatoryAdhkarManager.saveSchedule(
+                                context,
+                                com.example.receiver.MandatorySchedule(
+                                    id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
+                                    title = "After Isha Zikir",
+                                    category = "Sleeping & Waking Up",
+                                    hour = ishaHour,
+                                    minute = ishaMin,
+                                    durationMinutes = ishaDuration,
+                                    enabled = checked
+                                )
+                            )
+                        }
+                    )
+                }
+
+                if (ishaEnabled) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Start Time:", style = MaterialTheme.typography.bodySmall)
+                        OutlinedButton(
+                            onClick = {
+                                android.app.TimePickerDialog(
+                                    context,
+                                    { _, h, m ->
+                                        ishaHour = h
+                                        ishaMin = m
+                                        MandatoryAdhkarManager.saveSchedule(
+                                            context,
+                                            com.example.receiver.MandatorySchedule(
+                                                id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
+                                                title = "After Isha Zikir",
+                                                category = "Sleeping & Waking Up",
+                                                hour = h,
+                                                minute = m,
+                                                durationMinutes = ishaDuration,
+                                                enabled = ishaEnabled
+                                            )
+                                        )
+                                    },
+                                    ishaHour,
+                                    ishaMin,
+                                    false
+                                ).show()
+                            },
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            val amPm = if (ishaHour >= 12) "PM" else "AM"
+                            val h12 = if (ishaHour % 12 == 0) 12 else ishaHour % 12
+                            Text(
+                                text = String.format("%02d:%02d %s", h12, ishaMin, amPm),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Duration:", style = MaterialTheme.typography.bodySmall)
+                        Box {
+                            OutlinedButton(
+                                onClick = { isIshaDurExpanded = true },
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text("$ishaDuration min", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, modifier = Modifier.padding(start = 2.dp))
+                            }
+                            DropdownMenu(
+                                expanded = isIshaDurExpanded,
+                                onDismissRequest = { isIshaDurExpanded = false }
+                            ) {
+                                listOf(3, 5, 10, 15, 20).forEach { mins ->
+                                    DropdownMenuItem(
+                                        text = { Text("$mins minutes") },
+                                        onClick = {
+                                            ishaDuration = mins
+                                            isIshaDurExpanded = false
+                                            MandatoryAdhkarManager.saveSchedule(
+                                                context,
+                                                com.example.receiver.MandatorySchedule(
+                                                    id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
+                                                    title = "After Isha Zikir",
+                                                    category = "Sleeping & Waking Up",
+                                                    hour = ishaHour,
+                                                    minute = ishaMin,
+                                                    durationMinutes = mins,
+                                                    enabled = ishaEnabled
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sound & Vibration Options
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Fullscreen,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "Enable Full Screen Reminder",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text("Alarm Sound & Chimes", style = MaterialTheme.typography.bodyMedium)
             Switch(
-                checked = fullscreenEnabled,
-                onCheckedChange = { checked ->
-                    fullscreenEnabled = checked
-                    prefs.edit().putBoolean(MandatoryAdhkarManager.KEY_FULLSCREEN_ENABLED, checked).apply()
+                checked = soundEnabled,
+                onCheckedChange = {
+                    soundEnabled = it
+                    prefs.edit().putBoolean(MandatoryAdhkarManager.KEY_SOUND_ENABLED, it).apply()
                 }
             )
         }
 
-        // Overlay (Display Over Other Apps) Permission Banner for Auto-Open
-        val canDrawOverlays = remember {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                android.provider.Settings.canDrawOverlays(context)
-            } else {
-                true
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Vibration Alert", style = MaterialTheme.typography.bodyMedium)
+            Switch(
+                checked = vibrationEnabled,
+                onCheckedChange = {
+                    vibrationEnabled = it
+                    prefs.edit().putBoolean(MandatoryAdhkarManager.KEY_VIBRATION_ENABLED, it).apply()
+                }
+            )
         }
 
-        var hasOverlayPermission by remember { mutableStateOf(canDrawOverlays) }
-
+        // RELIABLE REMINDER SETUP & BATTERY OPTIMIZATION BANNER
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp),
+                .padding(top = 4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (hasOverlayPermission) {
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                containerColor = if (hasBatteryExemption) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
                 } else {
-                    MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                    MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.45f)
                 }
             ),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(14.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = if (hasOverlayPermission) Icons.Default.CheckCircle else Icons.Default.OpenInNew,
+                        imageVector = if (hasBatteryExemption) Icons.Default.CheckCircle else Icons.Default.BatteryAlert,
                         contentDescription = null,
-                        tint = if (hasOverlayPermission) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
+                        tint = if (hasBatteryExemption) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
                     Text(
-                        text = if (hasOverlayPermission) "Bude Kai Tsaye Yana Aiki (Auto-Open Active)" else "Bada Izinin Bude Kan Wasu Manhajoji",
+                        text = if (hasBatteryExemption) "Reliable Reminders Active ✓" else "Allow Reliable Background Reminders",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -2922,17 +2997,71 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                 }
 
                 Text(
-                    text = if (hasOverlayPermission) {
-                        "Wannan zai sa manhajar ta bude kai tsaye a kan wayarka ko da kana cikin wani aiki ko wata manhaja dazarar lokacin Azkar yayi."
+                    text = if (hasBatteryExemption) {
+                        "Battery optimizations are configured so your scheduled Zikir sessions will trigger punctually on Samsung, Tecno, Infinix, Xiaomi and other devices."
                     } else {
-                        "Domin manhajar ta iya bude shafin Azkar kai tsaye ko da kana cikin amfani da wata manhaja (kamar WhatsApp ko Chrome), danna nan don kunna izinin."
+                        "Many phone manufacturers (Samsung, Xiaomi, Tecno, Infinix, Oppo, Vivo) aggressively sleep background tasks. Exclude Noor Zikir from battery restrictions to guarantee on-time sessions."
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     Button(
+                        onClick = {
+                            try {
+                                val intent = Intent(
+                                    android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                                    Uri.parse("package:${context.packageName}")
+                                ).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {
+                                try {
+                                    val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Allow Reliable Reminders (Battery Setup)",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                // Exact Alarms setting if restricted
+                if (!canScheduleExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    OutlinedButton(
+                        onClick = {
+                            try {
+                                val intent = Intent(
+                                    android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                    Uri.parse("package:${context.packageName}")
+                                ).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Grant Exact Alarm Permission", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // Display Over Apps (Overlay)
+                if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    OutlinedButton(
                         onClick = {
                             try {
                                 val intent = Intent(
@@ -2942,46 +3071,31 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 }
                                 context.startActivity(intent)
-                            } catch (_: Exception) {
-                                try {
-                                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                    context.startActivity(intent)
-                                } catch (_: Exception) {}
-                            }
+                            } catch (_: Exception) {}
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Kunna Izinin Bude Kai Tsaye (Allow Auto-Popup)",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
+                        Text("Allow Direct Screen Popup (Overlay)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
                 // Test Trigger Button
-                OutlinedButton(
+                Button(
                     onClick = {
-                        Toast.makeText(context, "Testing Auto-Open in 3 seconds. Switch to another app!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Testing Scheduled Zikir Session in 3 seconds...", Toast.LENGTH_LONG).show()
                         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            com.example.receiver.MandatoryAdhkarManager.triggerTestNow(context, "MORNING")
+                            MandatoryAdhkarManager.triggerTestNow(context, MandatoryAdhkarManager.SCHEDULE_ID_MORNING)
                         }, 3000L)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Gwada Bude Kai Tsaye (Test Auto-Open Now - 3s)",
+                        text = "Test Scheduled Session Now (3s)",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
+                        fontSize = 13.sp
                     )
                 }
             }
