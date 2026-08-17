@@ -1,5 +1,6 @@
 package com.example
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.data.local.DuaDatabase
 import com.example.data.repository.DuaRepository
+import com.example.receiver.OneSignalHelper
 import com.example.ui.DuaViewModel
 import com.example.ui.DuaViewModelFactory
 import com.example.ui.components.InterstitialAdHelper
@@ -23,6 +25,8 @@ import com.example.ui.theme.MyApplicationTheme
 import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
+  private var viewModel: DuaViewModel? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
@@ -42,18 +46,43 @@ class MainActivity : ComponentActivity() {
     val repository = DuaRepository(database.duaDao(), lifecycleScope)
     val sharedPrefs = getSharedPreferences("hisnul_muslim_prefs", MODE_PRIVATE)
     val factory = DuaViewModelFactory(repository, sharedPrefs)
-    val viewModel = ViewModelProvider(this, factory)[DuaViewModel::class.java]
+    val vm = ViewModelProvider(this, factory)[DuaViewModel::class.java]
+    this.viewModel = vm
+
+    // Handle deep link / push notification extras
+    handleIntentExtras(intent, vm)
 
     setContent {
-      val isDarkTheme by viewModel.isDarkTheme.collectAsStateWithLifecycle()
+      val isDarkTheme by vm.isDarkTheme.collectAsStateWithLifecycle()
 
       MyApplicationTheme(darkTheme = isDarkTheme) {
         MainScreen(
-          viewModel = viewModel,
+          viewModel = vm,
           isDarkTheme = isDarkTheme,
-          onToggleTheme = { viewModel.toggleDarkTheme(it) }
+          onToggleTheme = { vm.toggleDarkTheme(it) }
         )
       }
+    }
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    viewModel?.let { handleIntentExtras(intent, it) }
+  }
+
+  private fun handleIntentExtras(intent: Intent?, vm: DuaViewModel) {
+    if (intent == null) return
+    val targetDuaId = intent.getIntExtra("target_dua_id", -1).takeIf { it != -1 }
+      ?: intent.getIntExtra("dua_id", -1).takeIf { it != -1 }
+    val targetCategory = intent.getStringExtra("target_category")
+      ?: intent.getStringExtra("category")
+
+    if (targetDuaId != null) {
+      vm.setTargetDuaId(targetDuaId)
+    }
+    if (!targetCategory.isNullOrBlank()) {
+      vm.selectCategory(targetCategory)
     }
   }
 }

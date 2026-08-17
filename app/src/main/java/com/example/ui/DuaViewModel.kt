@@ -120,6 +120,7 @@ class DuaViewModel(
     fun setLanguage(language: String) {
         _selectedLanguage.value = language
         sharedPrefs.edit().putString("selected_language", language).apply()
+        com.example.receiver.OneSignalHelper.setUserLanguageTag(language)
     }
 
     fun setArabicFontSize(size: Float) {

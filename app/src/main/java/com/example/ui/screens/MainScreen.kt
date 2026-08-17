@@ -2063,6 +2063,7 @@ fun OnboardingLanguageSelection(
     ) { isGranted ->
         hasNotificationPermission = isGranted
         if (isGranted) {
+            com.example.receiver.OneSignalHelper.optInPush(context)
             Toast.makeText(context, "Notifications enabled ✓", Toast.LENGTH_SHORT).show()
         }
     }
