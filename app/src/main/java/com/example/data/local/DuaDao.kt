@@ -33,7 +33,7 @@ interface DuaDao {
     @Query("UPDATE duas SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun updateFavorite(id: Int, isFavorite: Boolean)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDuas(duas: List<DuaEntity>)
 
     @Query("SELECT COUNT(*) FROM duas")

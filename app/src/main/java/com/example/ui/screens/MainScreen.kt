@@ -1860,7 +1860,11 @@ fun HomeTab(
                 CategoryGridItem(AppLocalizer.getCategoryName("Greetings & Social", selectedLanguage), "Greetings & Social", "💬", Icons.Default.Chat),
                 CategoryGridItem(AppLocalizer.getCategoryName("Rain & Wind", selectedLanguage), "Rain & Wind", "🌧️", Icons.Default.Cloud),
                 CategoryGridItem(AppLocalizer.getCategoryName("Market & Shopping", selectedLanguage), "Market & Shopping", "🛒", Icons.Default.ShoppingCart),
-                CategoryGridItem(AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage), "Grave & Funeral", "⚰️", Icons.Default.HourglassEmpty)
+                CategoryGridItem(AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage), "Grave & Funeral", "⚰️", Icons.Default.HourglassEmpty),
+                CategoryGridItem(AppLocalizer.getCategoryName("Fasting & Ramadan", selectedLanguage), "Fasting & Ramadan", "🌙", Icons.Default.NightsStay),
+                CategoryGridItem(AppLocalizer.getCategoryName("Hajj & Umrah", selectedLanguage), "Hajj & Umrah", "🕋", Icons.Default.LocationOn),
+                CategoryGridItem(AppLocalizer.getCategoryName("Marriage & Family", selectedLanguage), "Marriage & Family", "💍", Icons.Default.Favorite),
+                CategoryGridItem(AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage), "Repentance & Seeking Forgiveness", "🧎", Icons.Default.Refresh)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

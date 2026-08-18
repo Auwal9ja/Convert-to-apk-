@@ -61,7 +61,11 @@ class DuaViewModel(
     ) { query, category, all ->
         var list = all
         if (category != null) {
-            list = list.filter { it.category == category }
+            list = list.filter { 
+                it.category.equals(category, ignoreCase = true) ||
+                (category == "Marriage & Family" && (it.category == "Family & Marriage" || it.category == "Marriage & Family")) ||
+                (category == "Repentance & Seeking Forgiveness" && (it.category == "Repentance & Istighfar" || it.category == "Repentance & Seeking Forgiveness"))
+            }
         }
         if (query.isNotEmpty()) {
             val q = query.trim()

@@ -21,6 +21,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "Kasuwa & Saye-saye"
                 "Protection & Evil Eye" -> "Kariya & Kariyar Shaidan"
                 "Greetings & Social" -> "Gaisuwa & Salati"
+                "Fasting & Ramadan" -> "Azumi & Watan Ramadana"
+                "Hajj & Umrah" -> "Aikin Hajji & Umra"
+                "Marriage & Family" -> "Aure & Iyali"
+                "Repentance & Seeking Forgiveness" -> "Tuba & Neman Gafara"
                 else -> category
             }
             "Yoruba" -> when (category) {
@@ -40,6 +44,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "Ọjà & Ríra-Nǹkan"
                 "Protection & Evil Eye" -> "Ààbò & Ìṣeṣe"
                 "Greetings & Social" -> "Kíkíni & Sọláti"
+                "Fasting & Ramadan" -> "Àwẹ̀ & Oṣù Rámádánì"
+                "Hajj & Umrah" -> "Hajj & Umrah (Ẹsẹ-isin)"
+                "Marriage & Family" -> "Igbeyawo & Ẹbi"
+                "Repentance & Seeking Forgiveness" -> "Ironupiwada & Tọrọ Idariji"
                 else -> category
             }
             "Igbo" -> when (category) {
@@ -59,6 +67,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "Ahịa & Ịzụ Ihe"
                 "Protection & Evil Eye" -> "Nchebe & Ihe Ọjọọ"
                 "Greetings & Social" -> "Ekene & Salawat"
+                "Fasting & Ramadan" -> "Ibu Ọnụ & Ọnwa Ramadan"
+                "Hajj & Umrah" -> "Hajj & Umrah"
+                "Marriage & Family" -> "Alụmdi na Nwunye & Ezinụlọ"
+                "Repentance & Seeking Forgiveness" -> "Nchegharị & Ịrịọ Mgbaghara"
                 else -> category
             }
             "Spanish" -> when (category) {
@@ -78,6 +90,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "Mercado y Compras"
                 "Protection & Evil Eye" -> "Protección y Refugio"
                 "Greetings & Social" -> "Saludos y Bendiciones"
+                "Fasting & Ramadan" -> "Ayuno y Ramadán"
+                "Hajj & Umrah" -> "Hayy y Umrah (Peregrinación)"
+                "Marriage & Family" -> "Matrimonio y Familia"
+                "Repentance & Seeking Forgiveness" -> "Arrepentimiento y Perdón"
                 else -> category
             }
             "French" -> when (category) {
@@ -97,6 +113,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "Marché et Achats"
                 "Protection & Evil Eye" -> "Protection et Refuge"
                 "Greetings & Social" -> "Salutations et Bénédictions"
+                "Fasting & Ramadan" -> "Jeûne et Ramadan"
+                "Hajj & Umrah" -> "Hajj et Omra (Pèlerinage)"
+                "Marriage & Family" -> "Mariage et Famille"
+                "Repentance & Seeking Forgiveness" -> "Repentir et Demande de Pardon"
                 else -> category
             }
             "Arabic" -> when (category) {
@@ -116,6 +136,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "أذكار السوق والشراء"
                 "Protection & Evil Eye" -> "أذكار الحماية والرُّقية"
                 "Greetings & Social" -> "أذكار التحية والسلام"
+                "Fasting & Ramadan" -> "أذكار الصيام وشهر رمضان"
+                "Hajj & Umrah" -> "أذكار الحج والعمرة"
+                "Marriage & Family" -> "أذكار النكاح والأسرة"
+                "Repentance & Seeking Forgiveness" -> "التوبة والاستغفار"
                 else -> category
             }
             "Urdu" -> when (category) {
@@ -135,6 +159,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "بازار اور خرید و فروخت"
                 "Protection & Evil Eye" -> "حفاظت اور دعائیں"
                 "Greetings & Social" -> "سلام اور درود"
+                "Fasting & Ramadan" -> "روزہ اور ماہِ رمضان"
+                "Hajj & Umrah" -> "حج اور عمرہ کے اذکار"
+                "Marriage & Family" -> "شادی اور خاندان"
+                "Repentance & Seeking Forgiveness" -> "توبہ اور استغفار"
                 else -> category
             }
             "Chinese" -> when (category) {
@@ -154,6 +182,10 @@ object AppLocalizer {
                 "Market & Shopping" -> "集市与购物"
                 "Protection & Evil Eye" -> "庇护与祈求"
                 "Greetings & Social" -> "问候与祝福"
+                "Fasting & Ramadan" -> "封斋与斋月赞词"
+                "Hajj & Umrah" -> "朝觐与副朝赞词"
+                "Marriage & Family" -> "婚姻与家庭"
+                "Repentance & Seeking Forgiveness" -> "悔罪与求恕"
                 else -> category
             }
             else -> category
@@ -774,6 +806,37 @@ object AppLocalizer {
         81 -> "Good End in All Matters"
         82 -> "Steadfastness & Sound Heart"
         83 -> "Refuge from Unbeneficial Knowledge"
+        101 -> "Introduction: Core Pillars & Virtues of Hajj & Umrah"
+        102 -> "The 3 Types of Hajj (Tamattu', Qiran, and Ifrad)"
+        103 -> "How to Perform Umrah Step-by-Step (4 Stages)"
+        104 -> "The Great Talbiyah of Hajj & Umrah"
+        117 -> "Dua for Righteous Spouse & Children"
+        118 -> "Dua for Family Harmony and Reconciliation"
+        119 -> "Dua for Offspring to Keep Up Prayers"
+        120 -> "Dua for Blessed and Pure Offspring"
+        121 -> "Sayyidul Istighfar (Master Forgiveness)"
+        122 -> "Dua for Complete Forgiveness in Sujood"
+        123 -> "Dua of Abu Bakr Taught by Prophet (ﷺ) for Salah"
+        124 -> "Dua of Adam and Hawwa (Repentance)"
+        125 -> "Dua of Yunus in the Whale (Relief from Sins)"
+        126 -> "Comprehensive Prophetic Istighfar for All Sins"
+        127 -> "Expiation of Gatherings (Kaffarat al-Majlis)"
+        128 -> "Salat at-Tawbah (Prayer of Repentance)"
+        129 -> "Hajj Step 1: Niyyah & Ihram at Miqat"
+        130 -> "Hajj Step 2: Prohibitions & Sunnah Warnings"
+        131 -> "Hajj Step 3: Entering Sacred Mosque & Seeing Ka'abah"
+        132 -> "Hajj Step 4: Starting Tawaf at Black Stone"
+        133 -> "Hajj Step 5: Behind Maqam Ibrahim & Zamzam"
+        134 -> "Hajj Step 6: Ascending Safa & Sa'ee"
+        135 -> "Hajj Step 7: Shaving (Halq) or Trimming (Taqseer)"
+        136 -> "Hajj Step 8: Day of Tarwiyah at Mina (8th)"
+        137 -> "Hajj Step 9: Standing at Arafah (9th - Peak of Hajj)"
+        138 -> "Hajj Step 10: Night at Muzdalifah & Mash'ar"
+        139 -> "Hajj Step 11: Day of Eid - Stoning, Sacrifice & Shaving"
+        140 -> "Hajj Step 12: Days of Tashreeq - Stoning 3 Jamarat"
+        141 -> "Hajj Step 13: Farewell Tawaf (Tawaf al-Wada')"
+        142 -> "Supplication for Past, Future, Secret & Open Sins"
+        143 -> "Common Innovations & Violations to Avoid in Hajj"
         else -> null
     }
 
@@ -859,6 +922,37 @@ object AppLocalizer {
         81 -> "Addu'ar Samun Kyakkyawan Karshe"
         82 -> "Addu'ar Neman Tabbatuwa a Kan Gaskiya"
         83 -> "Addu'ar Neman Tsari daga Ilimi Maras Amfani"
+        101 -> "Gabatarwa: Rukunai, Sharudda da Falalar Hajji & Umra"
+        102 -> "Nau'o'in Hajji 3 (Tamattu', Qiran, da Ifrad)"
+        103 -> "Koyon Aikin Umra Daki-daki (Matakai 4 na Umra)"
+        104 -> "Talbiyar Hajji da Umra (Labbayk Allahumma Labbayk)"
+        117 -> "Addu'ar Neman Mata da Zuriya ta Gari"
+        118 -> "Addu'ar Hadin Kan Iyali da Zaman Lafiya"
+        119 -> "Addu'ar Zuriya Masu Tsayar da Sallah"
+        120 -> "Addu'ar Zakariya ta Neman Zuriya mai Albarka"
+        121 -> "Sayyidul Istighfar (Jagoran Neman Gafara)"
+        122 -> "Addu'ar Neman Cikakkiyar Gafara a Sujada"
+        123 -> "Addu'ar Abubakar da Annabi (SAW) Ya Koya Masa a Sallah"
+        124 -> "Addu'ar Tuba ta Annabi Adam da Hauwa'u"
+        125 -> "Addu'ar Annabi Yunus a Cikin Kifi (Yaye Damuwa & Zunubi)"
+        126 -> "Kyakkyawar Addu'ar Annabi (SAW) ta Neman Gafarar Duk Zunubai"
+        127 -> "Kaffarar Zama a Wuri (Kaffaratul Majlis)"
+        128 -> "Sallar Tuba (Salatut Taubah) da Neman Afuwa"
+        129 -> "Mataki 1: Niyya da Ɗaure Harami a Miqati"
+        130 -> "Mataki 2: Abubuwan da Aka Haramta wa Mai Harami da Gargadi"
+        131 -> "Mataki 3: Shiga Masallacin Harami da Kallon Ka'aba"
+        132 -> "Mataki 4: Fara Dawafi a Hajarul Aswad da Addu'ar Zagaye"
+        133 -> "Mataki 5: Sallah a Bayan Maqamu Ibrahim da Shan Zamzam"
+        134 -> "Mataki 6: Hawa Dutsen Safa da Addu'ar Sa'ayi"
+        135 -> "Mataki 7: Aske Kai (Halq) ko Rage Gashi (Taqseer)"
+        136 -> "Mataki 8: Ranar Tarwiya a Mina (8 ga Dhul-Hijjah)"
+        137 -> "Mataki 9: Tsayuwar Arfa (9 ga Dhul-Hijjah - Jigon Hajji)"
+        138 -> "Mataki 10: Kwana a Muzdalifa da Zikiri a Mash'arul Haram"
+        139 -> "Mataki 11: Ranar Sallah (10 ga Dhul-Hijjah) - Jifa, Hadaya da Aski"
+        140 -> "Mataki 12: Kwanakin Tashriq (11, 12, 13) - Jifan Gunkai 3"
+        141 -> "Mataki 13: Dawafin Bankwana (Tawaf al-Wada') da Komawa Gida"
+        142 -> "Addu'ar Neman Gafarar Zunubai da Suka Wuce, na Gaba, na Boye da na Bayyane"
+        143 -> "Kura-kurai da Bidi'o'in da ke Saba wa Sunnah a Guje Musu a Hajji"
         else -> null
     }
 
