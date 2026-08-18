@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -52,24 +53,45 @@ fun AutoScrollSideBar(
 
     val density = LocalDensity.current
 
-    // Calculate current speed factor: from 0.0x to 4.5x
+    // Calculate current speed factor with deep focus on ultra-low slow-reading speeds (0.05x to 3.5x)
     val speedMultiplier = remember(thumbFraction, isPlaying) {
-        if (!isPlaying || thumbFraction <= 0.03f) 0.0f
-        else 0.4f + (thumbFraction * 4.1f) // Range: 0.4x to 4.5x
+        if (!isPlaying || thumbFraction <= 0.02f) 0.0f
+        else {
+            val norm = ((thumbFraction - 0.02f) / 0.98f).coerceIn(0f, 1f)
+            // Piecewise smooth power curve to give maximum resolution and fine-tuning to calm low speeds
+            if (norm < 0.35f) {
+                // 0.05x to 0.45x (Ultra-gentle tranquil reading speeds - Natsuwa Mode)
+                val subNorm = norm / 0.35f
+                0.05f + (subNorm * 0.40f)
+            } else if (norm < 0.70f) {
+                // 0.45x to 1.5x (Comfortable reading speeds)
+                val subNorm = (norm - 0.35f) / 0.35f
+                0.45f + (subNorm * 1.05f)
+            } else {
+                // 1.5x to 3.5x (Faster overview)
+                val subNorm = (norm - 0.70f) / 0.30f
+                1.50f + (subNorm * 2.00f)
+            }
+        }
     }
 
-    // Convert speed to pixels scrolled per frame (~60fps)
+    // Convert speed to pixels scrolled per frame (~60fps) with ultra-fine sub-pixel precision
     val effectiveSpeedPx = remember(speedMultiplier, density) {
         if (speedMultiplier <= 0f) 0f
-        else speedMultiplier * 1.5f * density.density
+        else speedMultiplier * 0.75f * density.density
     }
 
-    // Auto-scroll continuous coroutine loop
+    // Auto-scroll continuous coroutine loop with ultra-smooth delta delivery
     LaunchedEffect(isPlaying, effectiveSpeedPx) {
         if (isPlaying && effectiveSpeedPx > 0f) {
+            var subPixelAccumulator = 0f
             while (isActive) {
                 if (listState.canScrollForward) {
-                    listState.dispatchRawDelta(effectiveSpeedPx)
+                    subPixelAccumulator += effectiveSpeedPx
+                    if (subPixelAccumulator >= 0.25f) {
+                        listState.dispatchRawDelta(subPixelAccumulator)
+                        subPixelAccumulator = 0f
+                    }
                     delay(16) // ~60fps smooth scrolling
                 } else {
                     // Reached end of the list: pause and reset thumb
@@ -180,26 +202,74 @@ fun AutoScrollSideBar(
                     enter = fadeIn() + scaleIn(),
                     exit = fadeOut() + scaleOut()
                 ) {
+                    val isSlowCalmMode = isPlaying && speedMultiplier <= 0.35f
+                    val badgeBorderColor = when {
+                        !isPlaying -> Color(0xFF888888)
+                        isSlowCalmMode -> Color(0xFF10B981) // Emerald Green for peaceful slow reading (Natsuwa)
+                        speedMultiplier <= 1.2f -> Color(0xFFD4AF37) // Gold for normal comfortable speed
+                        else -> Color(0xFFE91E63) // Vibrant Pink for fast scrolling
+                    }
+
+                    val badgeTextColor = when {
+                        !isPlaying -> Color(0xFF888888)
+                        isSlowCalmMode -> Color(0xFF10B981)
+                        speedMultiplier <= 1.2f -> Color(0xFFD4AF37)
+                        else -> Color(0xFFE91E63)
+                    }
+
+                    val speedText = when {
+                        !isPlaying -> "⏸"
+                        speedMultiplier < 0.10f -> "%.2fx".format(speedMultiplier)
+                        else -> "%.1fx".format(speedMultiplier)
+                    }
+
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isDarkTheme) Color(0xFF16251E).copy(alpha = 0.92f)
+                        color = if (isDarkTheme) Color(0xFF11221A).copy(alpha = 0.94f)
                                 else Color(0xFFFFFFFF).copy(alpha = 0.95f),
                         shadowElevation = 4.dp,
                         modifier = Modifier
                             .padding(end = 6.dp)
+                            .clickable {
+                                // Tap badge to cycle through gentle presets or pause
+                                if (!isPlaying || speedMultiplier > 1.2f) {
+                                    // Start with tranquil slow reading mode (0.1x)
+                                    thumbFraction = 0.08f
+                                    isPlaying = true
+                                } else if (speedMultiplier <= 0.35f) {
+                                    // Step to comfortable reading (0.6x)
+                                    thumbFraction = 0.40f
+                                    isPlaying = true
+                                } else {
+                                    // Pause
+                                    isPlaying = false
+                                    thumbFraction = 0.0f
+                                }
+                            }
                             .border(
-                                1.dp,
-                                if (isPlaying) Color(0xFFE91E63) else Color(0xFFD4AF37),
+                                1.2.dp,
+                                badgeBorderColor,
                                 RoundedCornerShape(12.dp)
                             )
                     ) {
-                        Text(
-                            text = if (isPlaying) "%.1fx".format(speedMultiplier) else "⏸",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = if (isPlaying) Color(0xFFE91E63) else Color(0xFF888888),
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(
+                                text = speedText,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = badgeTextColor
+                            )
+                            if (isSlowCalmMode) {
+                                Text(
+                                    text = "🍃",
+                                    fontSize = 9.sp
+                                )
+                            }
+                        }
                     }
                 }
 
