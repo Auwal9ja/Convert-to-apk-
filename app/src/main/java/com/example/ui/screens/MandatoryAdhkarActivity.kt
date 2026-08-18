@@ -27,6 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NightsStay
@@ -249,10 +252,23 @@ fun MandatoryAdhkarSessionScreen(
         }
     }
 
-    val selectedLanguage = remember {
+    val sharedPrefs = remember {
         context.getSharedPreferences("hisnul_muslim_prefs", Context.MODE_PRIVATE)
-            .getString("selected_language", "English") ?: "English"
     }
+
+    val selectedLanguage = remember {
+        sharedPrefs.getString("selected_language", "English") ?: "English"
+    }
+
+    var arabicFontSize by remember {
+        mutableFloatStateOf(sharedPrefs.getFloat("arabic_font_size", 24f))
+    }
+
+    var textFontSize by remember {
+        mutableFloatStateOf(sharedPrefs.getFloat("text_font_size", 16f))
+    }
+
+    var isFontSizeDialogVisible by remember { mutableStateOf(false) }
 
     val deepGreen = Color(0xFF0D5C3A)
     val emeraldAccent = Color(0xFF1B8A5A)
@@ -282,7 +298,7 @@ fun MandatoryAdhkarSessionScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // App Brand & Badge
+                    // App Brand & Badge & Font Resize Button
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -326,7 +342,7 @@ fun MandatoryAdhkarSessionScreen(
                             else -> if (isCompleted) "Completed ✓" else "Focus Mode Active"
                         }
 
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
                                 text = "NOOR ZIKIR",
                                 fontSize = 12.sp,
@@ -336,34 +352,67 @@ fun MandatoryAdhkarSessionScreen(
                             )
                             Text(
                                 text = localizedScheduleTitle,
-                                fontSize = 20.sp,
+                                fontSize = 19.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                         }
 
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (isCompleted) deepGreen else Color(0xFF2C3E2D),
-                            border = BorderStroke(1.dp, if (isCompleted) goldAccent else emeraldAccent)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            // Font Resize Quick Pill Button (Left/Center Indicator)
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFF16382B),
+                                border = BorderStroke(1.dp, goldAccent.copy(alpha = 0.6f)),
+                                modifier = Modifier.clickable { isFontSizeDialogVisible = true }
                             ) {
-                                Icon(
-                                    imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.Lock,
-                                    contentDescription = null,
-                                    tint = if (isCompleted) goldAccent else Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Text(
-                                    text = focusModeBadge,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.FormatSize,
+                                        contentDescription = "Adjust Font Size",
+                                        tint = goldAccent,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Text(
+                                        text = "A⁻ / A⁺",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = goldAccent
+                                    )
+                                }
+                            }
+
+                            // Focus Mode Indicator
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isCompleted) deepGreen else Color(0xFF2C3E2D),
+                                border = BorderStroke(1.dp, if (isCompleted) goldAccent else emeraldAccent)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = if (isCompleted) goldAccent else Color.White,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = focusModeBadge,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
@@ -578,7 +627,7 @@ fun MandatoryAdhkarSessionScreen(
                                     Text(
                                         text = displayTitle,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
+                                        fontSize = (textFontSize * 1.05f).sp,
                                         color = goldAccent,
                                         modifier = Modifier.weight(1f)
                                     )
@@ -605,9 +654,9 @@ fun MandatoryAdhkarSessionScreen(
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                                     Text(
                                         text = dua.arabic,
-                                        fontSize = 24.sp,
+                                        fontSize = arabicFontSize.sp,
                                         fontFamily = FontFamily.Serif,
-                                        lineHeight = 38.sp,
+                                        lineHeight = (arabicFontSize * 1.55f).sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White,
                                         textAlign = TextAlign.Right,
@@ -620,8 +669,8 @@ fun MandatoryAdhkarSessionScreen(
                                 // Transliteration
                                 Text(
                                     text = dua.transliteration,
-                                    fontSize = 14.sp,
-                                    lineHeight = 21.sp,
+                                    fontSize = (textFontSize * 0.95f).sp,
+                                    lineHeight = (textFontSize * 1.5f).sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color(0xFF8CE0B7)
                                 )
@@ -631,8 +680,8 @@ fun MandatoryAdhkarSessionScreen(
                                 // Translation
                                 Text(
                                     text = translationText,
-                                    fontSize = 13.5.sp,
-                                    lineHeight = 20.sp,
+                                    fontSize = textFontSize.sp,
+                                    lineHeight = (textFontSize * 1.5f).sp,
                                     fontWeight = FontWeight.Normal,
                                     color = Color(0xFFD0DFDA)
                                 )
@@ -641,7 +690,8 @@ fun MandatoryAdhkarSessionScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
                                         text = "$referencePrefix: $localizedReference",
-                                        fontSize = 12.sp,
+                                        fontSize = (textFontSize * 0.88f).sp,
+                                        lineHeight = (textFontSize * 1.35f).sp,
                                         fontWeight = FontWeight.Medium,
                                         color = goldAccent
                                     )
@@ -814,4 +864,259 @@ fun MandatoryAdhkarSessionScreen(
             textContentColor = Color.White
         )
     }
+
+    // Font Size Adjuster Dialog for Mandatory Adhkar
+    if (isFontSizeDialogVisible) {
+        MandatoryFontSizeDialog(
+            selectedLanguage = selectedLanguage,
+            arabicFontSize = arabicFontSize,
+            textFontSize = textFontSize,
+            onArabicFontSizeChange = { newSize ->
+                arabicFontSize = newSize
+                sharedPrefs.edit().putFloat("arabic_font_size", newSize).apply()
+            },
+            onTextFontSizeChange = { newSize ->
+                textFontSize = newSize
+                sharedPrefs.edit().putFloat("text_font_size", newSize).apply()
+            },
+            onDismiss = { isFontSizeDialogVisible = false }
+        )
+    }
+}
+
+@Composable
+fun MandatoryFontSizeDialog(
+    selectedLanguage: String,
+    arabicFontSize: Float,
+    textFontSize: Float,
+    onArabicFontSizeChange: (Float) -> Unit,
+    onTextFontSizeChange: (Float) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val goldAccent = Color(0xFFD4AF37)
+    val deepGreen = Color(0xFF0D5C3A)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF0F261E),
+        textContentColor = Color.White,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.FormatSize,
+                contentDescription = null,
+                tint = goldAccent,
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = {
+            Text(
+                text = AppLocalizer.getString("adjust_font_size", selectedLanguage),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Section 1: Translation / Transliteration / Reference
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = AppLocalizer.getString("translation_transliteration_reference", selectedLanguage),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF8CE0B7)
+                        )
+                        Text(
+                            text = "${textFontSize.toInt()} sp",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = goldAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (textFontSize > 12f) onTextFontSizeChange(textFontSize - 1f)
+                            },
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = Color(0xFF1B4234),
+                                contentColor = goldAccent
+                            ),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+
+                        Slider(
+                            value = textFontSize,
+                            onValueChange = onTextFontSizeChange,
+                            valueRange = 12f..28f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = goldAccent,
+                                activeTrackColor = goldAccent,
+                                inactiveTrackColor = Color(0xFF1B4234)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (textFontSize < 28f) onTextFontSizeChange(textFontSize + 1f)
+                            },
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = Color(0xFF1B4234),
+                                contentColor = goldAccent
+                            ),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+                    }
+
+                    // Live Preview Box for Translations
+                    Surface(
+                        color = Color(0xFF091A14),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color(0xFF1B4234)),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                text = "Bismillāh (Transliteration)",
+                                fontSize = (textFontSize * 0.95f).sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF8CE0B7)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "In the name of Allah (Translation)",
+                                fontSize = textFontSize.sp,
+                                color = Color(0xFFD0DFDA)
+                            )
+                        }
+                    }
+                }
+
+                // Section 2: Arabic Script
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = AppLocalizer.getString("arabic_script_size", selectedLanguage),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = goldAccent
+                        )
+                        Text(
+                            text = "${arabicFontSize.toInt()} sp",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = goldAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (arabicFontSize > 18f) onArabicFontSizeChange(arabicFontSize - 1f)
+                            },
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = Color(0xFF1B4234),
+                                contentColor = goldAccent
+                            ),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+
+                        Slider(
+                            value = arabicFontSize,
+                            onValueChange = onArabicFontSizeChange,
+                            valueRange = 18f..42f,
+                            colors = SliderDefaults.colors(
+                                thumbColor = goldAccent,
+                                activeTrackColor = goldAccent,
+                                inactiveTrackColor = Color(0xFF1B4234)
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (arabicFontSize < 42f) onArabicFontSizeChange(arabicFontSize + 1f)
+                            },
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = Color(0xFF1B4234),
+                                contentColor = goldAccent
+                            ),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+                    }
+
+                    // Live Preview Box for Arabic
+                    Surface(
+                        color = Color(0xFF091A14),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color(0xFF1B4234)),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                    ) {
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                            Text(
+                                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                                fontSize = arabicFontSize.sp,
+                                fontFamily = FontFamily.Serif,
+                                lineHeight = (arabicFontSize * 1.55f).sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = deepGreen)
+            ) {
+                Text(
+                    text = AppLocalizer.getString("close", selectedLanguage),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+    )
 }
