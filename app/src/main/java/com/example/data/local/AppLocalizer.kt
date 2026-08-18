@@ -249,6 +249,10 @@ object AppLocalizer {
                 "more_apps_subtitle" -> "Bincika sauran manhajojinmu ingantattu a Google Play Store"
                 "developer_apps" -> "Manhajojin Mawallafi"
                 "settings_title" -> "Saituna & Shirye-shirye"
+                "translation_transliteration_reference" -> "Fassara, Lafazi da Madogara"
+                "arabic_script_size" -> "Girman Rubutun Larabci"
+                "reset_default_size" -> "Mayar da Tsari na Asali"
+                "font_sync_hint" -> "Yana sauya fassara, karatun lafazi da madogara lokaci guda"
                 else -> key
             }
             "Yoruba" -> when (key) {
@@ -705,6 +709,10 @@ object AppLocalizer {
                 "more_apps_subtitle" -> "Explore and download more apps on Google Play Store"
                 "developer_apps" -> "Developer Applications"
                 "settings_title" -> "Settings"
+                "translation_transliteration_reference" -> "Translation, Transliteration & Reference"
+                "arabic_script_size" -> "Arabic Script Size"
+                "reset_default_size" -> "Reset Default Sizes"
+                "font_sync_hint" -> "Adjusts translation, transliteration, and reference font sizes simultaneously"
                 else -> key
             }
         }

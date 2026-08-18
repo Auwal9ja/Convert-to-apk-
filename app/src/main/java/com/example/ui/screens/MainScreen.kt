@@ -122,6 +122,7 @@ fun MainScreen(
     val favorites by viewModel.favoriteDuas.collectAsStateWithLifecycle()
     val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
     val arabicFontSize by viewModel.arabicFontSize.collectAsStateWithLifecycle()
+    val textFontSize by viewModel.textFontSize.collectAsStateWithLifecycle()
     val completedDuas by viewModel.completedDuas.collectAsStateWithLifecycle()
     val isFirstLaunch by viewModel.isFirstLaunch.collectAsStateWithLifecycle()
 
@@ -138,6 +139,44 @@ fun MainScreen(
         Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                navigationIcon = {
+                    Surface(
+                        onClick = { isFontSizeDialogVisible = true },
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                        border = BorderStroke(
+                            1.2.dp,
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFFD4AF37),
+                                    MaterialTheme.colorScheme.primary
+                                )
+                            )
+                        ),
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .testTag("top_left_font_resizer")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FormatSize,
+                                contentDescription = "Resize Font (A- / A+)",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(17.dp)
+                            )
+                            Text(
+                                text = "A⁻ / A⁺",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                },
                 title = {
                     Text(
                         AppLocalizer.getString("app_title", selectedLanguage),
@@ -271,15 +310,41 @@ fun MainScreen(
                         }
                     }
 
-                    IconButton(
+                    Surface(
                         onClick = { isFontSizeDialogVisible = true },
-                        modifier = Modifier.testTag("font_size_selector")
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                        border = BorderStroke(
+                            1.2.dp,
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFFD4AF37),
+                                    MaterialTheme.colorScheme.primary
+                                )
+                            )
+                        ),
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .testTag("font_size_selector")
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.FormatSize,
-                            contentDescription = "Resize Text Font",
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FormatSize,
+                                contentDescription = "Resize Text Font",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(17.dp)
+                            )
+                            Text(
+                                text = "Aa",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
 
                     IconButton(
@@ -386,6 +451,7 @@ fun MainScreen(
                     speaker = speaker,
                     selectedLanguage = selectedLanguage,
                     arabicFontSize = arabicFontSize,
+                    textFontSize = textFontSize,
                     completedDuas = completedDuas,
                     isDarkTheme = isDarkTheme
                 )
@@ -395,6 +461,7 @@ fun MainScreen(
                     speaker = speaker,
                     selectedLanguage = selectedLanguage,
                     arabicFontSize = arabicFontSize,
+                    textFontSize = textFontSize,
                     completedDuas = completedDuas,
                     isDarkTheme = isDarkTheme
                 )
@@ -409,117 +476,278 @@ fun MainScreen(
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatSize,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(AppLocalizer.getString("text_and_font_size", selectedLanguage))
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.FormatSize,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Column {
+                        Text(
+                            text = AppLocalizer.getString("text_and_font_size", selectedLanguage),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = AppLocalizer.getString("font_sync_hint", selectedLanguage),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             },
             text = {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Arabic, Transliteration & Translation",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-
-                    // Live preview of Arabic text
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                        Text(
-                            text = "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-                            fontSize = arabicFontSize.sp,
-                            fontFamily = FontFamily.Serif,
-                            lineHeight = (arabicFontSize * 1.5f).sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 6.dp)
+                    // Quick Preset Chips (Karami, Daidai, Babba, Babba Sosai)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        val presets = listOf(
+                            Triple(if (selectedLanguage == "Hausa") "Ƙarami" else "Small", 13.5f, 20f),
+                            Triple(if (selectedLanguage == "Hausa") "Daidai" else "Normal", 16f, 24f),
+                            Triple(if (selectedLanguage == "Hausa") "Babba" else "Large", 19f, 29f),
+                            Triple(if (selectedLanguage == "Hausa") "Babba Sosai" else "X-Large", 23f, 35f)
                         )
+                        presets.forEach { (label, tSize, aSize) ->
+                            val isSelected = (textFontSize.toInt() == tSize.toInt() && arabicFontSize.toInt() == aSize.toInt())
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    viewModel.setTextFontSize(tSize)
+                                    viewModel.setArabicFontSize(aSize)
+                                },
+                                label = {
+                                    Text(
+                                        text = label,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
 
-                    // Live preview of Transliteration text
-                    Text(
-                        text = "Al-hamdu lillahi rabbil-'alamin",
-                        fontSize = (arabicFontSize * 0.583f).sp,
-                        lineHeight = (arabicFontSize * 0.85f).sp,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isDarkTheme) MaterialTheme.colorScheme.secondary else Color(0xFF8B5E00),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp)
-                    )
-
-                    // Live preview of Translation text
-                    Text(
-                        text = "All praise is due to Allah, Lord of all the worlds",
-                        fontSize = (arabicFontSize * 0.583f).sp,
-                        lineHeight = (arabicFontSize * 0.85f).sp,
-                        fontWeight = FontWeight.Normal,
-                        color = if (isDarkTheme) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF1F2937),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    Row(
+                    // Live preview container Card
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
-                        Text(
-                            text = "A-",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Slider(
-                            value = arabicFontSize,
-                            onValueChange = { viewModel.setArabicFontSize(it) },
-                            valueRange = 18f..40f,
-                            modifier = Modifier.weight(1f).padding(horizontal = 8.dp).testTag("font_size_slider")
-                        )
-                        Text(
-                            text = "A+",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Live preview of Arabic text
+                            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                                Text(
+                                    text = "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
+                                    fontSize = arabicFontSize.sp,
+                                    fontFamily = FontFamily.Serif,
+                                    lineHeight = (arabicFontSize * 1.5f).sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 6.dp)
+                                )
+                            }
+
+                            // Live preview of Transliteration text
+                            Text(
+                                text = "Al-hamdu lillahi rabbil-'alamin",
+                                fontSize = (textFontSize * 0.97f).sp,
+                                lineHeight = (textFontSize * 1.45f).sp,
+                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isDarkTheme) MaterialTheme.colorScheme.secondary else Color(0xFF1B5E20),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp)
+                            )
+
+                            // Live preview of Translation text
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Godiya ta tabbata ga Allah Ubangijin talikai" else "All praise is due to Allah, Lord of all the worlds",
+                                fontSize = textFontSize.sp,
+                                lineHeight = (textFontSize * 1.5f).sp,
+                                fontWeight = FontWeight.Medium,
+                                color = if (isDarkTheme) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF111111),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp)
+                            )
+
+                            // Live preview of Reference
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Madogara: Suratul Fatiha 1:2" else "Reference: Surah Al-Fatihah 1:2",
+                                    fontSize = (textFontSize * 0.88f).sp,
+                                    lineHeight = (textFontSize * 1.35f).sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Arabic: ${arabicFontSize.toInt()} sp",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Translation: ${(arabicFontSize * 0.583f).toInt()} sp",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Slider 1: Translation, Transliteration & Reference
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = AppLocalizer.getString("translation_transliteration_reference", selectedLanguage),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${textFontSize.toInt()} sp",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            // Left indicator & Decrement button (A-)
+                            FilledTonalIconButton(
+                                onClick = {
+                                    if (textFontSize > 12f) viewModel.setTextFontSize(textFontSize - 1f)
+                                },
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                            }
+
+                            Slider(
+                                value = textFontSize,
+                                onValueChange = { viewModel.setTextFontSize(it) },
+                                valueRange = 12f..28f,
+                                modifier = Modifier.weight(1f).testTag("text_font_size_slider")
+                            )
+
+                            // Right indicator & Increment button (A+)
+                            FilledTonalIconButton(
+                                onClick = {
+                                    if (textFontSize < 28f) viewModel.setTextFontSize(textFontSize + 1f)
+                                },
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Slider 2: Arabic Script Font Size
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = AppLocalizer.getString("arabic_script_size", selectedLanguage),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Text(
+                                text = "${arabicFontSize.toInt()} sp",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            // Left indicator & Decrement button (A-)
+                            FilledTonalIconButton(
+                                onClick = {
+                                    if (arabicFontSize > 18f) viewModel.setArabicFontSize(arabicFontSize - 1f)
+                                },
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.secondary)
+                            }
+
+                            Slider(
+                                value = arabicFontSize,
+                                onValueChange = { viewModel.setArabicFontSize(it) },
+                                valueRange = 18f..42f,
+                                modifier = Modifier.weight(1f).testTag("arabic_font_size_slider")
+                            )
+
+                            // Right indicator & Increment button (A+)
+                            FilledTonalIconButton(
+                                onClick = {
+                                    if (arabicFontSize < 42f) viewModel.setArabicFontSize(arabicFontSize + 1f)
+                                },
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.secondary)
+                            }
+                        }
                     }
                 }
             },
-            confirmButton = {
+            dismissButton = {
                 TextButton(
+                    onClick = {
+                        viewModel.setTextFontSize(16f)
+                        viewModel.setArabicFontSize(24f)
+                    }
+                ) {
+                    Text(AppLocalizer.getString("reset_default_size", selectedLanguage))
+                }
+            },
+            confirmButton = {
+                Button(
                     onClick = { isFontSizeDialogVisible = false }
                 ) {
                     Text(AppLocalizer.getString("done", selectedLanguage))
@@ -537,6 +765,8 @@ fun MainScreen(
             onToggleTheme = onToggleTheme,
             arabicFontSize = arabicFontSize,
             onArabicFontSizeChange = { viewModel.setArabicFontSize(it) },
+            textFontSize = textFontSize,
+            onTextFontSizeChange = { viewModel.setTextFontSize(it) },
             context = context
         )
     }
@@ -553,6 +783,7 @@ fun LibraryTab(
     speaker: DuaSpeaker,
     selectedLanguage: String,
     arabicFontSize: Float,
+    textFontSize: Float = 16f,
     completedDuas: Set<Int>,
     isDarkTheme: Boolean = false
 ) {
@@ -712,7 +943,8 @@ fun LibraryTab(
                                 speaker = speaker,
                                 selectedLanguage = selectedLanguage,
                                 getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
-                                arabicFontSize = arabicFontSize
+                                arabicFontSize = arabicFontSize,
+                                textFontSize = textFontSize
                             )
                         }
                     }
@@ -723,6 +955,7 @@ fun LibraryTab(
                             searchQuery = searchQuery,
                             selectedLanguage = selectedLanguage,
                             arabicFontSize = arabicFontSize,
+                            textFontSize = textFontSize,
                             isCompleted = completedDuas.contains(dua.id),
                             isDarkTheme = isDarkTheme,
                             isTarget = targetDuaId == dua.id,
@@ -754,6 +987,7 @@ fun FavoritesTab(
     speaker: DuaSpeaker,
     selectedLanguage: String,
     arabicFontSize: Float,
+    textFontSize: Float = 16f,
     completedDuas: Set<Int>,
     isDarkTheme: Boolean = false
 ) {
@@ -819,6 +1053,7 @@ fun FavoritesTab(
                             speaker = speaker,
                             selectedLanguage = selectedLanguage,
                             arabicFontSize = arabicFontSize,
+                            textFontSize = textFontSize,
                             isCompleted = completedDuas.contains(dua.id),
                             isDarkTheme = isDarkTheme,
                             onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
@@ -1139,6 +1374,7 @@ fun DuaItemCard(
     searchQuery: String = "",
     selectedLanguage: String = "English",
     arabicFontSize: Float = 24f,
+    textFontSize: Float = 16f,
     isCompleted: Boolean = false,
     isDarkTheme: Boolean = false,
     isTarget: Boolean = false,
@@ -1305,8 +1541,8 @@ fun DuaItemCard(
             // Transliteration text (phonetics)
             Text(
                 text = dua.transliteration,
-                fontSize = 15.5.sp,
-                lineHeight = 24.sp,
+                fontSize = (textFontSize * 0.97f).sp,
+                lineHeight = (textFontSize * 1.5f).sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (isDarkTheme) MaterialTheme.colorScheme.secondary else Color(0xFF1B5E20)
             )
@@ -1317,8 +1553,8 @@ fun DuaItemCard(
             Column {
                 Text(
                     text = translationText,
-                    fontSize = 15.sp,
-                    lineHeight = 23.sp,
+                    fontSize = textFontSize.sp,
+                    lineHeight = (textFontSize * 1.5f).sp,
                     fontWeight = FontWeight.Medium,
                     color = if (isDarkTheme) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF111111)
                 )
@@ -1377,8 +1613,8 @@ fun DuaItemCard(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = referenceText,
-                            fontSize = 13.5.sp,
-                            lineHeight = 20.sp,
+                            fontSize = (textFontSize * 0.88f).sp,
+                            lineHeight = (textFontSize * 1.35f).sp,
                             fontWeight = FontWeight.Medium,
                             color = if (isDarkTheme) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF1B5E20)
                         )
@@ -1451,7 +1687,8 @@ fun FeaturedCard(
     speaker: DuaSpeaker,
     selectedLanguage: String,
     getTranslation: suspend (DuaEntity, String) -> Pair<String, String>,
-    arabicFontSize: Float = 24f
+    arabicFontSize: Float = 24f,
+    textFontSize: Float = 16f
 ) {
     val playingArabicId by speaker.isPlaying.collectAsStateWithLifecycle()
     val isPlaying = playingArabicId == 2 // ID 2 for Master Forgiveness
@@ -1576,8 +1813,8 @@ fun FeaturedCard(
             Column {
                 Text(
                     text = translationText,
-                    fontSize = (arabicFontSize * 0.583f).sp,
-                    lineHeight = (arabicFontSize * 0.85f).sp,
+                    fontSize = textFontSize.sp,
+                    lineHeight = (textFontSize * 1.5f).sp,
                     style = MaterialTheme.typography.bodyMedium,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
@@ -2745,6 +2982,8 @@ fun SettingsDialog(
     onToggleTheme: (Boolean) -> Unit,
     arabicFontSize: Float,
     onArabicFontSizeChange: (Float) -> Unit,
+    textFontSize: Float = 16f,
+    onTextFontSizeChange: (Float) -> Unit = {},
     context: Context
 ) {
     var isLangDropdownExpanded by remember { mutableStateOf(false) }
@@ -2916,8 +3155,70 @@ fun SettingsDialog(
                     )
                 }
 
-                // Arabic Font Size Slider
+                // Text & Font Size Controls
                 Column(modifier = Modifier.fillMaxWidth()) {
+                    // Translation / Transliteration / Reference Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FormatSize,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = AppLocalizer.getString("translation_transliteration_reference", selectedLanguage),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Text(
+                            text = "${textFontSize.toInt()} sp",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (textFontSize > 12f) onTextFontSizeChange(textFontSize - 1f)
+                            },
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                        }
+
+                        Slider(
+                            value = textFontSize,
+                            onValueChange = onTextFontSizeChange,
+                            valueRange = 12f..28f,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (textFontSize < 28f) onTextFontSizeChange(textFontSize + 1f)
+                            },
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Arabic Script Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -2933,24 +3234,48 @@ fun SettingsDialog(
                                 tint = MaterialTheme.colorScheme.secondary
                             )
                             Text(
-                                text = AppLocalizer.getString("text_and_font_size", selectedLanguage),
-                                style = MaterialTheme.typography.bodyLarge,
+                                text = AppLocalizer.getString("arabic_script_size", selectedLanguage),
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                         Text(
                             text = "${arabicFontSize.toInt()} sp",
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.secondary,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Slider(
-                        value = arabicFontSize,
-                        onValueChange = onArabicFontSizeChange,
-                        valueRange = 18f..40f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (arabicFontSize > 18f) onArabicFontSizeChange(arabicFontSize - 1f)
+                            },
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Text("A-", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.secondary)
+                        }
+
+                        Slider(
+                            value = arabicFontSize,
+                            onValueChange = onArabicFontSizeChange,
+                            valueRange = 18f..42f,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        FilledTonalIconButton(
+                            onClick = {
+                                if (arabicFontSize < 42f) onArabicFontSizeChange(arabicFontSize + 1f)
+                            },
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Text("A+", fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.secondary)
+                        }
+                    }
                 }
 
                 // Mandatory Adhkar Settings Section

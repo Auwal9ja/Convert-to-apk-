@@ -42,6 +42,9 @@ class DuaViewModel(
     private val _arabicFontSize = MutableStateFlow(sharedPrefs.getFloat("arabic_font_size", 24f))
     val arabicFontSize: StateFlow<Float> = _arabicFontSize.asStateFlow()
 
+    private val _textFontSize = MutableStateFlow(sharedPrefs.getFloat("text_font_size", 16f))
+    val textFontSize: StateFlow<Float> = _textFontSize.asStateFlow()
+
     private val _isDarkTheme = MutableStateFlow(sharedPrefs.getBoolean("is_dark_theme", false))
     val isDarkTheme: StateFlow<Boolean> = _isDarkTheme.asStateFlow()
 
@@ -130,6 +133,11 @@ class DuaViewModel(
     fun setArabicFontSize(size: Float) {
         _arabicFontSize.value = size
         sharedPrefs.edit().putFloat("arabic_font_size", size).apply()
+    }
+
+    fun setTextFontSize(size: Float) {
+        _textFontSize.value = size
+        sharedPrefs.edit().putFloat("text_font_size", size).apply()
     }
 
     fun completeFirstLaunch() {
