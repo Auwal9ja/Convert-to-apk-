@@ -20,7 +20,7 @@ abstract class DuaDatabase : RoomDatabase() {
                     DuaDatabase::class.java,
                     "hisnul_muslim_database"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance
                 instance

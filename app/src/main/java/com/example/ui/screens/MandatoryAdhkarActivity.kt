@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
+import com.example.data.local.DuaTranslationLocalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -527,12 +528,14 @@ fun MandatoryAdhkarSessionScreen(
             ) {
                 items(duasList, key = { it.id }) { dua ->
                     val displayTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
-                    val translationText = when (selectedLanguage) {
-                        "Hausa" -> if (dua.translationHausa.isNotBlank()) dua.translationHausa else dua.translation
-                        "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
-                        "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
-                        else -> dua.translation
-                    }
+                    val translationText = DuaTranslationLocalization.getLocalizedTranslation(
+                        dua.id,
+                        selectedLanguage,
+                        dua.translation,
+                        dua.translationHausa,
+                        dua.translationYoruba,
+                        dua.translationIgbo
+                    )
 
                     val localizedReference = if (selectedLanguage == "English") {
                         dua.reference

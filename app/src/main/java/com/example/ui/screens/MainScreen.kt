@@ -61,6 +61,8 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import com.example.R
 import com.example.data.local.AppLocalizer
 import com.example.data.local.DuaEntity
+import com.example.data.local.DuaTranslationLocalization
+import com.example.data.local.DuaReferenceLocalization
 import com.example.receiver.MandatoryAdhkarManager
 import com.example.receiver.ReminderReceiver
 import androidx.compose.foundation.rememberScrollState
@@ -68,6 +70,7 @@ import androidx.compose.foundation.verticalScroll
 import com.example.ui.DuaViewModel
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
+import com.example.ui.components.OneSignalSettingsCard
 import java.util.Calendar
 
 // Play Store redirection link for downloading more apps from developer
@@ -1118,12 +1121,14 @@ fun DuaItemCard(
     val context = LocalContext.current
 
     var translationText by remember(dua.id, selectedLanguage) {
-        val initial = when (selectedLanguage) {
-            "Hausa" -> if (dua.translationHausa.isNotEmpty()) dua.translationHausa else dua.translation
-            "Yoruba" -> if (dua.translationYoruba.isNotEmpty()) dua.translationYoruba else dua.translation
-            "Igbo" -> if (dua.translationIgbo.isNotEmpty()) dua.translationIgbo else dua.translation
-            else -> dua.translation
-        }
+        val initial = DuaTranslationLocalization.getLocalizedTranslation(
+            dua.id,
+            selectedLanguage,
+            dua.translation,
+            dua.translationHausa,
+            dua.translationYoruba,
+            dua.translationIgbo
+        )
         mutableStateOf(initial)
     }
 
@@ -1131,17 +1136,35 @@ fun DuaItemCard(
         val initialRef = if (selectedLanguage == "English") {
             dua.reference
         } else {
-            com.example.data.local.DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
+            DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
         }
         mutableStateOf(initialRef)
     }
 
     var isTranslating by remember(dua.id, selectedLanguage) {
-        mutableStateOf(selectedLanguage != "English")
+        mutableStateOf(false)
     }
 
     LaunchedEffect(dua.id, selectedLanguage) {
-        if (selectedLanguage != "English") {
+        val localTrans = DuaTranslationLocalization.getLocalizedTranslation(
+            dua.id,
+            selectedLanguage,
+            dua.translation,
+            dua.translationHausa,
+            dua.translationYoruba,
+            dua.translationIgbo
+        )
+        val localRef = if (selectedLanguage == "English") {
+            dua.reference
+        } else {
+            DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
+        }
+
+        translationText = localTrans
+        referenceText = localRef
+
+        if (selectedLanguage != "English" && localTrans == dua.translation) {
+            isTranslating = true
             try {
                 val result = getTranslation(dua, selectedLanguage)
                 translationText = result.first
@@ -1151,10 +1174,6 @@ fun DuaItemCard(
             } finally {
                 isTranslating = false
             }
-        } else {
-            translationText = dua.translation
-            referenceText = dua.reference
-            isTranslating = false
         }
     }
 
@@ -1410,37 +1429,48 @@ fun FeaturedCard(
     val isPlaying = playingArabicId == 2 // ID 2 for Master Forgiveness
 
     var translationText by remember(dua?.id, selectedLanguage) {
-        val initial = when (selectedLanguage) {
-            "Hausa" -> "Ya Allah, Kai ne Ubangijina, babu abin bautawa da gaskiya sai Kai. Ka halitta ni kuma ni bawanKa ne. Ina kan alkawarinKa da wa'adinKa gwargwadon ikona. Ina neman tsari da Kai daga sharrin abin da na aikata. Ina amsa muku ni'imarKa a kaina, kuma ina amsa zunubina. Don haka Ka gafarta mini, domin babu mai gafarta zunubai sai Kai."
-            "Yoruba" -> "Allāhu n bẹ, Iwọ ni Ọlọrun mi, ko si ọba miran ti a gbọdọ jọsin fun afi Iwọ. Iwọ lo da mi, emi si ni ẹru Rẹ. Mo duro lori adehun Rẹ ati ileri Rẹ gẹgẹ bi agbara mi ti mọ. Mo tọrọ isadi lọdọ Rẹ lọwọ aburu ohun ti mo ṣe. Mo jẹwọ awọn ikẹ Rẹ lori mi, mo si jẹwọ ẹṣẹ mi. Nitori naa, rọ mi lẹṣẹ ji, nitori ko si ẹni ti n rọ ẹṣẹ ji afi Iwọ."
-            "Igbo" -> "Chineke, Gị bụ Onyenwe m, ọ dịghị onye kwesịrị ofufe ma ọ bụghị Gị. Gị kere m, mụ onwe m bụkwa ohu Gị. Adị m n'elu nkwekọrịta Gị na nkwa Gị dịka ike m siri gaa. Ana m achọ ebe mgbaba n'aka Gị pụọ n'ihe ọjọọ niile m mere. Ana m ekwupụta amara Gị n'ebe m nọ, ana m ekwupụtakwa mmehie m. Ya mere meere m ebere gbaghara m, n'ihi na ọ dịghị onye ọzọ nwere ike ịgbaghara mmehie ma ọ bụghị Gị."
-            else -> "O Allah, You are my Lord, there is none worthy of worship but You. You created me and I am your slave, and I am faithful to my covenant and my promise so far as I am able..."
+        val initial = if (dua != null) {
+            DuaTranslationLocalization.getLocalizedTranslation(
+                dua.id,
+                selectedLanguage,
+                dua.translation,
+                dua.translationHausa,
+                dua.translationYoruba,
+                dua.translationIgbo
+            )
+        } else {
+            "O Allah, You are my Lord, there is none worthy of worship but You..."
         }
         mutableStateOf(initial)
     }
 
     var isTranslating by remember(dua?.id, selectedLanguage) {
-        mutableStateOf(dua != null && selectedLanguage != "English" && selectedLanguage != "Hausa" && selectedLanguage != "Yoruba" && selectedLanguage != "Igbo")
+        mutableStateOf(false)
     }
 
     LaunchedEffect(dua, selectedLanguage) {
-        if (dua != null && selectedLanguage != "English") {
-            try {
-                val result = getTranslation(dua, selectedLanguage)
-                translationText = result.first
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                isTranslating = false
+        if (dua != null) {
+            val localTrans = DuaTranslationLocalization.getLocalizedTranslation(
+                dua.id,
+                selectedLanguage,
+                dua.translation,
+                dua.translationHausa,
+                dua.translationYoruba,
+                dua.translationIgbo
+            )
+            translationText = localTrans
+
+            if (selectedLanguage != "English" && localTrans == dua.translation) {
+                isTranslating = true
+                try {
+                    val result = getTranslation(dua, selectedLanguage)
+                    translationText = result.first
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    isTranslating = false
+                }
             }
-        } else if (dua != null) {
-            translationText = when (selectedLanguage) {
-                "Hausa" -> if (dua.translationHausa.isNotEmpty()) dua.translationHausa else dua.translation
-                "Yoruba" -> if (dua.translationYoruba.isNotEmpty()) dua.translationYoruba else dua.translation
-                "Igbo" -> if (dua.translationIgbo.isNotEmpty()) dua.translationIgbo else dua.translation
-                else -> dua.translation
-            }
-            isTranslating = false
         }
     }
 
@@ -2893,6 +2923,9 @@ fun SettingsDialog(
 
                 // Mandatory Adhkar Settings Section
                 MandatoryAdhkarSettingsSection(context = context)
+
+                // OneSignal Push Notifications & Diagnostics Section
+                OneSignalSettingsCard(context = context, selectedLanguage = selectedLanguage)
             }
         },
         confirmButton = {

@@ -1,10 +1,17 @@
 package com.example.receiver
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.BuildConfig
 import com.example.MainActivity
+import com.example.R
 import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
@@ -43,6 +50,9 @@ object OneSignalHelper {
         }
 
         try {
+            OneSignal.Debug.logLevel = LogLevel.NONE
+            OneSignal.Debug.alertLevel = LogLevel.NONE
+
             val appId = getEffectiveAppId(context)
 
             if (!isValidAppId(appId)) {
@@ -50,9 +60,6 @@ object OneSignalHelper {
                 cleanStaleInvalidData(context)
                 return
             }
-
-            // Enable logs
-            OneSignal.Debug.logLevel = LogLevel.WARN
 
             OneSignal.initWithContext(context.applicationContext, appId)
             isInitialized = true
@@ -216,6 +223,79 @@ object OneSignalHelper {
             OneSignal.User.pushSubscription.id
         } catch (e: Exception) {
             null
+        }
+    }
+
+    /**
+     * Checks if OneSignal is currently initialized with a valid App ID.
+     */
+    fun isSdkInitialized(): Boolean = isInitialized
+
+    /**
+     * Checks if a valid OneSignal App ID is configured.
+     */
+    fun isConfigured(context: Context): Boolean {
+        val appId = getEffectiveAppId(context)
+        return isValidAppId(appId)
+    }
+
+    /**
+     * Retrieves the push token if available.
+     */
+    fun getPushToken(): String? {
+        if (!isInitialized) return null
+        return try {
+            OneSignal.User.pushSubscription.token
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Sends an immediate local test notification to verify notification channel, sound, and display.
+     */
+    fun sendTestLocalNotification(context: Context, title: String = "Noor Zikir - Test Notification", message: String = "Test notification successful! Your device is ready to receive reminders and adhkar.") {
+        try {
+            val channelId = "onesignal_test_channel"
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    channelId,
+                    "Noor Zikir Push Notifications",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Used for push notifications and instant reminders"
+                    enableVibration(true)
+                    setShowBadge(true)
+                }
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                9999,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+            )
+
+            val notification = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+
+            notificationManager.notify(777, notification)
+            Log.i(TAG, "Test notification delivered successfully.")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to send test notification", e)
         }
     }
 

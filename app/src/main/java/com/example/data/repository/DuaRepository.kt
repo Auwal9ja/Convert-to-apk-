@@ -4,6 +4,8 @@ import com.example.data.local.DuaDao
 import com.example.data.local.DuaEntity
 import com.example.data.local.DuaDatabaseSeeder
 import com.example.data.local.DuaTranslationEntity
+import com.example.data.local.DuaTranslationLocalization
+import com.example.data.local.DuaReferenceLocalization
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -32,48 +34,35 @@ class DuaRepository(private val duaDao: DuaDao, private val externalScope: Corou
             return@withContext Pair(dua.translation, dua.reference)
         }
 
-        // Try cache
+        // Get immediate localized translation and reference from our built-in provider
+        val builtInTranslation = DuaTranslationLocalization.getLocalizedTranslation(
+            dua.id, language, dua.translation,
+            dua.translationHausa, dua.translationYoruba, dua.translationIgbo
+        )
+        val builtInReference = DuaReferenceLocalization.getLocalizedReference(dua.id, language) ?: dua.reference
+
+        // If we already have a specialized translation (not defaulting to English)
+        if (builtInTranslation.isNotEmpty() && builtInTranslation != dua.translation) {
+            return@withContext Pair(builtInTranslation, builtInReference)
+        }
+
+        // Try database cache (only if valid and not a stale English fallback)
         val cached = duaDao.getTranslation(dua.id, language)
-        if (cached != null) {
-            // If the cached reference is untranslated (still matches English) or empty,
-            // and we now have a valid API key, try upgrading to a full Gemini translation.
-            if ((cached.reference.isEmpty() || cached.reference == dua.reference) && GeminiTranslationService.hasApiKey()) {
-                val result = GeminiTranslationService.translateDua(dua, language)
-                if (result != null) {
-                    val entity = DuaTranslationEntity(dua.id, language, result.first, result.second)
-                    duaDao.insertTranslation(entity)
-                    return@withContext result
-                }
-            }
+        if (cached != null && cached.translation.isNotEmpty() && cached.translation != dua.translation) {
             return@withContext Pair(cached.translation, cached.reference)
         }
 
-        // Fetch from Gemini API
-        val result = GeminiTranslationService.translateDua(dua, language)
-        if (result != null) {
-            val entity = DuaTranslationEntity(dua.id, language, result.first, result.second)
-            duaDao.insertTranslation(entity)
-            return@withContext result
+        // Fetch from Gemini API if available
+        if (GeminiTranslationService.hasApiKey()) {
+            val result = GeminiTranslationService.translateDua(dua, language)
+            if (result != null) {
+                val entity = DuaTranslationEntity(dua.id, language, result.first, result.second)
+                duaDao.insertTranslation(entity)
+                return@withContext result
+            }
         }
 
-        // Fallback
-        val fallbackTranslation = when (language) {
-            "Hausa" -> if (dua.translationHausa.isNotEmpty()) dua.translationHausa else dua.translation
-            "Yoruba" -> if (dua.translationYoruba.isNotEmpty()) dua.translationYoruba else dua.translation
-            "Igbo" -> if (dua.translationIgbo.isNotEmpty()) dua.translationIgbo else dua.translation
-            else -> dua.translation
-        }
-        val fallbackReference = com.example.data.local.DuaReferenceLocalization.getLocalizedReference(dua.id, language) ?: dua.reference
-        
-        // Cache the offline fallback in the database so that it's read from the multilingual database next time
-        try {
-            val entity = DuaTranslationEntity(dua.id, language, fallbackTranslation, fallbackReference)
-            duaDao.insertTranslation(entity)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        
-        Pair(fallbackTranslation, fallbackReference)
+        Pair(builtInTranslation, builtInReference)
     }
 
     fun getDuasByCategory(category: String): Flow<List<DuaEntity>> {
@@ -88,3 +77,4 @@ class DuaRepository(private val duaDao: DuaDao, private val externalScope: Corou
         duaDao.updateFavorite(id, isFavorite)
     }
 }
+
