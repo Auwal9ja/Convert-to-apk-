@@ -71,6 +71,7 @@ import com.example.ui.DuaViewModel
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
 import com.example.ui.components.OneSignalSettingsCard
+import com.example.ui.components.AutoScrollSideBar
 import java.util.Calendar
 
 // Play Store redirection link for downloading more apps from developer
@@ -692,43 +693,55 @@ fun LibraryTab(
                 }
             }
 
-            LazyColumn(
-                state = listState,
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .weight(1f)
             ) {
-                if (searchQuery.isEmpty() && selectedCategory == null) {
-                    item {
-                        val featuredDua = duas.find { it.id == 2 }
-                        FeaturedCard(
-                            dua = featuredDua,
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 24.dp, top = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (searchQuery.isEmpty() && selectedCategory == null) {
+                        item {
+                            val featuredDua = duas.find { it.id == 2 }
+                            FeaturedCard(
+                                dua = featuredDua,
+                                speaker = speaker,
+                                selectedLanguage = selectedLanguage,
+                                getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                                arabicFontSize = arabicFontSize
+                            )
+                        }
+                    }
+                    items(duas, key = { it.id }) { dua ->
+                        DuaItemCard(
+                            dua = dua,
                             speaker = speaker,
+                            searchQuery = searchQuery,
                             selectedLanguage = selectedLanguage,
+                            arabicFontSize = arabicFontSize,
+                            isCompleted = completedDuas.contains(dua.id),
+                            isDarkTheme = isDarkTheme,
+                            isTarget = targetDuaId == dua.id,
+                            onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
                             getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
-                            arabicFontSize = arabicFontSize
+                            onFavoriteToggle = {
+                                viewModel.toggleFavorite(dua.id, dua.isFavorite)
+                            }
                         )
                     }
                 }
-                items(duas, key = { it.id }) { dua ->
-                    DuaItemCard(
-                        dua = dua,
-                        speaker = speaker,
-                        searchQuery = searchQuery,
-                        selectedLanguage = selectedLanguage,
-                        arabicFontSize = arabicFontSize,
-                        isCompleted = completedDuas.contains(dua.id),
-                        isDarkTheme = isDarkTheme,
-                        isTarget = targetDuaId == dua.id,
-                        onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
-                        getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
-                        onFavoriteToggle = {
-                            viewModel.toggleFavorite(dua.id, dua.isFavorite)
-                        }
-                    )
-                }
+
+                // Modern Draggable Auto-Scroll Side Slider
+                AutoScrollSideBar(
+                    listState = listState,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }
@@ -787,28 +800,43 @@ fun FavoritesTab(
                 }
             }
         } else {
-            LazyColumn(
+            val listState = rememberLazyListState()
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .weight(1f)
             ) {
-                items(favorites, key = { it.id }) { dua ->
-                    DuaItemCard(
-                        dua = dua,
-                        speaker = speaker,
-                        selectedLanguage = selectedLanguage,
-                        arabicFontSize = arabicFontSize,
-                        isCompleted = completedDuas.contains(dua.id),
-                        isDarkTheme = isDarkTheme,
-                        onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
-                        getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
-                        onFavoriteToggle = {
-                            viewModel.toggleFavorite(dua.id, dua.isFavorite)
-                        }
-                    )
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 24.dp, top = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(favorites, key = { it.id }) { dua ->
+                        DuaItemCard(
+                            dua = dua,
+                            speaker = speaker,
+                            selectedLanguage = selectedLanguage,
+                            arabicFontSize = arabicFontSize,
+                            isCompleted = completedDuas.contains(dua.id),
+                            isDarkTheme = isDarkTheme,
+                            onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
+                            getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                            onFavoriteToggle = {
+                                viewModel.toggleFavorite(dua.id, dua.isFavorite)
+                            }
+                        )
+                    }
                 }
+
+                // Modern Draggable Auto-Scroll Side Slider
+                AutoScrollSideBar(
+                    listState = listState,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

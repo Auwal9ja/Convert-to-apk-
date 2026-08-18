@@ -19,6 +19,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.example.ui.components.AutoScrollSideBar
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -518,129 +520,144 @@ fun MandatoryAdhkarSessionScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Recitation List
-            LazyColumn(
+            val listState = rememberLazyListState()
+
+            // Recitation List with Right-Side Draggable Auto-Scroll Controller Bar
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                    .fillMaxWidth()
             ) {
-                items(duasList, key = { it.id }) { dua ->
-                    val displayTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
-                    val translationText = DuaTranslationLocalization.getLocalizedTranslation(
-                        dua.id,
-                        selectedLanguage,
-                        dua.translation,
-                        dua.translationHausa,
-                        dua.translationYoruba,
-                        dua.translationIgbo
-                    )
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 24.dp, top = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    items(duasList, key = { it.id }) { dua ->
+                        val displayTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
+                        val translationText = DuaTranslationLocalization.getLocalizedTranslation(
+                            dua.id,
+                            selectedLanguage,
+                            dua.translation,
+                            dua.translationHausa,
+                            dua.translationYoruba,
+                            dua.translationIgbo
+                        )
 
-                    val localizedReference = if (selectedLanguage == "English") {
-                        dua.reference
-                    } else {
-                        DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
-                    }
+                        val localizedReference = if (selectedLanguage == "English") {
+                            dua.reference
+                        } else {
+                            DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
+                        }
 
-                    val referencePrefix = when (selectedLanguage) {
-                        "Hausa" -> "Madogara"
-                        "Yoruba" -> "Ìtọ́kasí"
-                        "Igbo" -> "Ebe nsinyere"
-                        "Arabic" -> "المرجع"
-                        "French" -> "Référence"
-                        "Spanish" -> "Referencia"
-                        "Urdu" -> "حوالہ"
-                        "Chinese" -> "出处"
-                        else -> "Ref"
-                    }
+                        val referencePrefix = when (selectedLanguage) {
+                            "Hausa" -> "Madogara"
+                            "Yoruba" -> "Ìtọ́kasí"
+                            "Igbo" -> "Ebe nsinyere"
+                            "Arabic" -> "المرجع"
+                            "French" -> "Référence"
+                            "Spanish" -> "Referencia"
+                            "Urdu" -> "حوالہ"
+                            "Chinese" -> "出处"
+                            else -> "Ref"
+                        }
 
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = darkCard),
-                        border = BorderStroke(1.dp, Color(0xFF224E3E))
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = displayTitle,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = goldAccent,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                val isPlaying = speaker.isPlaying.collectAsStateWithLifecycle().value == dua.id
-                                IconButton(
-                                    onClick = {
-                                        if (isPlaying) speaker.stop() else speaker.speakArabic(dua.id, dua.arabic)
-                                    },
-                                    modifier = Modifier.size(36.dp)
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(containerColor = darkCard),
+                            border = BorderStroke(1.dp, Color(0xFF224E3E))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Icon(
-                                        imageVector = if (isPlaying) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
-                                        contentDescription = "Recite Arabic",
-                                        tint = if (isPlaying) Color.Red else Color.White,
-                                        modifier = Modifier.size(20.dp)
+                                    Text(
+                                        text = displayTitle,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = goldAccent,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    val isPlaying = speaker.isPlaying.collectAsStateWithLifecycle().value == dua.id
+                                    IconButton(
+                                        onClick = {
+                                            if (isPlaying) speaker.stop() else speaker.speakArabic(dua.id, dua.arabic)
+                                        },
+                                        modifier = Modifier.size(36.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isPlaying) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                                            contentDescription = "Recite Arabic",
+                                            tint = if (isPlaying) Color.Red else Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // Arabic text
+                                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                                    Text(
+                                        text = dua.arabic,
+                                        fontSize = 24.sp,
+                                        fontFamily = FontFamily.Serif,
+                                        lineHeight = 38.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        textAlign = TextAlign.Right,
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 }
-                            }
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                                Spacer(modifier = Modifier.height(10.dp))
 
-                            // Arabic text
-                            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                                // Transliteration
                                 Text(
-                                    text = dua.arabic,
-                                    fontSize = 24.sp,
-                                    fontFamily = FontFamily.Serif,
-                                    lineHeight = 38.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    textAlign = TextAlign.Right,
-                                    modifier = Modifier.fillMaxWidth()
+                                    text = dua.transliteration,
+                                    fontSize = 14.sp,
+                                    lineHeight = 21.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF8CE0B7)
                                 )
-                            }
 
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // Transliteration
-                            Text(
-                                text = dua.transliteration,
-                                fontSize = 14.sp,
-                                lineHeight = 21.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF8CE0B7)
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Translation
-                            Text(
-                                text = translationText,
-                                fontSize = 13.5.sp,
-                                lineHeight = 20.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color(0xFFD0DFDA)
-                            )
-
-                            if (localizedReference.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(8.dp))
+
+                                // Translation
                                 Text(
-                                    text = "$referencePrefix: $localizedReference",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = goldAccent
+                                    text = translationText,
+                                    fontSize = 13.5.sp,
+                                    lineHeight = 20.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color(0xFFD0DFDA)
                                 )
+
+                                if (localizedReference.isNotBlank()) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "$referencePrefix: $localizedReference",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = goldAccent
+                                    )
+                                }
                             }
                         }
                     }
                 }
+
+                // Draggable Auto-Scroll Side Slider
+                AutoScrollSideBar(
+                    listState = listState,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = true,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
 
             BannerAd()
