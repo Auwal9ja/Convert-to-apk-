@@ -41,6 +41,9 @@ class MainActivity : ComponentActivity() {
     com.example.receiver.MandatoryAdhkarManager.recoverAndRescheduleAll(this, "APP_STARTUP")
     com.example.receiver.ReminderReceiver.rescheduleAllIfEnabled(this)
 
+    // Request push notification permission for OneSignal & daily reminders
+    OneSignalHelper.requestPushPermission(fallbackToSettings = false)
+
     // Initialize database, repository, and ViewModel using constructor injection
     val database = DuaDatabase.getDatabase(this)
     val repository = DuaRepository(database.duaDao(), lifecycleScope)

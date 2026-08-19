@@ -49,6 +49,7 @@ fun OneSignalSettingsCard(
     var currentAppId by remember { mutableStateOf(OneSignalHelper.getEffectiveAppId(context)) }
     var isSdkInit by remember { mutableStateOf(OneSignalHelper.isSdkInitialized()) }
     var subscriptionId by remember { mutableStateOf(OneSignalHelper.getSubscriptionId()) }
+    var pushToken by remember { mutableStateOf(OneSignalHelper.getPushToken()) }
     var isOptedIn by remember { mutableStateOf(OneSignalHelper.isOptedIn()) }
     var showAppIdDialog by remember { mutableStateOf(false) }
     var inputAppId by remember { mutableStateOf(if (OneSignalHelper.isConfigured(context)) currentAppId else "") }
@@ -320,6 +321,7 @@ fun OneSignalSettingsCard(
                 IconButton(
                     onClick = {
                         subscriptionId = OneSignalHelper.getSubscriptionId()
+                        pushToken = OneSignalHelper.getPushToken()
                         isSdkInit = OneSignalHelper.isSdkInitialized()
                         isOptedIn = OneSignalHelper.isOptedIn()
                         currentAppId = OneSignalHelper.getEffectiveAppId(context)

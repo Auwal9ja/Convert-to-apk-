@@ -1,6 +1,6 @@
 {
-  "name": "Noor zikir",
-  "description": "An elegant, lightweight, offline-first Noor zikir app with Arabic text, translations, search, favorites, audio TTS recitation, and daily reminders.",
+  "name": "Noor Zikir",
+  "description": "An elegant, lightweight, offline-first Noor Zikir app with Arabic text, translations, search, favorites, audio TTS recitation, and daily reminders.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

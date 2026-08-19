@@ -16,6 +16,8 @@ import com.onesignal.OneSignal
 import com.onesignal.debug.LogLevel
 import com.onesignal.notifications.INotificationClickEvent
 import com.onesignal.notifications.INotificationClickListener
+import com.onesignal.user.subscriptions.IPushSubscriptionObserver
+import com.onesignal.user.subscriptions.PushSubscriptionChangedState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,7 +52,7 @@ object OneSignalHelper {
         }
 
         try {
-            OneSignal.Debug.logLevel = LogLevel.NONE
+            OneSignal.Debug.logLevel = LogLevel.WARN
             OneSignal.Debug.alertLevel = LogLevel.NONE
 
             val appId = getEffectiveAppId(context)
@@ -64,6 +66,24 @@ object OneSignalHelper {
             OneSignal.initWithContext(context.applicationContext, appId)
             isInitialized = true
             Log.i(TAG, "OneSignal successfully initialized with App ID: $appId")
+
+            // Ensure push subscription is opted in
+            try {
+                OneSignal.User.pushSubscription.optIn()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error opting into push subscription: ${e.message}")
+            }
+
+            // Register Subscription State Observer
+            try {
+                OneSignal.User.pushSubscription.addObserver(object : IPushSubscriptionObserver {
+                    override fun onPushSubscriptionChange(state: PushSubscriptionChangedState) {
+                        Log.d(TAG, "Push subscription updated: ID=${state.current.id}, token=${state.current.token}, optedIn=${state.current.optedIn}")
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e(TAG, "Error adding push subscription observer: ${e.message}")
+            }
 
             // Register Push Notification Click / Deep Link Listener
             OneSignal.Notifications.addClickListener(object : INotificationClickListener {
