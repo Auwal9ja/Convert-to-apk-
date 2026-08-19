@@ -688,8 +688,21 @@ fun MandatoryAdhkarSessionScreen(
 
                                 if (localizedReference.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(8.dp))
+                                    val formattedRef = if (localizedReference.startsWith(referencePrefix, ignoreCase = true) ||
+                                        localizedReference.startsWith("Madogara", ignoreCase = true) ||
+                                        localizedReference.startsWith("Reference", ignoreCase = true) ||
+                                        localizedReference.startsWith("المرجع", ignoreCase = true) ||
+                                        localizedReference.startsWith("Référence", ignoreCase = true) ||
+                                        localizedReference.startsWith("Referencia", ignoreCase = true) ||
+                                        localizedReference.startsWith("حوالہ", ignoreCase = true) ||
+                                        localizedReference.startsWith("出处", ignoreCase = true)
+                                    ) {
+                                        localizedReference
+                                    } else {
+                                        "$referencePrefix: $localizedReference"
+                                    }
                                     Text(
-                                        text = "$referencePrefix: $localizedReference",
+                                        text = formattedRef,
                                         fontSize = (textFontSize * 0.88f).sp,
                                         lineHeight = (textFontSize * 1.35f).sp,
                                         fontWeight = FontWeight.Medium,
@@ -709,8 +722,6 @@ fun MandatoryAdhkarSessionScreen(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
-
-            BannerAd()
 
             // Bottom Action Area
             AnimatedVisibility(visible = isCompleted) {

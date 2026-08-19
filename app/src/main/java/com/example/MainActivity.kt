@@ -2,9 +2,11 @@ package com.example
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,10 +24,23 @@ import com.example.ui.components.InterstitialAdHelper
 import com.example.ui.components.RewardedAdHelper
 import com.example.ui.screens.MainScreen
 import com.example.ui.theme.MyApplicationTheme
+import com.example.util.InAppUpdateManager
+import com.example.util.UpdateState
 import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
   private var viewModel: DuaViewModel? = null
+  private lateinit var inAppUpdateManager: InAppUpdateManager
+
+  private val inAppUpdateLauncher = registerForActivityResult(
+    ActivityResultContracts.StartIntentSenderForResult()
+  ) { result ->
+    if (result.resultCode != RESULT_OK) {
+      Log.w("MainActivity", "In-app update flow failed or was cancelled by user: code=${result.resultCode}")
+    } else {
+      Log.d("MainActivity", "In-app update flow completed successfully")
+    }
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -44,6 +59,10 @@ class MainActivity : ComponentActivity() {
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
 
+    // Initialize In-App Update Manager & check for background updates cleanly
+    inAppUpdateManager = InAppUpdateManager(this)
+    inAppUpdateManager.checkForUpdates(isManual = false)
+
     // Initialize database, repository, and ViewModel using constructor injection
     val database = DuaDatabase.getDatabase(this)
     val repository = DuaRepository(database.duaDao(), lifecycleScope)
@@ -57,14 +76,40 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       val isDarkTheme by vm.isDarkTheme.collectAsStateWithLifecycle()
+      val updateState by inAppUpdateManager.updateState.collectAsStateWithLifecycle()
 
       MyApplicationTheme(darkTheme = isDarkTheme) {
         MainScreen(
           viewModel = vm,
           isDarkTheme = isDarkTheme,
-          onToggleTheme = { vm.toggleDarkTheme(it) }
+          onToggleTheme = { vm.toggleDarkTheme(it) },
+          updateState = updateState,
+          onCheckForUpdates = { inAppUpdateManager.checkForUpdates(isManual = true) },
+          onStartUpdate = {
+            val state = inAppUpdateManager.updateState.value
+            if (state is UpdateState.UpdateAvailable) {
+              inAppUpdateManager.startFlexibleUpdate(this@MainActivity, state.appUpdateInfo, inAppUpdateLauncher)
+            }
+          },
+          onCompleteUpdate = {
+            inAppUpdateManager.completeUpdate()
+          }
         )
       }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    if (::inAppUpdateManager.isInitialized) {
+      inAppUpdateManager.onResume(this)
+    }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    if (::inAppUpdateManager.isInitialized) {
+      inAppUpdateManager.unregisterListener()
     }
   }
 

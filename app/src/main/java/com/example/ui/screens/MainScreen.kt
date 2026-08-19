@@ -68,6 +68,9 @@ import com.example.receiver.ReminderReceiver
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.example.ui.DuaViewModel
+import com.example.util.UpdateState
+import com.example.ui.components.InAppUpdateBanner
+import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
 import com.example.ui.components.OneSignalSettingsCard
@@ -113,7 +116,11 @@ fun openWebsite(context: Context, websiteUrl: String = COMPANY_WEBSITE_URL) {
 fun MainScreen(
     viewModel: DuaViewModel,
     isDarkTheme: Boolean,
-    onToggleTheme: (Boolean) -> Unit
+    onToggleTheme: (Boolean) -> Unit,
+    updateState: UpdateState = UpdateState.Idle,
+    onCheckForUpdates: () -> Unit = {},
+    onStartUpdate: () -> Unit = {},
+    onCompleteUpdate: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) } // 0 = Library, 1 = Favorites, 2 = Reminders
@@ -388,7 +395,9 @@ fun MainScreen(
         },
         bottomBar = {
             Column {
-                BannerAd()
+                if (selectedTab == 0) {
+                    BannerAd()
+                }
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 8.dp
@@ -443,6 +452,9 @@ fun MainScreen(
                     allDuas = allDuas,
                     selectedLanguage = selectedLanguage,
                     isDarkTheme = isDarkTheme,
+                    updateState = updateState,
+                    onStartUpdate = onStartUpdate,
+                    onCompleteUpdate = onCompleteUpdate,
                     onCategoryClick = { categoryName ->
                         viewModel.selectCategory(categoryName)
                         viewModel.setTargetDuaId(null)
@@ -779,6 +791,10 @@ fun MainScreen(
             onArabicFontSizeChange = { viewModel.setArabicFontSize(it) },
             textFontSize = textFontSize,
             onTextFontSizeChange = { viewModel.setTextFontSize(it) },
+            updateState = updateState,
+            onCheckForUpdates = onCheckForUpdates,
+            onStartUpdate = onStartUpdate,
+            onCompleteUpdate = onCompleteUpdate,
             context = context
         )
     }
@@ -1907,6 +1923,9 @@ fun HomeTab(
     allDuas: List<DuaEntity> = emptyList(),
     selectedLanguage: String,
     isDarkTheme: Boolean,
+    updateState: UpdateState = UpdateState.Idle,
+    onStartUpdate: () -> Unit = {},
+    onCompleteUpdate: () -> Unit = {},
     onCategoryClick: (String?) -> Unit,
     onSelectDua: (DuaEntity) -> Unit = {}
 ) {
@@ -1915,6 +1934,8 @@ fun HomeTab(
     val displayTotal = if (totalDuasCount > 0) totalDuasCount else 19
     val progressFraction = (displayCompleted.toFloat() / displayTotal.toFloat()).coerceIn(0f, 1f)
     val progressPercent = (progressFraction * 100).toInt()
+
+    var isBannerDismissed by remember { mutableStateOf(false) }
 
     val bgGradient = if (isDarkTheme) {
         Brush.verticalGradient(
@@ -1947,6 +1968,19 @@ fun HomeTab(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
+            item {
+                InAppUpdateBanner(
+                    updateState = updateState,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme,
+                    onStartUpdate = onStartUpdate,
+                    onCompleteUpdate = onCompleteUpdate,
+                    onDismiss = { isBannerDismissed = true }
+                )
+            }
+        }
+
         // Celestial Hero Header Card
         item {
             val heroBg = if (isDarkTheme) {
@@ -3083,6 +3117,10 @@ fun SettingsDialog(
     onArabicFontSizeChange: (Float) -> Unit,
     textFontSize: Float = 16f,
     onTextFontSizeChange: (Float) -> Unit = {},
+    updateState: UpdateState = UpdateState.Idle,
+    onCheckForUpdates: () -> Unit = {},
+    onStartUpdate: () -> Unit = {},
+    onCompleteUpdate: () -> Unit = {},
     context: Context
 ) {
     var isLangDropdownExpanded by remember { mutableStateOf(false) }
@@ -3455,6 +3493,16 @@ fun SettingsDialog(
                         }
                     }
                 }
+
+                // In-App Update Tile
+                SettingsInAppUpdateTile(
+                    updateState = updateState,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme,
+                    onCheckForUpdates = onCheckForUpdates,
+                    onStartUpdate = onStartUpdate,
+                    onCompleteUpdate = onCompleteUpdate
+                )
 
                 // Mandatory Adhkar Settings Section
                 MandatoryAdhkarSettingsSection(context = context)
