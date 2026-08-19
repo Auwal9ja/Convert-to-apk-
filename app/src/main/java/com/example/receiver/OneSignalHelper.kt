@@ -34,12 +34,19 @@ object OneSignalHelper {
     @Volatile
     private var isInitialized = false
 
+    private val UUID_PATTERN = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
     private fun isValidAppId(appId: String?): Boolean {
         if (appId.isNullOrBlank()) return false
         val trimmed = appId.trim()
-        return trimmed != DEFAULT_ONESIGNAL_APP_ID &&
-               trimmed != "MY_ONESIGNAL_APP_ID" &&
-               trimmed.length >= 16
+        if (trimmed == DEFAULT_ONESIGNAL_APP_ID ||
+            trimmed == "MY_ONESIGNAL_APP_ID" ||
+            trimmed.contains("YOUR_") ||
+            trimmed.length < 32
+        ) {
+            return false
+        }
+        return UUID_PATTERN.matches(trimmed)
     }
 
     /**
@@ -52,16 +59,16 @@ object OneSignalHelper {
         }
 
         try {
-            OneSignal.Debug.logLevel = LogLevel.WARN
-            OneSignal.Debug.alertLevel = LogLevel.NONE
-
             val appId = getEffectiveAppId(context)
 
             if (!isValidAppId(appId)) {
-                Log.i(TAG, "OneSignal initialization postponed: No valid ONESIGNAL_APP_ID configured yet.")
+                Log.i(TAG, "OneSignal initialization postponed: No valid UUID ONESIGNAL_APP_ID configured yet.")
                 cleanStaleInvalidData(context)
                 return
             }
+
+            OneSignal.Debug.logLevel = LogLevel.ERROR
+            OneSignal.Debug.alertLevel = LogLevel.NONE
 
             OneSignal.initWithContext(context.applicationContext, appId)
             isInitialized = true

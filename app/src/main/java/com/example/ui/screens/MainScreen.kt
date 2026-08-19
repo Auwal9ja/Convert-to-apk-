@@ -464,6 +464,12 @@ fun MainScreen(
                         viewModel.selectCategory(dua.category)
                         viewModel.setTargetDuaId(dua.id)
                         selectedTab = 1
+                    },
+                    onNavigateToLibraryWithSearch = { query ->
+                        viewModel.selectCategory(null)
+                        viewModel.setSearchQuery(query)
+                        viewModel.setTargetDuaId(null)
+                        selectedTab = 1
                     }
                 )
                 1 -> LibraryTab(
@@ -1927,7 +1933,8 @@ fun HomeTab(
     onStartUpdate: () -> Unit = {},
     onCompleteUpdate: () -> Unit = {},
     onCategoryClick: (String?) -> Unit,
-    onSelectDua: (DuaEntity) -> Unit = {}
+    onSelectDua: (DuaEntity) -> Unit = {},
+    onNavigateToLibraryWithSearch: (String) -> Unit = {}
 ) {
     val completedCount = completedDuas.size
     val displayCompleted = if (completedCount > 0) completedCount else 12
@@ -1936,6 +1943,28 @@ fun HomeTab(
     val progressPercent = (progressFraction * 100).toInt()
 
     var isBannerDismissed by remember { mutableStateOf(false) }
+    var homeSearchQuery by remember { mutableStateOf("") }
+
+    val filteredDuas = remember(homeSearchQuery, allDuas, selectedLanguage) {
+        if (homeSearchQuery.isBlank()) {
+            emptyList()
+        } else {
+            val q = homeSearchQuery.trim()
+            allDuas.filter { dua ->
+                dua.title.contains(q, ignoreCase = true) ||
+                AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage).contains(q, ignoreCase = true) ||
+                dua.arabic.contains(q, ignoreCase = true) ||
+                dua.transliteration.contains(q, ignoreCase = true) ||
+                dua.translation.contains(q, ignoreCase = true) ||
+                dua.translationHausa.contains(q, ignoreCase = true) ||
+                dua.translationYoruba.contains(q, ignoreCase = true) ||
+                dua.translationIgbo.contains(q, ignoreCase = true) ||
+                dua.reference.contains(q, ignoreCase = true) ||
+                dua.category.contains(q, ignoreCase = true) ||
+                AppLocalizer.getCategoryName(dua.category, selectedLanguage).contains(q, ignoreCase = true)
+            }
+        }
+    }
 
     val bgGradient = if (isDarkTheme) {
         Brush.verticalGradient(
@@ -1966,7 +1995,7 @@ fun HomeTab(
             .fillMaxSize()
             .background(bgGradient),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
             item {
@@ -2000,7 +2029,7 @@ fun HomeTab(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(170.dp)
                     .clip(RoundedCornerShape(28.dp))
                     .background(heroBg)
             ) {
@@ -2022,7 +2051,7 @@ fun HomeTab(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp),
+                        .padding(22.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(
@@ -2034,7 +2063,7 @@ fun HomeTab(
                             Text(
                                 AppLocalizer.getString("app_title", selectedLanguage),
                                 color = Color.White,
-                                fontSize = 32.sp,
+                                fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Serif
                             )
@@ -2049,6 +2078,383 @@ fun HomeTab(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp
                         )
+                    }
+                }
+            }
+        }
+
+        // Top Search Bar for Duas & Zikir (Dan Gurbi Mai Kyau na Bincike)
+        item {
+            Card(
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkTheme) Color(0xFF0F2620) else MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(
+                    1.2.dp,
+                    if (homeSearchQuery.isNotEmpty()) goldAccent else cardBorder
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 0.dp else 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("home_search_bar_card")
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = goldAccent.copy(alpha = 0.15f),
+                            modifier = Modifier.size(38.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search",
+                                    tint = goldAccent,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = homeSearchQuery,
+                            onValueChange = { homeSearchQuery = it },
+                            placeholder = {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Nemo addu'a, zikiri, ko fassara..."
+                                           else if (selectedLanguage == "Arabic") "ابحث عن أي دعاء أو ذكر..."
+                                           else if (selectedLanguage == "Yoruba") "Ṣàwárí àwọn àdúrà, zikiri..."
+                                           else if (selectedLanguage == "Igbo") "Chọọ ekpere ma ọ bụ zikir..."
+                                           else AppLocalizer.getString("search_placeholder", selectedLanguage),
+                                    fontSize = 14.sp,
+                                    color = textSecondary.copy(alpha = 0.8f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                cursorColor = goldAccent,
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("home_search_input_field")
+                        )
+
+                        if (homeSearchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = { homeSearchQuery = "" },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Clear",
+                                    tint = textSecondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+
+                            FilledTonalIconButton(
+                                onClick = { onNavigateToLibraryWithSearch(homeSearchQuery) },
+                                modifier = Modifier.size(34.dp),
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = goldAccent,
+                                    contentColor = if (isDarkTheme) Color.Black else Color.White
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = "Search in Library",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Quick Search Suggestion Pills when search query is empty
+                    if (homeSearchQuery.isEmpty()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        val quickPills = when (selectedLanguage) {
+                            "Hausa" -> listOf(
+                                "☀️ Safe & Yamma" to "Morning & Evening",
+                                "🤲 Istighfari" to "Repentance & Seeking Forgiveness",
+                                "📿 Bayan Sallah" to "Post-Salah Adhkar",
+                                "🛡️ Kariya" to "Protection & Evil Eye",
+                                "🛌 Barci" to "Sleeping & Waking Up",
+                                "🕌 Sallah" to "Prayers & Mosque",
+                                "🕋 Hajji & Umra" to "Hajj & Umrah",
+                                "💍 Aure & Iyali" to "Marriage & Family",
+                                "🍽️ Abinci" to "Eating & Drinking",
+                                "🌧️ Ruwa & Iska" to "Rain & Wind"
+                            )
+                            "Arabic" -> listOf(
+                                "☀️ الصباح والمساء" to "Morning & Evening",
+                                "🤲 الاستغفار" to "Repentance & Seeking Forgiveness",
+                                "📿 بعد الصلاة" to "Post-Salah Adhkar",
+                                "🛡️ الرقية والحماية" to "Protection & Evil Eye",
+                                "🛌 النوم" to "Sleeping & Waking Up",
+                                "🕌 الصلاة والمسجد" to "Prayers & Mosque",
+                                "🕋 الحج والعمرة" to "Hajj & Umrah",
+                                "💍 الأسرة" to "Marriage & Family",
+                                "🍽️ الطعام" to "Eating & Drinking"
+                            )
+                            "Yoruba" -> listOf(
+                                "☀️ Owurọ̀ & Alẹ́" to "Morning & Evening",
+                                "🤲 Ironupiwada" to "Repentance & Seeking Forgiveness",
+                                "📿 Lẹ́yìn Sọláàti" to "Post-Salah Adhkar",
+                                "🛡️ Ààbò" to "Protection & Evil Eye",
+                                "🛌 Isún" to "Sleeping & Waking Up",
+                                "🕌 Sọláàti" to "Prayers & Mosque",
+                                "🕋 Hajj & Umrah" to "Hajj & Umrah",
+                                "💍 Igbeyawo" to "Marriage & Family"
+                            )
+                            "Igbo" -> listOf(
+                                "☀️ Ụtụtụ & Anyasị" to "Morning & Evening",
+                                "🤲 Nchegharị" to "Repentance & Seeking Forgiveness",
+                                "📿 Mgbe Ekpere" to "Post-Salah Adhkar",
+                                "🛡️ Nchebe" to "Protection & Evil Eye",
+                                "🛌 Ụra" to "Sleeping & Waking Up",
+                                "🕌 Ekpere" to "Prayers & Mosque",
+                                "🕋 Hajj & Umrah" to "Hajj & Umrah",
+                                "💍 Ezinụlọ" to "Marriage & Family"
+                            )
+                            else -> listOf(
+                                "☀️ Morning & Evening" to "Morning & Evening",
+                                "🤲 Istighfar" to "Repentance & Seeking Forgiveness",
+                                "📿 Post-Salah" to "Post-Salah Adhkar",
+                                "🛡️ Protection" to "Protection & Evil Eye",
+                                "🛌 Sleep" to "Sleeping & Waking Up",
+                                "🕌 Prayers" to "Prayers & Mosque",
+                                "🕋 Hajj & Umrah" to "Hajj & Umrah",
+                                "💍 Family" to "Marriage & Family",
+                                "🍽️ Food & Drink" to "Eating & Drinking"
+                            )
+                        }
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            contentPadding = PaddingValues(vertical = 2.dp)
+                        ) {
+                            items(quickPills) { (label, category) ->
+                                Surface(
+                                    onClick = { onCategoryClick(category) },
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = if (isDarkTheme) Color(0xFF143B33) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                                    border = BorderStroke(0.8.dp, goldAccent.copy(alpha = 0.35f))
+                                ) {
+                                    Text(
+                                        text = label,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (isDarkTheme) Color(0xFFECC76A) else MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Live Search Results on Home Screen (When Searching)
+        if (homeSearchQuery.isNotBlank()) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Sakamakon Bincike (${filteredDuas.size})"
+                               else if (selectedLanguage == "Arabic") "نتائج البحث (${filteredDuas.size})"
+                               else "Search Results (${filteredDuas.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = textPrimary
+                    )
+
+                    if (filteredDuas.isNotEmpty()) {
+                        TextButton(
+                            onClick = { onNavigateToLibraryWithSearch(homeSearchQuery) },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Duba Duka a Library ➔" else "View in Library ➔",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = goldAccent
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (filteredDuas.isEmpty()) {
+                item {
+                    Card(
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = cardBg),
+                        border = BorderStroke(1.dp, cardBorder),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SearchOff,
+                                contentDescription = null,
+                                tint = goldAccent,
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Babu addu'ar da ta dace da \"$homeSearchQuery\""
+                                       else if (selectedLanguage == "Arabic") "لم يتم العثور على نتائج لـ \"$homeSearchQuery\""
+                                       else "No duas found for \"$homeSearchQuery\"",
+                                color = textPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                            OutlinedButton(
+                                onClick = { homeSearchQuery = "" },
+                                shape = RoundedCornerShape(12.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Goge Bincike" else "Clear Search",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                items(filteredDuas.take(12)) { dua ->
+                    val localizedTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
+                    val localizedCategory = AppLocalizer.getCategoryName(dua.category, selectedLanguage)
+                    val localizedTrans = DuaTranslationLocalization.getLocalizedTranslation(
+                        dua.id,
+                        selectedLanguage,
+                        dua.translation,
+                        dua.translationHausa,
+                        dua.translationYoruba,
+                        dua.translationIgbo
+                    )
+
+                    Card(
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = cardBg),
+                        border = BorderStroke(1.dp, cardBorder),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelectDua(dua) }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = goldAccent.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = localizedCategory,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = goldAccent,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    )
+                                }
+
+                                Text(
+                                    text = "#${dua.id}",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = textSecondary
+                                )
+                            }
+
+                            Text(
+                                text = localizedTitle,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = textPrimary
+                            )
+
+                            if (dua.arabic.isNotBlank()) {
+                                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                                    Text(
+                                        text = dua.arabic,
+                                        fontSize = 16.sp,
+                                        fontFamily = FontFamily.Serif,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isDarkTheme) Color(0xFFE0ECE8) else Color(0xFF133830),
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+
+                            if (localizedTrans.isNotBlank()) {
+                                Text(
+                                    text = localizedTrans,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp,
+                                    color = textSecondary,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                FilledTonalButton(
+                                    onClick = { onSelectDua(dua) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = goldAccent.copy(alpha = 0.2f),
+                                        contentColor = goldAccent
+                                    )
+                                ) {
+                                    Text(
+                                        text = if (selectedLanguage == "Hausa") "Bude Addu'a ➔" else "Open Dua ➔",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
