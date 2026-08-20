@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.theme.QuranFontFamily
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
@@ -557,9 +558,9 @@ fun MainScreen(
                                 Text(
                                     text = "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
                                     fontSize = arabicFontSize.sp,
-                                    fontFamily = FontFamily.Serif,
-                                    lineHeight = (arabicFontSize * 1.5f).sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = QuranFontFamily,
+                                    lineHeight = (arabicFontSize * 1.8f).sp,
+                                    fontWeight = FontWeight.Normal,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
@@ -1516,14 +1517,14 @@ fun DuaItemCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Arabic text layout (RTL) - Unchanged
+            // Arabic text layout (RTL) - Quranic Typography
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Text(
                     text = dua.arabic,
                     fontSize = arabicFontSize.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = (arabicFontSize * 1.6f).sp,
-                    fontWeight = FontWeight.Medium,
+                    fontFamily = QuranFontFamily,
+                    lineHeight = (arabicFontSize * 1.85f).sp,
+                    fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Right,
                     modifier = Modifier
@@ -1794,9 +1795,9 @@ fun FeaturedCard(
                 Text(
                     text = "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
                     fontSize = arabicFontSize.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = (arabicFontSize * 1.6f).sp,
-                    fontWeight = FontWeight.Bold,
+                    fontFamily = QuranFontFamily,
+                    lineHeight = (arabicFontSize * 1.85f).sp,
+                    fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Right,
                     modifier = Modifier.fillMaxWidth()
@@ -2374,9 +2375,10 @@ fun HomeTab(
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                                     Text(
                                         text = dua.arabic,
-                                        fontSize = 16.sp,
-                                        fontFamily = FontFamily.Serif,
-                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                        fontFamily = QuranFontFamily,
+                                        fontWeight = FontWeight.Normal,
+                                        lineHeight = 28.sp,
                                         color = if (isDarkTheme) Color(0xFFE0ECE8) else Color(0xFF133830),
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
@@ -2515,7 +2517,9 @@ fun HomeTab(
                 CategoryGridItem(AppLocalizer.getCategoryName("Fasting & Ramadan", selectedLanguage), "Fasting & Ramadan", "🌙", Icons.Default.NightsStay),
                 CategoryGridItem(AppLocalizer.getCategoryName("Hajj & Umrah", selectedLanguage), "Hajj & Umrah", "🕋", Icons.Default.LocationOn),
                 CategoryGridItem(AppLocalizer.getCategoryName("Marriage & Family", selectedLanguage), "Marriage & Family", "💍", Icons.Default.Favorite),
-                CategoryGridItem(AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage), "Repentance & Seeking Forgiveness", "🧎", Icons.Default.Refresh)
+                CategoryGridItem(AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage), "Repentance & Seeking Forgiveness", "🧎", Icons.Default.Refresh),
+                CategoryGridItem(AppLocalizer.getCategoryName("Ruqyah", selectedLanguage), "Ruqyah", "🌿", Icons.Default.Healing),
+                CategoryGridItem(AppLocalizer.getCategoryName("40 Rabbana Duas", selectedLanguage), "40 Rabbana Duas", "📖", Icons.Default.MenuBook)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

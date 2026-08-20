@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.local.AppLocalizer
+import com.example.ui.theme.QuranFontFamily
 import com.example.data.local.DuaDatabase
 import com.example.data.local.DuaDatabaseSeeder
 import com.example.data.local.DuaEntity
@@ -655,9 +656,9 @@ fun MandatoryAdhkarSessionScreen(
                                     Text(
                                         text = dua.arabic,
                                         fontSize = arabicFontSize.sp,
-                                        fontFamily = FontFamily.Serif,
-                                        lineHeight = (arabicFontSize * 1.55f).sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = QuranFontFamily,
+                                        lineHeight = (arabicFontSize * 1.8f).sp,
+                                        fontWeight = FontWeight.Normal,
                                         color = Color.White,
                                         textAlign = TextAlign.Right,
                                         modifier = Modifier.fillMaxWidth()
@@ -1101,11 +1102,11 @@ fun MandatoryFontSizeDialog(
                     ) {
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                             Text(
-                                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                                text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                                 fontSize = arabicFontSize.sp,
-                                fontFamily = FontFamily.Serif,
-                                lineHeight = (arabicFontSize * 1.55f).sp,
-                                fontWeight = FontWeight.Bold,
+                                fontFamily = QuranFontFamily,
+                                lineHeight = (arabicFontSize * 1.8f).sp,
+                                fontWeight = FontWeight.Normal,
                                 color = Color.White,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier

@@ -25,6 +25,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "Aikin Hajji & Umra"
                 "Marriage & Family" -> "Aure & Iyali"
                 "Repentance & Seeking Forgiveness" -> "Tuba & Neman Gafara"
+                "Ruqyah" -> "Ruqiya & Neman Waraka"
+                "40 Rabbana Duas" -> "Addu'o'in Rabbana 40 na Alƙur'ani"
                 else -> category
             }
             "Yoruba" -> when (category) {
@@ -48,6 +50,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "Hajj & Umrah (Ẹsẹ-isin)"
                 "Marriage & Family" -> "Igbeyawo & Ẹbi"
                 "Repentance & Seeking Forgiveness" -> "Ironupiwada & Tọrọ Idariji"
+                "Ruqyah" -> "Rúkíyà (Ìwòsàn Ẹ̀mí)"
+                "40 Rabbana Duas" -> "Àwọn Àdúà Rabbana 40"
                 else -> category
             }
             "Igbo" -> when (category) {
@@ -71,6 +75,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "Hajj & Umrah"
                 "Marriage & Family" -> "Alụmdi na Nwunye & Ezinụlọ"
                 "Repentance & Seeking Forgiveness" -> "Nchegharị & Ịrịọ Mgbaghara"
+                "Ruqyah" -> "Ruqyah (Ọgwụgwọ Ime Mmụọ)"
+                "40 Rabbana Duas" -> "Ekpere Rabbana 40"
                 else -> category
             }
             "Spanish" -> when (category) {
@@ -94,6 +100,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "Hayy y Umrah (Peregrinación)"
                 "Marriage & Family" -> "Matrimonio y Familia"
                 "Repentance & Seeking Forgiveness" -> "Arrepentimiento y Perdón"
+                "Ruqyah" -> "Ruqyah (Curación Espiritual)"
+                "40 Rabbana Duas" -> "40 Súplicas de Rabbana"
                 else -> category
             }
             "French" -> when (category) {
@@ -117,6 +125,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "Hajj et Omra (Pèlerinage)"
                 "Marriage & Family" -> "Mariage et Famille"
                 "Repentance & Seeking Forgiveness" -> "Repentir et Demande de Pardon"
+                "Ruqyah" -> "Ruqyah (Guérison Spirituelle)"
+                "40 Rabbana Duas" -> "40 Invocations Rabbana"
                 else -> category
             }
             "Arabic" -> when (category) {
@@ -140,6 +150,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "أذكار الحج والعمرة"
                 "Marriage & Family" -> "أذكار النكاح والأسرة"
                 "Repentance & Seeking Forgiveness" -> "التوبة والاستغفار"
+                "Ruqyah" -> "الرقية الشرعية"
+                "40 Rabbana Duas" -> "٤٠ دعاء ربنا من القرآن"
                 else -> category
             }
             "Urdu" -> when (category) {
@@ -163,6 +175,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "حج اور عمرہ کے اذکار"
                 "Marriage & Family" -> "شادی اور خاندان"
                 "Repentance & Seeking Forgiveness" -> "توبہ اور استغفار"
+                "Ruqyah" -> "رقیہ شرعیہ"
+                "40 Rabbana Duas" -> "قرآن کے 40 ربنا دعائیں"
                 else -> category
             }
             "Chinese" -> when (category) {
@@ -186,6 +200,8 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "朝觐与副朝赞词"
                 "Marriage & Family" -> "婚姻与家庭"
                 "Repentance & Seeking Forgiveness" -> "悔罪与求恕"
+                "Ruqyah" -> "古兰经疗愈 (Ruqyah)"
+                "40 Rabbana Duas" -> "40段古兰经Rabbana祈祷文"
                 else -> category
             }
             else -> category
