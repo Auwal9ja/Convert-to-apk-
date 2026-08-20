@@ -158,44 +158,6 @@ fun MainScreen(
         Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                navigationIcon = {
-                    Surface(
-                        onClick = { isFontSizeDialogVisible = true },
-                        shape = RoundedCornerShape(18.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
-                        border = BorderStroke(
-                            1.2.dp,
-                            Brush.linearGradient(
-                                listOf(
-                                    Color(0xFFD4AF37),
-                                    MaterialTheme.colorScheme.primary
-                                )
-                            )
-                        ),
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .testTag("top_left_font_resizer")
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FormatSize,
-                                contentDescription = "Resize Font (A- / A+)",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(17.dp)
-                            )
-                            Text(
-                                text = "A⁻ / A⁺",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                },
                 title = {
                     Text(
                         AppLocalizer.getString("app_title", selectedLanguage),
@@ -2895,6 +2857,57 @@ fun OnboardingLanguageSelection(
         )
     }
 
+    // Step-by-step permission prompt dialog state (0 = None, 1 = Notif, 2 = Battery, 3 = Overlay)
+    var activePermissionStep by remember { mutableIntStateOf(0) }
+
+    // Sequential helper that checks and prompts for missing permissions one-by-one
+    fun proceedNextPermissionStep(fromStep: Int) {
+        val needsNotif = !hasNotificationPermission
+        val needsBattery = !hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        val needsOverlay = !hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
+        when (fromStep) {
+            0 -> {
+                // Starting initial check
+                if (needsNotif) {
+                    activePermissionStep = 1
+                } else if (needsBattery) {
+                    activePermissionStep = 2
+                } else if (needsOverlay) {
+                    activePermissionStep = 3
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            1 -> {
+                // After Notification
+                if (needsBattery) {
+                    activePermissionStep = 2
+                } else if (needsOverlay) {
+                    activePermissionStep = 3
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            2 -> {
+                // After Battery
+                if (needsOverlay) {
+                    activePermissionStep = 3
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            3 -> {
+                // After Overlay
+                activePermissionStep = 0
+                onComplete()
+            }
+        }
+    }
+
     // Permission launcher for Android 13+ Notifications
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -2902,7 +2915,65 @@ fun OnboardingLanguageSelection(
         hasNotificationPermission = isGranted
         if (isGranted) {
             com.example.receiver.OneSignalHelper.optInPush(context)
-            Toast.makeText(context, "Notifications enabled ✓", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                if (tempSelectedLanguage == "Hausa") "An kunna sanarwa ✓" else "Notifications enabled ✓",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        if (activePermissionStep == 1) {
+            proceedNextPermissionStep(1)
+        }
+    }
+
+    fun launchNotificationRequest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            try {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun launchBatteryOptimizationRequest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val intent = Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:${context.packageName}")
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {
+                try {
+                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
+    fun launchOverlayPermissionRequest() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${context.packageName}")
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {
+                Toast.makeText(context, "Please enable Display Over Apps in Settings", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -2932,6 +3003,189 @@ fun OnboardingLanguageSelection(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    val isHausa = tempSelectedLanguage == "Hausa"
+
+    // =========================================================================
+    // STEP-BY-STEP PERMISSION PROMPT DIALOGS (ONE-BY-ONE WIZARD)
+    // =========================================================================
+    if (activePermissionStep > 0) {
+        AlertDialog(
+            onDismissRequest = {
+                // Advance to next step even if dialog dismissed
+                proceedNextPermissionStep(activePermissionStep)
+            },
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE8F5E9)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = when (activePermissionStep) {
+                            1 -> Icons.Default.NotificationsActive
+                            2 -> Icons.Default.BatteryChargingFull
+                            else -> Icons.Default.Layers
+                        },
+                        contentDescription = null,
+                        tint = Color(0xFF1B5E20),
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            },
+            title = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color(0xFFD4AF37).copy(alpha = 0.18f),
+                        border = BorderStroke(0.8.dp, Color(0xFFD4AF37))
+                    ) {
+                        Text(
+                            text = when (activePermissionStep) {
+                                1 -> if (isHausa) "Mataki 1 cikin 3" else "Step 1 of 3"
+                                2 -> if (isHausa) "Mataki 2 cikin 3" else "Step 2 of 3"
+                                else -> if (isHausa) "Mataki 3 cikin 3" else "Step 3 of 3"
+                            },
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                        )
+                    }
+
+                    Text(
+                        text = when (activePermissionStep) {
+                            1 -> if (isHausa) "Kunna Izinin Sanarwa" else "Enable Notifications"
+                            2 -> if (isHausa) "Cire Takunkumin Baturi" else "Allow Background Running"
+                            else -> if (isHausa) "Bada Izinin Allon Zikiri (Overlay)" else "Allow Display Over Other Apps"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1B5E20),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = when (activePermissionStep) {
+                            1 -> if (isHausa)
+                                "Wannan izini yana ba Noor Zikir damar aiko maka da sanarwa da kararrawar zikirin safe da yamma a ainihin lokacinsu domin kada ka manta."
+                            else
+                                "Allows Noor Zikir to deliver timely audio alerts, vibrations, and notifications for all your morning and evening supplications."
+                            2 -> if (isHausa)
+                                "Wayoyi kamar Samsung, Tecno, Infinix, Xiaomi, Oppo suna kashe manhajoji a bayan fage. Cire Noor Zikir daga takunkumin baturi don zikirin safe da yamma ya riƙa fita kan lokaci ba tare da jinkiri ba."
+                            else
+                                "Device battery savers (Samsung, Tecno, Infinix, Xiaomi, Oppo) put apps to sleep. Exempting Noor Zikir guarantees your morning and evening focus alarms trigger punctually."
+                            else -> if (isHausa)
+                                "Wannan izini yana ba da damar allon zikiri ya fito kai tsaye a kan wayarka koda kana amfani da wani app (kamar WhatsApp ko Browser) ko wayar tana ajiye lokacin da lokacin zikiri yayi."
+                            else
+                                "Allows Noor Zikir to pop up full-screen Adhkar reading sessions directly over other apps at scheduled times so you never miss your daily focus sessions."
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF2E4039),
+                        textAlign = TextAlign.Start
+                    )
+
+                    // Current status indicator
+                    val isStepGranted = when (activePermissionStep) {
+                        1 -> hasNotificationPermission
+                        2 -> hasBatteryExemption
+                        else -> hasOverlayPermission
+                    }
+
+                    if (isStepGranted) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = Color(0xFFE8F5E9),
+                            border = BorderStroke(1.dp, Color(0xFF1B5E20)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF1B5E20), modifier = Modifier.size(16.dp))
+                                Text(
+                                    text = if (isHausa) "An saita wannan izini cikin nasara! ✓" else "This permission is granted! ✓",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF1B5E20)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                val isStepGranted = when (activePermissionStep) {
+                    1 -> hasNotificationPermission
+                    2 -> hasBatteryExemption
+                    else -> hasOverlayPermission
+                }
+
+                if (!isStepGranted) {
+                    Button(
+                        onClick = {
+                            when (activePermissionStep) {
+                                1 -> launchNotificationRequest()
+                                2 -> launchBatteryOptimizationRequest()
+                                3 -> launchOverlayPermissionRequest()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = when (activePermissionStep) {
+                                1 -> if (isHausa) "Bada Izinin Sanarwa" else "Allow Notifications"
+                                2 -> if (isHausa) "Cire Takunkumi Yanzu" else "Allow Background Run"
+                                else -> if (isHausa) "Bada Izinin Allon Zikiri" else "Grant Overlay Permission"
+                            },
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = { proceedNextPermissionStep(activePermissionStep) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = if (activePermissionStep == 3) (if (isHausa) "Kammala & Fara App" else "Finish & Start App") else (if (isHausa) "Ci gaba zuwa Na Gaba →" else "Continue to Next →"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { proceedNextPermissionStep(activePermissionStep) }
+                ) {
+                    Text(
+                        text = if (activePermissionStep == 3) (if (isHausa) "Kammala" else "Finish") else (if (isHausa) "Tsallake / Ci gaba" else "Skip / Next"),
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF2E7D32)
+                    )
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = Color.White
+        )
     }
 
     Box(
@@ -3122,7 +3376,7 @@ fun OnboardingLanguageSelection(
             }
         } else {
             // STEP 1: PERMISSIONS, SCREEN OVERLAY & BATTERY SETUP
-            val isHausa = tempSelectedLanguage == "Hausa"
+            val allGranted = hasOverlayPermission && hasBatteryExemption && hasNotificationPermission
 
             Column(
                 modifier = Modifier
@@ -3165,9 +3419,9 @@ fun OnboardingLanguageSelection(
 
                     Text(
                         text = if (isHausa)
-                            "Domin allon zikiri na wajibi (Mandatory Adhkar) ya fito kai tsaye koda kana amfani da wani app ko wayarka tana kulle, da fatan a saita waɗannan izini:"
+                            "Domin allon zikiri na wajibi (Mandatory Adhkar) ya fito kai tsaye koda kana amfani da wani app ko wayarka tana kulle, da fatan a saita waɗannan izini 3:"
                         else
-                            "To ensure your mandatory morning and evening focus sessions trigger reliably and display over other apps when scheduled, please configure these permissions:",
+                            "To ensure your mandatory morning and evening focus sessions trigger reliably and display over other apps when scheduled, please configure these 3 permissions:",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF334B42),
                         textAlign = TextAlign.Center,
@@ -3209,25 +3463,23 @@ fun OnboardingLanguageSelection(
                                         color = Color(0xFF132D27)
                                     )
                                 }
-                                if (hasOverlayPermission) {
-                                    Surface(
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = Color(0xFF1B5E20)
-                                    ) {
-                                        Text(
-                                            text = if (isHausa) "An Bada ✓" else "Granted ✓",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (hasOverlayPermission) Color(0xFF1B5E20) else Color(0xFFFFF3E0)
+                                ) {
+                                    Text(
+                                        text = if (hasOverlayPermission) (if (isHausa) "An Bada ✓" else "Granted ✓") else (if (isHausa) "Ba a Saita Ba" else "Pending"),
+                                        color = if (hasOverlayPermission) Color.White else Color(0xFFE65100),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
                                 }
                             }
 
                             Text(
                                 text = if (isHausa)
-                                    "Yana ba Noor Zikir damar buɗe allon zikiri kai tsaye lokacin da lokacin zikirin safe ko na yamma yayi."
+                                    "Yana ba Noor Zikir damar buɗe allon zikiri kai tsaye lokacin da lokacin zikirin safe ko na yamma yayi koda kana wani app."
                                 else
                                     "Allows Noor Zikir to pop up full-screen Adhkar recitation sessions directly over other apps at scheduled times.",
                                 style = MaterialTheme.typography.bodySmall,
@@ -3236,19 +3488,7 @@ fun OnboardingLanguageSelection(
 
                             if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 Button(
-                                    onClick = {
-                                        try {
-                                            val intent = Intent(
-                                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                                Uri.parse("package:${context.packageName}")
-                                            ).apply {
-                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                            }
-                                            context.startActivity(intent)
-                                        } catch (_: Exception) {
-                                            Toast.makeText(context, "Please enable Display Over Apps in Settings", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
+                                    onClick = { launchOverlayPermissionRequest() },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
                                 ) {
@@ -3297,19 +3537,17 @@ fun OnboardingLanguageSelection(
                                         color = Color(0xFF132D27)
                                     )
                                 }
-                                if (hasBatteryExemption) {
-                                    Surface(
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = Color(0xFF1B5E20)
-                                    ) {
-                                        Text(
-                                            text = if (isHausa) "An Shirya ✓" else "Configured ✓",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (hasBatteryExemption) Color(0xFF1B5E20) else Color(0xFFFFF3E0)
+                                ) {
+                                    Text(
+                                        text = if (hasBatteryExemption) (if (isHausa) "An Shirya ✓" else "Configured ✓") else (if (isHausa) "Ba a Saita Ba" else "Pending"),
+                                        color = if (hasBatteryExemption) Color.White else Color(0xFFE65100),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
                                 }
                             }
 
@@ -3324,24 +3562,7 @@ fun OnboardingLanguageSelection(
 
                             if (!hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 Button(
-                                    onClick = {
-                                        try {
-                                            val intent = Intent(
-                                                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                                                Uri.parse("package:${context.packageName}")
-                                            ).apply {
-                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                            }
-                                            context.startActivity(intent)
-                                        } catch (_: Exception) {
-                                            try {
-                                                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
-                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                }
-                                                context.startActivity(intent)
-                                            } catch (_: Exception) {}
-                                        }
-                                    },
+                                    onClick = { launchBatteryOptimizationRequest() },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
                                 ) {
@@ -3390,19 +3611,17 @@ fun OnboardingLanguageSelection(
                                         color = Color(0xFF132D27)
                                     )
                                 }
-                                if (hasNotificationPermission && canScheduleExact) {
-                                    Surface(
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = Color(0xFF1B5E20)
-                                    ) {
-                                        Text(
-                                            text = if (isHausa) "An Kunna ✓" else "Enabled ✓",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (hasNotificationPermission && canScheduleExact) Color(0xFF1B5E20) else Color(0xFFFFF3E0)
+                                ) {
+                                    Text(
+                                        text = if (hasNotificationPermission && canScheduleExact) (if (isHausa) "An Kunna ✓" else "Enabled ✓") else (if (isHausa) "Ba a Saita Ba" else "Pending"),
+                                        color = if (hasNotificationPermission && canScheduleExact) Color.White else Color(0xFFE65100),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
                                 }
                             }
 
@@ -3417,19 +3636,7 @@ fun OnboardingLanguageSelection(
 
                             if (!hasNotificationPermission) {
                                 Button(
-                                    onClick = {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                        } else {
-                                            try {
-                                                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                }
-                                                context.startActivity(intent)
-                                            } catch (_: Exception) {}
-                                        }
-                                    },
+                                    onClick = { launchNotificationRequest() },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
                                 ) {
@@ -3475,7 +3682,10 @@ fun OnboardingLanguageSelection(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = onComplete,
+                        onClick = {
+                            // If any permission is not yet set, start step-by-step guided prompt flow!
+                            proceedNextPermissionStep(0)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF1B5E20),
                             contentColor = Color.White
