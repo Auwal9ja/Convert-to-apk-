@@ -59,6 +59,9 @@ object OneSignalHelper {
         }
 
         try {
+            OneSignal.Debug.logLevel = LogLevel.NONE
+            OneSignal.Debug.alertLevel = LogLevel.NONE
+
             val appId = getEffectiveAppId(context)
 
             if (!isValidAppId(appId)) {
@@ -66,9 +69,6 @@ object OneSignalHelper {
                 cleanStaleInvalidData(context)
                 return
             }
-
-            OneSignal.Debug.logLevel = LogLevel.ERROR
-            OneSignal.Debug.alertLevel = LogLevel.NONE
 
             OneSignal.initWithContext(context.applicationContext, appId)
             isInitialized = true
