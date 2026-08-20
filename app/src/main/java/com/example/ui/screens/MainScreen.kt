@@ -159,6 +159,70 @@ fun MainScreen(
         Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                navigationIcon = {
+                    Surface(
+                        onClick = {
+                            val appTitle = AppLocalizer.getString("app_title", selectedLanguage)
+                            val shareBody = when (selectedLanguage) {
+                                "Hausa" -> "🌙 *Noor Zikir - Hasken Ambato*\n\nKu sauki manhajar Noor Zikir domin samun cikakkun addu'o'in Hisnul Muslim, Zikirin Safiya da Marece, Ruqiya, da Addu'o'in Rabbana 40 tare da fassarar Hausa da sauran harsuna!\n\n📲 Sauke a Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Yoruba" -> "🌙 *Noor Zikir*\n\nṢe igbasilẹ Noor Zikir fun awọn adua Hisnul Muslim ti o daju, Adhkar Owurọ ati Alẹ, Ruqyah, ati Awọn Adua Rabbana 40!\n\n📲 Ṣe igbasilẹ lori Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Igbo" -> "🌙 *Noor Zikir*\n\nBudata ngwa Noor Zikir maka ekpere Hisnul Muslim zuru oke, Adhkar Ụtụtụ na Anyasị, Ruqyah na Ekpere Rabbana 40!\n\n📲 Budata na Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Arabic" -> "🌙 *نور الذكر - حصن المسلم والأذكار*\n\nحمل تطبيق نور الذكر للأذكار اليومية الصحيحة، أذكار الصباح والمساء، الرقية الشرعية، و٤٠ دعاء ربنا من القرآن الكريم.\n\n📲 التحميل من متجر جوجل:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "French" -> "🌙 *Noor Zikir - Invocations & Adhkar*\n\nTéléchargez l'application Noor Zikir pour les invocations authentiques de Hisnul Muslim, Adhkar du matin et du soir, Ruqyah et les 40 Duas Rabbana !\n\n📲 Télécharger sur Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                else -> "🌙 *Noor Zikir - The Light of Remembrance*\n\nDownload Noor Zikir app for authentic Islamic supplications (Hisnul Muslim), Morning & Evening Adhkar, Ruqyah healing, and 40 Quranic Rabbana Duas with multi-language translations!\n\n📲 Get it on Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                            }
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, appTitle)
+                                putExtra(Intent.EXTRA_TEXT, shareBody)
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Share Noor Zikir via"))
+                        },
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                        border = BorderStroke(
+                            1.2.dp,
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFFD4AF37),
+                                    MaterialTheme.colorScheme.primary
+                                )
+                            )
+                        ),
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .testTag("app_share_button")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share Noor Zikir App",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = when (selectedLanguage) {
+                                    "Hausa" -> "Raba"
+                                    "Yoruba" -> "Pin"
+                                    "Igbo" -> "Kekọrịta"
+                                    "Arabic" -> "مشاركة"
+                                    "French" -> "Partager"
+                                    "Spanish" -> "Compartir"
+                                    "Urdu" -> "شیئر"
+                                    "Chinese" -> "分享"
+                                    else -> "Share"
+                                },
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                },
                 title = {
                     Text(
                         AppLocalizer.getString("app_title", selectedLanguage),
