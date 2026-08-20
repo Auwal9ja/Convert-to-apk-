@@ -3145,6 +3145,7 @@ fun OnboardingLanguageSelection(
                                 3 -> launchOverlayPermissionRequest()
                             }
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
                         shape = RoundedCornerShape(14.dp)
                     ) {
@@ -3155,32 +3156,24 @@ fun OnboardingLanguageSelection(
                                 else -> if (isHausa) "Bada Izinin Allon Zikiri" else "Grant Overlay Permission"
                             },
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
                 } else {
                     Button(
                         onClick = { proceedNextPermissionStep(activePermissionStep) },
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
                             text = if (activePermissionStep == 3) (if (isHausa) "Kammala & Fara App" else "Finish & Start App") else (if (isHausa) "Ci gaba zuwa Na Gaba →" else "Continue to Next →"),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { proceedNextPermissionStep(activePermissionStep) }
-                ) {
-                    Text(
-                        text = if (activePermissionStep == 3) (if (isHausa) "Kammala" else "Finish") else (if (isHausa) "Tsallake / Ci gaba" else "Skip / Next"),
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2E7D32)
-                    )
                 }
             },
             shape = RoundedCornerShape(20.dp),
