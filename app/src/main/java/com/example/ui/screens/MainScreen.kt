@@ -1346,24 +1346,6 @@ fun cancelAlarm(context: Context, type: String) {
     ReminderReceiver.cancelReminder(context, type)
 }
 
-fun getLocalizedResources(context: Context, language: String): android.content.res.Resources {
-    val locale = when (language) {
-        "Hausa" -> java.util.Locale("ha")
-        "Yoruba" -> java.util.Locale("yo")
-        "Igbo" -> java.util.Locale("ig")
-        "Spanish" -> java.util.Locale("es")
-        "French" -> java.util.Locale("fr")
-        "Arabic" -> java.util.Locale("ar")
-        "Urdu" -> java.util.Locale("ur")
-        "Chinese" -> java.util.Locale("zh")
-        else -> java.util.Locale("en")
-    }
-    val config = android.content.res.Configuration(context.resources.configuration)
-    config.setLocale(locale)
-    val localizedContext = context.createConfigurationContext(config)
-    return localizedContext.resources
-}
-
 @Composable
 fun DuaItemCard(
     dua: DuaEntity,
@@ -1598,8 +1580,7 @@ fun DuaItemCard(
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
-                            val localizedRes = getLocalizedResources(context, selectedLanguage)
-                            val referenceLabel = localizedRes.getString(R.string.reference_and_virtue)
+                            val referenceLabel = AppLocalizer.getString("reference_and_virtue", selectedLanguage)
                             Text(
                                 text = referenceLabel,
                                 style = MaterialTheme.typography.labelLarge,

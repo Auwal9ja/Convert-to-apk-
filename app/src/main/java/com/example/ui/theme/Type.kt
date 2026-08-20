@@ -8,10 +8,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.R
 
-// Quran Uthmani typography font family
-val QuranFontFamily = FontFamily(
-    Font(R.font.quran_font, FontWeight.Normal)
-)
+// Quran typography font family - maps to standard Android Noto Naskh Arabic safely
+val QuranFontFamily = FontFamily.Serif
 
 // Set of Material typography styles to start with
 val Typography =
