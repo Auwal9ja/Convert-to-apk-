@@ -4254,7 +4254,6 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
 
     var morningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_MORNING_ENABLED, true)) }
     var eveningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, true)) }
-    var ishaEnabled by remember { mutableStateOf(prefs.getBoolean("enabled_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", false)) }
 
     var morningHour by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_MORNING_HOUR, 6)) }
     var morningMin by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_MORNING_MINUTE, 0)) }
@@ -4264,17 +4263,12 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
     var eveningMin by remember { mutableIntStateOf(prefs.getInt(MandatoryAdhkarManager.KEY_EVENING_MINUTE, 0)) }
     var eveningDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_EVENING}", prefs.getInt(MandatoryAdhkarManager.KEY_READING_DURATION, 15))) }
 
-    var ishaHour by remember { mutableIntStateOf(prefs.getInt("hour_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 21)) }
-    var ishaMin by remember { mutableIntStateOf(prefs.getInt("min_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 30)) }
-    var ishaDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 10)) }
-
     var soundEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_SOUND_ENABLED, true)) }
     var vibrationEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_VIBRATION_ENABLED, true)) }
     var fullscreenEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_FULLSCREEN_ENABLED, true)) }
 
     var isMorningDurExpanded by remember { mutableStateOf(false) }
     var isEveningDurExpanded by remember { mutableStateOf(false) }
-    var isIshaDurExpanded by remember { mutableStateOf(false) }
 
     val isIgnoringBattery = remember { MandatoryAdhkarManager.isIgnoringBatteryOptimizations(context) }
     var hasBatteryExemption by remember { mutableStateOf(isIgnoringBattery) }
@@ -4609,146 +4603,6 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
             }
         }
 
-        // 3. After Isha / Night Schedule Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ),
-            shape = RoundedCornerShape(14.dp)
-        ) {
-            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Bedtime,
-                            contentDescription = null,
-                            tint = Color(0xFF7E57C2),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = "After Isha / Night Zikir",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Switch(
-                        checked = ishaEnabled,
-                        onCheckedChange = { checked ->
-                            ishaEnabled = checked
-                            MandatoryAdhkarManager.saveSchedule(
-                                context,
-                                com.example.receiver.MandatorySchedule(
-                                    id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                                    title = "After Isha Zikir",
-                                    category = "Sleeping & Waking Up",
-                                    hour = ishaHour,
-                                    minute = ishaMin,
-                                    durationMinutes = ishaDuration,
-                                    enabled = checked
-                                )
-                            )
-                        }
-                    )
-                }
-
-                if (ishaEnabled) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Start Time:", style = MaterialTheme.typography.bodySmall)
-                        OutlinedButton(
-                            onClick = {
-                                android.app.TimePickerDialog(
-                                    context,
-                                    { _, h, m ->
-                                        ishaHour = h
-                                        ishaMin = m
-                                        MandatoryAdhkarManager.saveSchedule(
-                                            context,
-                                            com.example.receiver.MandatorySchedule(
-                                                id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                                                title = "After Isha Zikir",
-                                                category = "Sleeping & Waking Up",
-                                                hour = h,
-                                                minute = m,
-                                                durationMinutes = ishaDuration,
-                                                enabled = ishaEnabled
-                                            )
-                                        )
-                                    },
-                                    ishaHour,
-                                    ishaMin,
-                                    false
-                                ).show()
-                            },
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            val amPm = if (ishaHour >= 12) "PM" else "AM"
-                            val h12 = if (ishaHour % 12 == 0) 12 else ishaHour % 12
-                            Text(
-                                text = String.format("%02d:%02d %s", h12, ishaMin, amPm),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Duration:", style = MaterialTheme.typography.bodySmall)
-                        Box {
-                            OutlinedButton(
-                                onClick = { isIshaDurExpanded = true },
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                            ) {
-                                Text("$ishaDuration min", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, modifier = Modifier.padding(start = 2.dp))
-                            }
-                            DropdownMenu(
-                                expanded = isIshaDurExpanded,
-                                onDismissRequest = { isIshaDurExpanded = false }
-                            ) {
-                                listOf(3, 5, 10, 15, 20).forEach { mins ->
-                                    DropdownMenuItem(
-                                        text = { Text("$mins minutes") },
-                                        onClick = {
-                                            ishaDuration = mins
-                                            isIshaDurExpanded = false
-                                            MandatoryAdhkarManager.saveSchedule(
-                                                context,
-                                                com.example.receiver.MandatorySchedule(
-                                                    id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                                                    title = "After Isha Zikir",
-                                                    category = "Sleeping & Waking Up",
-                                                    hour = ishaHour,
-                                                    minute = ishaMin,
-                                                    durationMinutes = mins,
-                                                    enabled = ishaEnabled
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         // Sound & Vibration Options
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -4926,7 +4780,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
         // DEVELOPER / DEBUG DIAGNOSTICS SECTION (System Verification)
         // =========================================================================
         var isDebugExpanded by remember { mutableStateOf(false) }
-        val schedulesList = remember(morningHour, morningMin, morningEnabled, eveningHour, eveningMin, eveningEnabled, ishaHour, ishaMin, ishaEnabled) {
+        val schedulesList = remember(morningHour, morningMin, morningEnabled, eveningHour, eveningMin, eveningEnabled) {
             MandatoryAdhkarManager.getAllSchedules(context)
         }
 

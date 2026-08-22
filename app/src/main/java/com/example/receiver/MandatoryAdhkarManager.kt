@@ -174,33 +174,7 @@ object MandatoryAdhkarManager {
             )
         )
 
-        // 3. After Isha Schedule
-        val ishaHour = prefs.getInt("hour_$SCHEDULE_ID_ISHA", 21)
-        val ishaMin = prefs.getInt("min_$SCHEDULE_ID_ISHA", 30)
-        val ishaDur = prefs.getInt("duration_$SCHEDULE_ID_ISHA", 10)
-        val ishaEnabled = prefs.getBoolean("enabled_$SCHEDULE_ID_ISHA", false)
-        val ishaNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_ISHA", 0L)
-        val ishaLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_ISHA", "") ?: ""
-        val ishaLastCompleted = prefs.getString("last_completed_$SCHEDULE_ID_ISHA", "") ?: ""
-
-        list.add(
-            MandatorySchedule(
-                id = SCHEDULE_ID_ISHA,
-                title = "After Isha Zikir",
-                category = "Sleeping & Waking Up",
-                hour = ishaHour,
-                minute = ishaMin,
-                durationMinutes = ishaDur,
-                enabled = ishaEnabled,
-                repeatType = "EVERY_DAY",
-                timezone = prefs.getString("tz_$SCHEDULE_ID_ISHA", defaultTz) ?: defaultTz,
-                nextOccurrence = ishaNext,
-                lastTriggeredOccurrence = ishaLastTriggered,
-                lastCompletedOccurrence = ishaLastCompleted
-            )
-        )
-
-        // 4. Custom Schedules
+        // 3. Custom Schedules
         val customJson = prefs.getString(KEY_CUSTOM_SCHEDULES_JSON, null)
         if (!customJson.isNullOrBlank()) {
             try {

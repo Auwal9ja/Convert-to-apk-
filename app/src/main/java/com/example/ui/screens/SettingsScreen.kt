@@ -693,18 +693,13 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
     var eveningDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_EVENING}", prefs.getInt(MandatoryAdhkarManager.KEY_READING_DURATION, 15))) }
     var eveningEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_EVENING_ENABLED, true)) }
 
-    var nightHour by remember { mutableIntStateOf(prefs.getInt("hour_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 21)) }
-    var nightMinute by remember { mutableIntStateOf(prefs.getInt("min_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 30)) }
-    var nightDuration by remember { mutableIntStateOf(prefs.getInt("duration_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", 10)) }
-    var nightEnabled by remember { mutableStateOf(prefs.getBoolean("enabled_${MandatoryAdhkarManager.SCHEDULE_ID_ISHA}", false)) }
-
     var soundEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_SOUND_ENABLED, true)) }
     var vibrationEnabled by remember { mutableStateOf(prefs.getBoolean(MandatoryAdhkarManager.KEY_VIBRATION_ENABLED, true)) }
 
     SettingsSectionCard(
         title = if (selectedLanguage == "Hausa") "Zikiri na Wajibi (Lokuta)" else "Scheduled Adhkar Sessions",
         icon = Icons.Default.AccessTime,
-        subtitle = if (selectedLanguage == "Hausa") "Kariyar Safe, Yamma da Dare ba tare da mantawa ba" else "Auto-launching Morning, Evening & Night Adhkar"
+        subtitle = if (selectedLanguage == "Hausa") "Kariyar Zikirin Safe da Yamma ba tare da mantawa ba" else "Auto-launching Morning & Evening Adhkar"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             // Permissions Banner Check
@@ -875,64 +870,6 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                             minute = eveningMinute,
                             durationMinutes = it,
                             enabled = eveningEnabled
-                        )
-                    )
-                },
-                context = context
-            )
-
-            // Night Session
-            ScheduleSessionItem(
-                title = if (selectedLanguage == "Hausa") "Zikirin Dare & Kafin Barci" else "Night / Sleep Adhkar",
-                icon = Icons.Default.NightsStay,
-                enabled = nightEnabled,
-                hour = nightHour,
-                minute = nightMinute,
-                duration = nightDuration,
-                selectedLanguage = selectedLanguage,
-                onToggle = {
-                    nightEnabled = it
-                    MandatoryAdhkarManager.saveSchedule(
-                        context,
-                        com.example.receiver.MandatorySchedule(
-                            id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                            title = "After Isha Zikir",
-                            category = "Sleeping & Waking Up",
-                            hour = nightHour,
-                            minute = nightMinute,
-                            durationMinutes = nightDuration,
-                            enabled = it
-                        )
-                    )
-                },
-                onTimeChange = { h, m ->
-                    nightHour = h
-                    nightMinute = m
-                    MandatoryAdhkarManager.saveSchedule(
-                        context,
-                        com.example.receiver.MandatorySchedule(
-                            id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                            title = "After Isha Zikir",
-                            category = "Sleeping & Waking Up",
-                            hour = h,
-                            minute = m,
-                            durationMinutes = nightDuration,
-                            enabled = nightEnabled
-                        )
-                    )
-                },
-                onDurationChange = {
-                    nightDuration = it
-                    MandatoryAdhkarManager.saveSchedule(
-                        context,
-                        com.example.receiver.MandatorySchedule(
-                            id = MandatoryAdhkarManager.SCHEDULE_ID_ISHA,
-                            title = "After Isha Zikir",
-                            category = "Sleeping & Waking Up",
-                            hour = nightHour,
-                            minute = nightMinute,
-                            durationMinutes = it,
-                            enabled = nightEnabled
                         )
                     )
                 },
