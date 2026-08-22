@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -783,6 +784,12 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                             enabled = it
                         )
                     )
+                    val statusStr = if (it) {
+                        if (selectedLanguage == "Hausa") "Zikirin Safe yana aiki" else "Morning Adhkar activated"
+                    } else {
+                        if (selectedLanguage == "Hausa") "An kashe Zikirin Safe" else "Morning Adhkar turned off"
+                    }
+                    Toast.makeText(context, statusStr, Toast.LENGTH_SHORT).show()
                 },
                 onTimeChange = { h, m ->
                     morningHour = h
@@ -799,6 +806,11 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                             enabled = morningEnabled
                         )
                     )
+                    val amPm = if (h >= 12) "PM" else "AM"
+                    val h12 = if (h % 12 == 0) 12 else h % 12
+                    val timeStr = String.format("%02d:%02d %s", h12, m, amPm)
+                    val msg = if (selectedLanguage == "Hausa") "An saita Zikirin Safe: $timeStr" else "Morning Adhkar set to $timeStr"
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 },
                 onDurationChange = {
                     morningDuration = it
@@ -841,6 +853,12 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                             enabled = it
                         )
                     )
+                    val statusStr = if (it) {
+                        if (selectedLanguage == "Hausa") "Zikirin Yamma yana aiki" else "Evening Adhkar activated"
+                    } else {
+                        if (selectedLanguage == "Hausa") "An kashe Zikirin Yamma" else "Evening Adhkar turned off"
+                    }
+                    Toast.makeText(context, statusStr, Toast.LENGTH_SHORT).show()
                 },
                 onTimeChange = { h, m ->
                     eveningHour = h
@@ -857,6 +875,11 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                             enabled = eveningEnabled
                         )
                     )
+                    val amPm = if (h >= 12) "PM" else "AM"
+                    val h12 = if (h % 12 == 0) 12 else h % 12
+                    val timeStr = String.format("%02d:%02d %s", h12, m, amPm)
+                    val msg = if (selectedLanguage == "Hausa") "An saita Zikirin Yamma: $timeStr" else "Evening Adhkar set to $timeStr"
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 },
                 onDurationChange = {
                     eveningDuration = it
@@ -995,7 +1018,11 @@ private fun ScheduleSessionItem(
     onDurationChange: (Int) -> Unit,
     context: Context
 ) {
-    val formattedTime = String.format("%02d:%02d", hour, minute)
+    val formattedTime = remember(hour, minute) {
+        val amPm = if (hour >= 12) "PM" else "AM"
+        val h12 = if (hour % 12 == 0) 12 else hour % 12
+        String.format("%02d:%02d %s", h12, minute, amPm)
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -1060,7 +1087,7 @@ private fun ScheduleSessionItem(
                                     { _, selectedH, selectedM -> onTimeChange(selectedH, selectedM) },
                                     hour,
                                     minute,
-                                    true
+                                    false
                                 ).show()
                             },
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),

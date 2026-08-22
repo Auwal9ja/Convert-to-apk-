@@ -89,8 +89,8 @@ object MandatoryAdhkarManager {
     }
 
     fun getOccurrenceId(scheduleId: String, timestampMillis: Long): String {
-        val datePart = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(timestampMillis))
-        return "${scheduleId}_$datePart"
+        val timePart = SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.US).format(Date(timestampMillis))
+        return "${scheduleId}_$timePart"
     }
 
     /**
@@ -260,13 +260,19 @@ object MandatoryAdhkarManager {
 
         if (!schedule.enabled) {
             cancelAlarmForSchedule(context, schedule.id)
-            prefs.edit().putLong("next_occurrence_${schedule.id}", 0L).apply()
+            prefs.edit()
+                .putLong("next_occurrence_${schedule.id}", 0L)
+                .remove("last_triggered_${schedule.id}")
+                .apply()
             Log.d(TAG, "schedule disabled: Cancelled alarm for schedule ID=${schedule.id}")
         } else {
             // First cancel any existing alarm to avoid stale triggers at old time
             cancelAlarmForSchedule(context, schedule.id)
             val nextTime = calculateNextOccurrence(validHour, validMinute, System.currentTimeMillis())
-            prefs.edit().putLong("next_occurrence_${schedule.id}", nextTime).apply()
+            prefs.edit()
+                .putLong("next_occurrence_${schedule.id}", nextTime)
+                .remove("last_triggered_${schedule.id}")
+                .apply()
             val cleanSchedule = schedule.copy(
                 hour = validHour,
                 minute = validMinute,
