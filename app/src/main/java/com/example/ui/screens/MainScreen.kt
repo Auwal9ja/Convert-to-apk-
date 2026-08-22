@@ -1669,7 +1669,7 @@ fun DuaItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Audio recitation controllers
+                // Audio recitation controllers (Arabic Quranic/Adhkar pronunciation)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
                         onClick = {
@@ -1686,11 +1686,16 @@ fun DuaItemCard(
                     ) {
                         Icon(
                             imageVector = if (isArabicPlaying) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
-                            contentDescription = "Play Arabic",
+                            contentDescription = "Play Arabic Audio",
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Arabic", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        val playLabel = if (isArabicPlaying) {
+                            if (selectedLanguage == "Hausa") "Tsayar" else "Stop"
+                        } else {
+                            if (selectedLanguage == "Hausa") "Saurari (Koyi Furtawa)" else "Listen & Pronounce"
+                        }
+                        Text(playLabel, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
