@@ -74,7 +74,6 @@ import com.example.ui.components.InAppUpdateBanner
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
-import com.example.ui.components.OneSignalSettingsCard
 import com.example.ui.components.AutoScrollSideBar
 import java.util.Calendar
 
@@ -154,6 +153,23 @@ fun MainScreen(
             selectedLanguage = selectedLanguage,
             onLanguageSelected = { viewModel.setLanguage(it) },
             onComplete = { viewModel.completeFirstLaunch() }
+        )
+    } else if (isSettingsDialogVisible) {
+        SettingsScreen(
+            onNavigateBack = { isSettingsDialogVisible = false },
+            selectedLanguage = selectedLanguage,
+            onLanguageSelected = { viewModel.setLanguage(it) },
+            isDarkTheme = isDarkTheme,
+            onToggleTheme = onToggleTheme,
+            arabicFontSize = arabicFontSize,
+            onArabicFontSizeChange = { viewModel.setArabicFontSize(it) },
+            textFontSize = textFontSize,
+            onTextFontSizeChange = { viewModel.setTextFontSize(it) },
+            updateState = updateState,
+            onCheckForUpdates = onCheckForUpdates,
+            onStartUpdate = onStartUpdate,
+            onCompleteUpdate = onCompleteUpdate,
+            context = context
         )
     } else {
         Scaffold(
@@ -810,25 +826,6 @@ fun MainScreen(
                     Text(AppLocalizer.getString("done", selectedLanguage))
                 }
             }
-        )
-    }
-
-    if (isSettingsDialogVisible) {
-        SettingsDialog(
-            onDismiss = { isSettingsDialogVisible = false },
-            selectedLanguage = selectedLanguage,
-            onLanguageSelected = { viewModel.setLanguage(it) },
-            isDarkTheme = isDarkTheme,
-            onToggleTheme = onToggleTheme,
-            arabicFontSize = arabicFontSize,
-            onArabicFontSizeChange = { viewModel.setArabicFontSize(it) },
-            textFontSize = textFontSize,
-            onTextFontSizeChange = { viewModel.setTextFontSize(it) },
-            updateState = updateState,
-            onCheckForUpdates = onCheckForUpdates,
-            onStartUpdate = onStartUpdate,
-            onCompleteUpdate = onCompleteUpdate,
-            context = context
         )
     }
     }
@@ -4233,9 +4230,6 @@ fun SettingsDialog(
 
                 // Mandatory Adhkar Settings Section
                 MandatoryAdhkarSettingsSection(context = context)
-
-                // OneSignal Push Notifications & Diagnostics Section
-                OneSignalSettingsCard(context = context, selectedLanguage = selectedLanguage)
             }
         },
         confirmButton = {
