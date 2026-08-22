@@ -2,8 +2,11 @@ package com.example.ui.audio
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +14,8 @@ import java.util.Locale
 
 class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
 
-    private var tts: TextToSpeech? = TextToSpeech(context.applicationContext, this)
+    private val TAG = "DuaSpeaker"
+    private var tts: TextToSpeech? = null
     
     private val _isArabicReady = MutableStateFlow(false)
     val isArabicReady: StateFlow<Boolean> = _isArabicReady
@@ -27,6 +31,25 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
     private var isInitialized = false
 
     init {
+        initTts()
+    }
+
+    private fun initTts() {
+        try {
+            // First attempt to initialize with Google TTS engine if available for best Arabic pronunciation
+            tts = TextToSpeech(context.applicationContext, this, "com.google.android.tts")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed initializing with Google TTS engine, falling back to default TTS", e)
+            try {
+                tts = TextToSpeech(context.applicationContext, this)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed initializing default TTS", ex)
+            }
+        }
+        setupProgressListener()
+    }
+
+    private fun setupProgressListener() {
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
                 val parts = utteranceId?.split("_")
@@ -56,6 +79,14 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             isInitialized = true
+            try {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+                tts?.setAudioAttributes(audioAttributes)
+            } catch (_: Exception) {}
+
             setupArabicLocale()
             
             // Execute pending speech if any
@@ -66,37 +97,69 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
                 pendingSpeechText = null
                 speakArabic(pendId, pendText)
             }
+        } else {
+            Log.e(TAG, "TTS Init failed with status: $status. Retrying with default engine...")
+            // Fallback retry with default engine
+            try {
+                tts = TextToSpeech(context.applicationContext) { retryStatus ->
+                    if (retryStatus == TextToSpeech.SUCCESS) {
+                        isInitialized = true
+                        setupArabicLocale()
+                        val pendId = pendingSpeechId
+                        val pendText = pendingSpeechText
+                        if (pendId != null && pendText != null) {
+                            pendingSpeechId = null
+                            pendingSpeechText = null
+                            speakArabic(pendId, pendText)
+                        }
+                    }
+                }
+                setupProgressListener()
+            } catch (e: Exception) {
+                Log.e(TAG, "Secondary TTS init failed", e)
+            }
         }
     }
 
     private fun setupArabicLocale(): Boolean {
-        val saudiArabic = Locale("ar", "SA")
-        val generalArabic = Locale("ar")
-        
-        var result = tts?.setLanguage(saudiArabic)
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            result = tts?.setLanguage(generalArabic)
+        val candidateLocales = listOf(
+            Locale.forLanguageTag("ar-SA"),
+            Locale("ar", "SA"),
+            Locale.forLanguageTag("ar"),
+            Locale("ar"),
+            Locale("ara")
+        )
+
+        var languageSet = false
+        for (loc in candidateLocales) {
+            val result = tts?.setLanguage(loc)
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                languageSet = true
+                break
+            }
         }
 
-        val isReady = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-        _isArabicReady.value = isReady
+        if (!languageSet) {
+            // Still attempt to set standard Arabic locale even if missing data warning
+            tts?.setLanguage(Locale("ar"))
+        }
+
+        _isArabicReady.value = languageSet
 
         // Select the most authentic Native Arabic human voice (prioritizing high quality, local neural/natural models)
         try {
             val allVoices = tts?.voices ?: emptySet()
             val arabicVoices = allVoices.filter { 
-                it.locale.language.equals("ar", ignoreCase = true) 
+                it.locale.language.equals("ar", ignoreCase = true) || it.locale.isO3Language.equals("ara", ignoreCase = true)
             }
 
             if (arabicVoices.isNotEmpty()) {
-                // Prioritize male/qari-style natural Arabic native voices, high quality, and non-network required first
                 val bestVoice = arabicVoices.maxByOrNull { voice ->
                     var score = 0
                     if (voice.quality >= android.speech.tts.Voice.QUALITY_HIGH) score += 20
                     if (voice.quality >= android.speech.tts.Voice.QUALITY_VERY_HIGH) score += 30
                     if (voice.locale.country.equals("SA", ignoreCase = true)) score += 15
                     if (!voice.isNetworkConnectionRequired) score += 10
-                    // Bonus for natural/reciter-style voices
                     val vName = voice.name.lowercase()
                     if (vName.contains("male") || vName.contains("ard") || vName.contains("arc")) score += 10
                     score
@@ -106,7 +169,7 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
             }
         } catch (_: Exception) {}
 
-        return isReady
+        return languageSet
     }
 
     /**
@@ -126,7 +189,7 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
 
     fun speakArabic(id: Int, text: String, customRate: Float = 0.78f) {
         if (tts == null) {
-            tts = TextToSpeech(context.applicationContext, this)
+            initTts()
         }
 
         if (!isInitialized) {
@@ -136,7 +199,7 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
         }
 
         stop()
-        setupArabicLocale()
+        val isReady = setupArabicLocale()
 
         val cleanedText = cleanArabicForPronunciation(text)
         if (cleanedText.isBlank()) return
@@ -146,21 +209,35 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
         // Gentle, dignified pace optimal for memorization and accurate pronunciation learning
         tts?.setSpeechRate(customRate)
 
-        val params = android.os.Bundle().apply {
+        val params = Bundle().apply {
             putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "arabic_$id")
         }
 
         val res = tts?.speak(cleanedText, TextToSpeech.QUEUE_FLUSH, params, "arabic_$id")
         if (res == TextToSpeech.ERROR) {
-            // Re-attempt setup
+            Log.e(TAG, "TTS speak failed. Attempting fallback setup...")
             setupArabicLocale()
-            tts?.speak(cleanedText, TextToSpeech.QUEUE_FLUSH, params, "arabic_$id")
+            val retryRes = tts?.speak(cleanedText, TextToSpeech.QUEUE_FLUSH, params, "arabic_$id")
+            if (retryRes == TextToSpeech.ERROR && !isReady) {
+                // Inform user if voice data needs installation on physical device
+                try {
+                    Toast.makeText(
+                        context,
+                        "Ana buƙatar kunna ko saukar da muryar Larabci (Arabic TTS) a Settings na wayarka.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    val installIntent = Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(installIntent)
+                } catch (_: Exception) {}
+            }
         }
     }
 
     fun speakTranslation(id: Int, text: String, languageCode: String = "en") {
         if (tts == null) {
-            tts = TextToSpeech(context.applicationContext, this)
+            initTts()
         }
 
         if (!isInitialized) {
@@ -179,7 +256,7 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
         tts?.setPitch(1.0f)
         tts?.setSpeechRate(0.92f)
 
-        val params = android.os.Bundle().apply {
+        val params = Bundle().apply {
             putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "translation_$id")
         }
         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, "translation_$id")
