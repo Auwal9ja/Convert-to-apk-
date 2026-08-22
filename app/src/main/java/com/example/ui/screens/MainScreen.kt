@@ -3790,12 +3790,10 @@ fun SettingsDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo),
-                    contentDescription = "Noor Zikir Logo",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = AppLocalizer.getString("settings_title", selectedLanguage),
