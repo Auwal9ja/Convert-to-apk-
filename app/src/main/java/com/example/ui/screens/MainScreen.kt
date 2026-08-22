@@ -866,25 +866,38 @@ fun LibraryTab(
                     .fillMaxSize()
                     .background(Color(0x77000000))
             )
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.Bottom
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text(
-                    "نور الذكر",
-                    color = Color.White,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Serif
+                Image(
+                    painter = painterResource(id = R.drawable.ic_app_logo),
+                    contentDescription = "Noor Zikir Logo",
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
-                Text(
-                    "Noor Zikir • The Light of Remembrance",
-                    color = Color(0xFFECC76A),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Text(
+                        "نور الذكر",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Serif
+                    )
+                    Text(
+                        "Noor Zikir • The Light of Remembrance",
+                        color = Color(0xFFECC76A),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
 
