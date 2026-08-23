@@ -123,7 +123,7 @@ fun MainScreen(
     onCompleteUpdate: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    var selectedTab by remember { mutableIntStateOf(0) } // 0 = Library, 1 = Favorites, 2 = Reminders
+    var selectedTab by remember { mutableIntStateOf(0) } // 0 = Home, 1 = Library, 2 = Qibla, 3 = Favorites, 4 = Reminders
 
     // Instantiate and manage our TTS Speaker
     val speaker = remember { DuaSpeaker(context) }
@@ -462,9 +462,16 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = selectedTab == 2,
                         onClick = { selectedTab = 2 },
+                        icon = { Icon(Icons.Default.Explore, contentDescription = "Qibla") },
+                        label = { Text(AppLocalizer.getString("qibla", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_qibla")
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
                         icon = {
                             Icon(
-                                imageVector = if (selectedTab == 2) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                imageVector = if (selectedTab == 3) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorites"
                             )
                         },
@@ -472,8 +479,8 @@ fun MainScreen(
                         modifier = Modifier.testTag("nav_favorites")
                     )
                     NavigationBarItem(
-                        selected = selectedTab == 3,
-                        onClick = { selectedTab = 3 },
+                        selected = selectedTab == 4,
+                        onClick = { selectedTab = 4 },
                         icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
                         label = { Text(AppLocalizer.getString("daily_reminders", selectedLanguage)) },
                         modifier = Modifier.testTag("nav_reminders")
@@ -513,6 +520,9 @@ fun MainScreen(
                         viewModel.setSearchQuery(query)
                         viewModel.setTargetDuaId(null)
                         selectedTab = 1
+                    },
+                    onNavigateToQibla = {
+                        selectedTab = 2
                     }
                 )
                 1 -> LibraryTab(
@@ -528,7 +538,11 @@ fun MainScreen(
                     completedDuas = completedDuas,
                     isDarkTheme = isDarkTheme
                 )
-                2 -> FavoritesTab(
+                2 -> QiblaCompassScreen(
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme
+                )
+                3 -> FavoritesTab(
                     viewModel = viewModel,
                     favorites = favorites,
                     speaker = speaker,
@@ -538,7 +552,7 @@ fun MainScreen(
                     completedDuas = completedDuas,
                     isDarkTheme = isDarkTheme
                 )
-                3 -> RemindersTab(selectedLanguage = selectedLanguage)
+                4 -> RemindersTab(selectedLanguage = selectedLanguage)
             }
         }
     }
@@ -1944,7 +1958,8 @@ fun HomeTab(
     onCompleteUpdate: () -> Unit = {},
     onCategoryClick: (String?) -> Unit,
     onSelectDua: (DuaEntity) -> Unit = {},
-    onNavigateToLibraryWithSearch: (String) -> Unit = {}
+    onNavigateToLibraryWithSearch: (String) -> Unit = {},
+    onNavigateToQibla: () -> Unit = {}
 ) {
     val completedCount = completedDuas.size
     val displayCompleted = if (completedCount > 0) completedCount else 12
@@ -2538,6 +2553,72 @@ fun HomeTab(
                         tint = goldAccent,
                         modifier = Modifier.size(24.dp)
                     )
+                }
+            }
+        }
+
+        // Qibla Direction Quick Access Banner
+        item {
+            Card(
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = cardBg),
+                border = BorderStroke(1.2.dp, goldAccent.copy(alpha = 0.5f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToQibla() }
+                    .testTag("home_qibla_shortcut_card")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = goldAccent.copy(alpha = 0.18f),
+                        modifier = Modifier.size(46.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Explore,
+                                contentDescription = "Qibla Compass",
+                                tint = goldAccent,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = AppLocalizer.getString("qibla_finder", selectedLanguage),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = textPrimary
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = AppLocalizer.getString("towards_kaaba", selectedLanguage),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = textSecondary
+                        )
+                    }
+
+                    FilledTonalButton(
+                        onClick = { onNavigateToQibla() },
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = goldAccent.copy(alpha = 0.2f),
+                            contentColor = goldAccent
+                        )
+                    ) {
+                        Text(
+                            text = AppLocalizer.getString("qibla", selectedLanguage),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
                 }
             }
         }

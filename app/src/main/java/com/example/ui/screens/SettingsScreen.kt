@@ -35,10 +35,85 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.data.local.AppLocalizer
 import com.example.receiver.MandatoryAdhkarManager
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.util.UpdateState
+
+const val PRIVACY_POLICY_URL = "https://noorzikir.netlify.app/"
+const val NAJAH_TECH_EMAIL = "najahtechng@gmail.com"
+
+fun openPrivacyPolicy(context: Context, url: String = PRIVACY_POLICY_URL) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        Toast.makeText(context, "Privacy Policy: $url", Toast.LENGTH_LONG).show()
+    }
+}
+
+fun openContactUsEmail(context: Context, recipient: String = NAJAH_TECH_EMAIL) {
+    val subject = "Noor Zikir App - Tuntuba & Inquiry"
+    val body = "\n\n---\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE}"
+    try {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val chooser = Intent.createChooser(intent, "Aika Imel ta / Send Email via")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    } catch (_: Exception) {
+        try {
+            val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "message/rfc822"
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, body)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(Intent.createChooser(genericIntent, "Send Email"))
+        } catch (_: Exception) {
+            Toast.makeText(context, "Email: $recipient", Toast.LENGTH_LONG).show()
+        }
+    }
+}
+
+fun sendFeedbackEmail(context: Context, category: String, messageText: String, recipient: String = NAJAH_TECH_EMAIL) {
+    val subject = "[Noor Zikir Feedback] - $category"
+    val body = "$messageText\n\n---\nCategory: $category\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    try {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val chooser = Intent.createChooser(intent, "Aika Ra'ayi ta / Send Feedback via")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    } catch (_: Exception) {
+        try {
+            val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "message/rfc822"
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, body)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(Intent.createChooser(genericIntent, "Send Feedback"))
+        } catch (_: Exception) {
+            Toast.makeText(context, "Email: $recipient", Toast.LENGTH_LONG).show()
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +133,30 @@ fun SettingsScreen(
     onCompleteUpdate: () -> Unit = {},
     context: Context = LocalContext.current
 ) {
+    var showFeedbackDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+
+    if (showFeedbackDialog) {
+        FeedbackDialog(
+            selectedLanguage = selectedLanguage,
+            onDismiss = { showFeedbackDialog = false },
+            onSubmit = { category, message ->
+                sendFeedbackEmail(context, category, message)
+                showFeedbackDialog = false
+            }
+        )
+    }
+
+    if (showAboutDialog) {
+        AboutAppDialog(
+            selectedLanguage = selectedLanguage,
+            onDismiss = { showAboutDialog = false },
+            onOpenPrivacyPolicy = { openPrivacyPolicy(context) },
+            onOpenContact = { openContactUsEmail(context) },
+            onOpenWebsite = { openWebsite(context) }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -418,7 +517,230 @@ fun SettingsScreen(
                 }
             }
 
-            // 5. RATE APP, MORE APPS & ABOUT NAJAH TECH
+            // 5. PRIVACY, FEEDBACK, CONTACT & ABOUT
+            item {
+                SettingsSectionCard(
+                    title = if (selectedLanguage == "Hausa") "Tsare Sirri & Tuntuba" else "Legal, Support & About",
+                    icon = Icons.Default.Security,
+                    subtitle = if (selectedLanguage == "Hausa") "Ka'idojin tsare sirri, aiko da ra'ayi da tuntubar mu" else "Privacy Policy, Send Feedback, Contact Us & About"
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // 1. Privacy Policy
+                        Surface(
+                            onClick = { openPrivacyPolicy(context) },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("settings_privacy_policy_button")
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PrivacyTip,
+                                        contentDescription = "Privacy Policy",
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = AppLocalizer.getString("privacy_policy", selectedLanguage),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = AppLocalizer.getString("privacy_policy_subtitle", selectedLanguage),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                    contentDescription = "Open",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+
+                        // 2. Send Feedback
+                        Surface(
+                            onClick = { showFeedbackDialog = true },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("settings_send_feedback_button")
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Feedback,
+                                        contentDescription = "Send Feedback",
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = AppLocalizer.getString("send_feedback", selectedLanguage),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = AppLocalizer.getString("send_feedback_subtitle", selectedLanguage),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = "Open",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        // 3. Contact Us (Direct to Gmail / Email)
+                        Surface(
+                            onClick = { openContactUsEmail(context) },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("settings_contact_us_button")
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Email,
+                                        contentDescription = "Contact Us",
+                                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = AppLocalizer.getString("contact_us", selectedLanguage),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = AppLocalizer.getString("contact_us_subtitle", selectedLanguage),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                    contentDescription = "Open",
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+
+                        // 4. About App
+                        Surface(
+                            onClick = { showAboutDialog = true },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("settings_about_button")
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = "About",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = AppLocalizer.getString("about_us", selectedLanguage),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = AppLocalizer.getString("about_us_subtitle", selectedLanguage),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = "Open",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 6. RATE APP, MORE APPS & ABOUT NAJAH TECH
             item {
                 SettingsSectionCard(
                     title = if (selectedLanguage == "Hausa") "Taimakawa & Bunkasa" else "Support & Developer",
@@ -596,7 +918,7 @@ fun SettingsScreen(
                 }
             }
 
-            // 6. FOOTER INFO
+            // 7. FOOTER INFO
             item {
                 Column(
                     modifier = Modifier
@@ -612,7 +934,7 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Built with ❤️ by Najah Tech",
+                        text = "Built with ❤️ by Najah Tech (najahtechng@gmail.com)",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1119,6 +1441,341 @@ private fun ScheduleSessionItem(
                             valueRange = 1f..60f,
                             modifier = Modifier.width(140.dp)
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FeedbackDialog(
+    selectedLanguage: String,
+    onDismiss: () -> Unit,
+    onSubmit: (category: String, message: String) -> Unit
+) {
+    val categories = listOf(
+        "💡 " + AppLocalizer.getString("feedback_type_suggestion", selectedLanguage),
+        "🐛 " + AppLocalizer.getString("feedback_type_bug", selectedLanguage),
+        "📖 " + AppLocalizer.getString("feedback_type_dua_correction", selectedLanguage),
+        "❓ " + AppLocalizer.getString("feedback_type_question", selectedLanguage)
+    )
+
+    var selectedCategoryIndex by remember { mutableIntStateOf(0) }
+    var feedbackText by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Feedback,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+                Text(
+                    text = AppLocalizer.getString("feedback_dialog_title", selectedLanguage),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = AppLocalizer.getString("feedback_type_label", selectedLanguage),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Category chips
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    categories.forEachIndexed { index, categoryTitle ->
+                        Surface(
+                            onClick = { selectedCategoryIndex = index },
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (selectedCategoryIndex == index)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(
+                                1.dp,
+                                if (selectedCategoryIndex == index)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = categoryTitle,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = if (selectedCategoryIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (selectedCategoryIndex == index)
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                )
+                                if (selectedCategoryIndex == index) {
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = feedbackText,
+                    onValueChange = { feedbackText = it },
+                    label = { Text(if (selectedLanguage == "Hausa") "Sakon Ra'ayi / Shawara" else "Feedback / Message") },
+                    placeholder = { Text(AppLocalizer.getString("feedback_hint", selectedLanguage), fontSize = 13.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 110.dp)
+                        .testTag("feedback_input_field"),
+                    maxLines = 5,
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = if (selectedLanguage == "Hausa")
+                                "Za a tura zuwa najahtechng@gmail.com ta Gmail / Imel"
+                            else
+                                "Will be sent to najahtechng@gmail.com via email",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val cat = categories.getOrNull(selectedCategoryIndex) ?: "General"
+                    onSubmit(cat, feedbackText.trim())
+                },
+                enabled = feedbackText.isNotBlank(),
+                modifier = Modifier.testTag("feedback_send_button")
+            ) {
+                Icon(imageVector = Icons.Default.Send, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(AppLocalizer.getString("feedback_send_btn", selectedLanguage))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(AppLocalizer.getString("feedback_cancel_btn", selectedLanguage))
+            }
+        }
+    )
+}
+
+@Composable
+fun AboutAppDialog(
+    selectedLanguage: String,
+    onDismiss: () -> Unit,
+    onOpenPrivacyPolicy: () -> Unit,
+    onOpenContact: () -> Unit,
+    onOpenWebsite: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                // App Logo / Emblem
+                Box(
+                    modifier = Modifier
+                        .size(68.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.linearGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    Color(0xFFD4AF37)
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Mosque,
+                        contentDescription = "Noor Zikir",
+                        tint = Color.White,
+                        modifier = Modifier.size(38.dp)
+                    )
+                }
+
+                // Title & Version
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Noor Zikir",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "نور الذكر • Version 1.0.0",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Description
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa")
+                            "Noor Zikir manhaja ce ta Musulunci mai kunshe da ingantattun addu'o'in Hisnul Muslim, zikiri na safe da yamma, fassara a yaruka daban-daban (Hausa, English, Yorùbá, Igbo, Larabci...), kamfas din Alƙibla, sauti da jadawalin tunatarwa kyauta."
+                        else
+                            "Noor Zikir is a comprehensive Islamic fortress application featuring authentic Hisnul Muslim Duas, morning & evening Adhkar, multi-language translations, precision Qibla compass, audio recitations, and scheduled reminders.",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                // Developer & Organization Info
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Kamfani & Mai Bunkasawa:" else "Developer & Team:",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Text(
+                                text = "Najah Tech Solutions",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Email: najahtechng@gmail.com",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Web: www.najahtech.com",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                // Action Buttons
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Privacy policy button
+                    OutlinedButton(
+                        onClick = {
+                            onDismiss()
+                            onOpenPrivacyPolicy()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.PrivacyTip, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(AppLocalizer.getString("privacy_policy", selectedLanguage), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+
+                    // Contact button
+                    Button(
+                        onClick = {
+                            onDismiss()
+                            onOpenContact()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(AppLocalizer.getString("contact_us", selectedLanguage), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+
+                    // Dismiss button
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (selectedLanguage == "Hausa") "Rufe" else "Close")
                     }
                 }
             }

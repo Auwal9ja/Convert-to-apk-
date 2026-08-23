@@ -2352,6 +2352,128 @@ object DuaDatabaseSeeder {
                 translationYoruba = "Ni orukọ Ọlọhun ti ko si ohun kan ti o le ṣe ipalara pẹlu Orukọ Rẹ ni ilẹ tabi ni ọrun, Oun si ni Olugbọ, Onimọ. (Igba 3)",
                 translationIgbo = "N'aha Chineke, Onye na-enweghị ihe nwere ike ibute mmerụ ahụ n'aha Ya n'ụwa ma ọ bụ n'eluigwe, Ya bụ Onye Na-anụ Ihe, Onye Maara Ihe Niile. (Ugboro 3)",
                 reference = "The Prophet (ﷺ) said: 'Whoever recites it three times in the morning and three times in the evening, nothing will harm him.' Reference: Sunan Abi Dawud 5088, Sunan At-Tirmidhi 3388 (Sahih)."
+            ),
+
+            // Authentic Post-Salah Adhkar (Adhkar after obligatory prayer)
+            DuaEntity(
+                id = 199,
+                category = "Post-Salah Adhkar",
+                title = "Tahlil & Submission to Divine Decree After Prayer",
+                arabic = "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ",
+                transliteration = "La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in Qadeer. Allahumma la mani'a lima a'tayt, wa la mu'tiya lima mana't, wa la yanfa'u dhal-jaddi minkal-jadd.",
+                translation = "None has the right to be worshipped but Allah alone, without partner. To Him belongs all sovereignty and praise, and He is over all things omnipotent. O Allah, none can withhold what You give, nor can anyone give what You withhold, and no wealth or majesty can benefit its possessor against You.",
+                translationHausa = "Babu abin bautawa da gaskiya sai Allah Shi kadai ba Shi da abokin tarayya, mulki Nashi ne kuma godiya Ta tabbata a gare Shi, kuma Shi a kan komai Mai iko ne. Ya Allah! Babu mai hana abin da Ka bayar, kuma babu mai bayar da abin da Ka hana, kuma dukiya ko matsayi ba ya amfanar ma'abucinsa a wurinKa.",
+                translationYoruba = "Kò sí ọlọ́run kan àfi Allāhu, Òun nìkan tí kò ní orogun, tiRẹ̀ ni ìjọba àti gbogbo ọpẹ́, Òun sì ní agbára lórí ohun gbogbo. Allāhu, kò sí ẹni tí ó le dènà ohun tí O bá fúnni, kò sì sí ẹni tí ó le fúnni ní ohun tí O bá dènà, ọrọ̀ tàbí ipò kò sì ní ṣe àǹfààní fún olówó níwájú Rẹ.",
+                translationIgbo = "Ọ dịghị chi ọzọ ma e wezụga Chineke nanị Ya, Onye na-enweghị onye ya na ya na-ekerịta. Ọchịchị na otuto niile bụ nke Ya, Ọ nwekwara ike n'elu ihe niile. Chineke, ọ dịghị onye nwere ike igbochi ihe I nyere, ọ dịghịkwa onye nwere ike inye ihe I gbochiri, akụ na ụba agaghị abara onye nwe ya uru n'ebe Ị nọ.",
+                reference = "Sahih al-Bukhari 844, Sahih Muslim 593 — Recited after salam in every obligatory prayer."
+            ),
+            DuaEntity(
+                id = 200,
+                category = "Post-Salah Adhkar",
+                title = "Affirmation of Pure Monotheism & Sincerity After Prayer",
+                arabic = "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ، لَا إِلَهَ إِلَّا اللَّهُ، وَلَا نَعْبُدُ إِلَّا إِيَّاهُ، لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَهَ إِلَّا اللَّهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الْكَافِرُونَ",
+                transliteration = "La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in Qadeer. La hawla wa la quwwata illa billah. La ilaha illallah, wa la na'budu illa iyyah, lahun-ni'matu wa lahul-fadlu wa lahuth-thana'ul-hasan. La ilaha illallahu mukhliseena lahud-deena wa law karihal-kafiroon.",
+                translation = "None has the right to be worshipped but Allah alone, without partner. To Him belongs all sovereignty and praise, and He is over all things omnipotent. There is no power and no might except by Allah. None has the right to be worshipped but Allah, and we worship none except Him. To Him belongs all favor, grace, and noble praise. None has the right to be worshipped but Allah, making religion purely for Him, even though the disbelievers may detest it.",
+                translationHausa = "Babu abin bautawa da gaskiya sai Allah Shi kadai ba Ya da abokin tarayya, mulki Nashi ne kuma godiya Ta tabbata a gare Shi, kuma Shi a kan komai Mai iko ne. Babu dubara kuma babu karfi sai tare da Allah. Babu abin bautawa da gaskiya sai Allah, kuma ba ma bauta wa kowa sai Shi kadai. Ni'ima da falala da kyakkyawan yabo Nashi ne. Babu abin bautawa da gaskiya sai Allah, muna masu tsarkake addini dominsa koda kafirai sun ki.",
+                translationYoruba = "Kò sí ọlọ́run kan àfi Allāhu, Òun nìkan tí kò ní orogun, tiRẹ̀ ni ìjọba àti gbogbo ọpẹ́, Òun sì ní agbára lórí ohun gbogbo. Kò sí agbára tàbí ipá àfi pẹ̀lú Allāhu. Kò sí ọlọ́run kan àfi Allāhu, a kò sì ní jọ́sìn fún ẹnikẹ́ni àfi Òun nìkan. TiRẹ̀ ni ìdẹ̀ra, ojúrere àti ìyìn tí ó dára jùlọ. Kò sí ọlọ́run kan àfi Allāhu, a ń fi gbogbo ẹ̀sìn sọ́tọ̀ fún Un, bí ó tilẹ̀ jẹ́ pé àwọn aláìgbàgbọ́ kórìíra rẹ̀.",
+                translationIgbo = "Ọ dịghị chi ọzọ ma e wezụga Chineke nanị Ya, Onye na-enweghị onye ya na ya na-ekerịta. Ọchịchị na otuto niile bụ nke Ya, Ọ nwekwara ike n'elu ihe niile. Ọ dịghị ike ma ọ bụ ike ma e wezụga site na Chineke. Ọ dịghị chi ọzọ ma e wezụga Chineke, anyị anaghị efe onye ọzọ ma e wezụga Ya. Amara, ihuọma na ezigbo otuto bụ nke Ya. Anyị na-eme okpukpe ka ọ dị ọcha nye Ya n'agbanyeghị na ndị na-ekweghị ekwe kpọrọ ya asị.",
+                reference = "Sahih Muslim 594 — Narrated by Abdullah ibn az-Zubayr after every obligatory prayer."
+            ),
+            DuaEntity(
+                id = 201,
+                category = "Post-Salah Adhkar",
+                title = "Ayat Al-Kursi After Every Obligatory Prayer",
+                arabic = "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+                transliteration = "Allāhu lā ilāha illā Huwal-Hayyul-Qayyoom, lā ta'khudhuhū sinatuw-wa lā nawm, lahū mā fis-samāwāti wa mā fil-ard, man dhal-ladhī yashfa'u 'indahū illā bi-idhnih, ya'lamu mā bayna aydīhim wa mā khalfahum, wa lā yuhītūna bi-shay'im-min 'ilmihī illā bimā shā', wasi'a kursiyyuhus-samāwāti wal-arda wa lā ya'ūduhū hifzuhumā, wa Huwal-'Aliyyul-'Azeem.",
+                translation = "Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+                translationHausa = "Allah! Babu abin bautawa da gaskiya sai Shi, Rayayye, Mai tsayuwa da komai. Gyangyadi ba ya kama Shi kuma barci ba ya kama Shi. Abin da ke cikin sammai da abin da ke cikin kasa Nashi ne. Wane ne wanda zai iya yin ceto a wurinSa face da izininSa? Yana sanin abin da ke gaba gare su da abin da ke bayansu, kuma ba su san komai daga iliminSa ba face abin da Ya so. KursiyyunSa ya yalwaci sammai da kasa, kuma tsare su ba ya gajiyar da Shi. Kuma Shi ne Madaukaki, Mai girma.",
+                translationYoruba = "Allāhu, kò sí ọlọ́run kan àfi Òun, Ọ̀dáyé, Olùtọ́jú gbogbo ẹ̀dá. Òògbé kò ní Í mú bẹ́ẹ̀ ni oorun kò gbọ́dọ̀ kùn Ú. TiRẹ̀ ni gbogbo ohun tí ń bẹ nínú àwọn ọ̀run àti ilẹ̀...",
+                translationIgbo = "Chineke - ọ dịghị chi ọzọ ma e wezụga Ya, Onye Dị Ndụ, Onye Na-elekọta ihe niile. Iro ụra anaghị ejide Ya ma ọ bụ ụra. Nke Ya bụ ihe niile dị n'eluigwe na ihe niile dị n'ụwa...",
+                reference = "The Prophet (ﷺ) said: 'Whoever recites Ayat Al-Kursi immediately after each prescribed prayer, there will be nothing between him and entering Paradise except death.' Reference: Sunan An-Nasa'i (As-Sunan Al-Kubra 9928), Sahih Al-Jami 6464."
+            ),
+            DuaEntity(
+                id = 202,
+                category = "Post-Salah Adhkar",
+                title = "The Three Protectors (Surah Al-Ikhlas, Al-Falaq & An-Nas After Salah)",
+                arabic = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ",
+                transliteration = "1. Bismillāhir-Rahmānir-Raheem. Qul Huwallāhu Ahad, Allāhus-Samad, Lam yalid wa lam yoolad, Wa lam yakul-lahoo kufuwan ahad.\n\n2. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbil-falaq, Min sharri mā khalaq, Wa min sharri ghāsiqin idhā waqab, Wa min sharrin-naffāthāti fil-'uqad, Wa min sharri hāsidin idhā hasad.\n\n3. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbin-nās, Malikin-nās, Ilāhin-nās, Min sharril-waswāsil-khannās, Alladhee yuwaswisu fee sudoorin-nās, Minal-jinnati wan-nās.",
+                translation = "1. Surah Al-Ikhlas: In the name of Allah, Most Gracious, Most Merciful. Say: He is Allah, the One and Only; Allah, the Eternal, Absolute; He begets not, nor is He begotten; And there is none like unto Him.\n\n2. Surah Al-Falaq: In the name of Allah, Most Gracious, Most Merciful. Say: I seek refuge with the Lord of the Dawn, from the mischief of created things; from the mischief of Darkness as it overspreads; from the mischief of those who practise secret arts (blowing into knots / magic); and from the mischief of the envious one as he practises envy.\n\n3. Surah An-Nas: In the name of Allah, Most Gracious, Most Merciful. Say: I seek refuge with the Lord and Cherisher of Mankind, the King (or Ruler) of Mankind, the God of Mankind, from the mischief of the Whisperer (of Evil), who withdraws, who whispers into the hearts of Mankind, among Jinn and among men.",
+                translationHausa = "1. Suratul Ikhlas: Da sunan Allah, Mai rahama, Mai jin kai. Ka ce: Shi ne Allah, Makaɗaici. Allah wanda ake nufi da buƙatu. Bai haifa ba kuma ba a haife Shi ba. Kuma babu wani da ya zama kishiya ko tamkar Sa.\n\n2. Suratul Falaq: Da sunan Allah, Mai rahama, Mai jin kai. Ka ce: Ina neman tsari da Ubangijin ketowar alfijir, daga sharrin abubuwan da Ya halitta, da sharrin dare idan ya yi duhu sosai, da sharrin masu tofi a cikin ƙulli, da kuma sharrin mai hassada idan ya yi hassada.\n\n3. Suratun Nas: Da sunan Allah, Mai rahama, Mai jin kai. Ka ce: Ina neman tsari da Ubangijin mutane, Sarkin mutane, Abin bautar mutane, daga sharrin mai rada mai ɓuya (shaidan), wanda yake sanya waswasi a cikin zukatan mutane, daga cikin aljanu da mutane.",
+                translationYoruba = "1. Suratul Ikhlas (Orukọ Ọlọhun, Ajọkẹ-aiye, Asakẹ-ọrun)\n2. Suratul Falaq (Orukọ Ọlọhun, Ajọkẹ-aiye, Asakẹ-ọrun)\n3. Suratun Nas (Orukọ Ọlọhun, Ajọkẹ-aiye, Asakẹ-ọrun)",
+                translationIgbo = "1. Surah Al-Ikhlas (N'aha Chineke, Onye Amara, Onye Ebere)\n2. Surah Al-Falaq (N'aha Chineke, Onye Amara, Onye Ebere)\n3. Surah An-Nas (N'aha Chineke, Onye Amara, Onye Ebere)",
+                reference = "Uqbah ibn 'Amir narrated: 'The Messenger of Allah (ﷺ) commanded me to recite the Mu'awwidhat (Surah Al-Ikhlas, Al-Falaq, An-Nas) after every prayer.' (Recite once after Dhuhr, Asr, Isha, and 3 times after Fajr and Maghrib). Reference: Sunan Abi Dawud 1523, Sunan An-Nasa'i 1336 (Sahih)."
+            ),
+            DuaEntity(
+                id = 203,
+                category = "Post-Salah Adhkar",
+                title = "Supplication for Remembrance, Gratitude & Good Worship (Mu'adh's Dua)",
+                arabic = "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبَادَتِكَ",
+                transliteration = "Allahumma a'innee 'ala dhikrika, wa shukrika, wa husni 'ibadatik.",
+                translation = "O Allah, assist me in remembering You, expressing gratitude to You, and performing Your worship in the most excellent manner.",
+                translationHausa = "Ya Allah! Ka taimake ni a kan ambatonKa, da gode maKa, da kyautata bauta a gare Ka.",
+                translationYoruba = "Allāhu, ràn mí lọ́wọ́ láti ṣe ìrántí Rẹ, láti dúpẹ́ lọ́wọ́ Rẹ, àti láti ṣe ìjọ́sìn fún Ọ ní ọ̀nà tí ó dára jùlọ.",
+                translationIgbo = "Chineke, nyere m aka icheta Gị, ikele Gị, na ife Gị ofufe n'ụzọ kachasị mma.",
+                reference = "The Prophet (ﷺ) took Mu'adh ibn Jabal by the hand and said: 'O Mu'adh, by Allah I love you... Do not forget to say after every prayer: Allahumma a'innee 'ala dhikrika...' Reference: Sunan Abi Dawud 1522, Sunan An-Nasa'i 1303 (Sahih)."
+            ),
+            DuaEntity(
+                id = 204,
+                category = "Post-Salah Adhkar",
+                title = "Tahlil 10 Times After Fajr and Maghrib Prayers",
+                arabic = "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (عَشْرَ مَرَّاتٍ بَعْدَ صَلَاةِ الصُّبْحِ وَالْمَغْرِبِ)",
+                transliteration = "La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu, yuhyee wa yumeetu, wa Huwa 'ala kulli shay'in Qadeer (10 times).",
+                translation = "None has the right to be worshipped but Allah alone, without partner. To Him belongs all sovereignty and praise, He gives life and causes death, and He is over all things omnipotent. (Recite 10 times after Fajr and Maghrib).",
+                translationHausa = "Babu abin bautawa da gaskiya sai Allah Shi kadai ba Ya da abokin tarayya, mulki Nashi ne kuma godiya Ta tabbata a gare Shi, Yana rayarwa kuma Yana kashewa, kuma Shi a kan komai Mai iko ne. (Sau 10 bayan sallar Asuba da Magariba).",
+                translationYoruba = "Kò sí ọlọ́run kan àfi Allāhu, Òun nìkan tí kò ní orogun, tiRẹ̀ ni ìjọba àti gbogbo ọpẹ́, Òun ló ń sọ di ààyè tí Ó sì ń pa, Òun sì ní agbára lórí ohun gbogbo. (Igba 10 lẹ́yìn Fajr àti Maghrib).",
+                translationIgbo = "Ọ dịghị chi ọzọ ma e wezụga Chineke nanị Ya, Onye na-enweghị onye ya na ya na-ekerịta. Ọchịchị na otuto niile bụ nke Ya, Ọ na-enye ndụ ma na-akpata ọnwụ, Ọ nwekwara ike n'elu ihe niile. (Ugboro 10 mgbe Fajr na Maghrib gasịrị).",
+                reference = "The Prophet (ﷺ) said: 'Whoever says it ten times after Fajr and Maghrib before moving his feet, Allah writes ten good deeds for him, erases ten sins, raises him ten degrees, and he is protected from every harm and Satan.' Reference: Sunan At-Tirmidhi 3474, 3534, Musnad Ahmad 4/227 (Sahih)."
+            ),
+            DuaEntity(
+                id = 205,
+                category = "Post-Salah Adhkar",
+                title = "Seeking Protection from Hellfire (7 Times After Fajr and Maghrib)",
+                arabic = "اللَّهُمَّ أَجِرْنِي مِنَ النَّارِ (سَبْعَ مَرَّاتٍ بَعْدَ صَلَاةِ الصُّبْحِ وَالْمَغْرِبِ)",
+                transliteration = "Allahumma ajirnee minan-nar (7 times).",
+                translation = "O Allah, protect and save me from the Hellfire. (Recite 7 times after Fajr and Maghrib prayers).",
+                translationHausa = "Ya Allah! Ka tsare ni kuma Ka tseratar da ni daga wutar Jahannama. (Sau 7 bayan sallar Asuba da Magariba).",
+                translationYoruba = "Allāhu, gbà mí lọ́wọ́ iná Iná-ọ̀run. (Igba 7 lẹ́yìn Fajr àti Maghrib).",
+                translationIgbo = "Chineke, zọpụta m ma chebe m pụọ n'ọkụ ala mmụọ. (Ugboro 7 mgbe Fajr na Maghrib gasịrị).",
+                reference = "The Prophet (ﷺ) said: 'When you finish the Maghrib prayer, say seven times: Allahumma ajirnee minan-nar; if you say that and die during that night, protection will be written for you. And say the same after Fajr prayer.' Reference: Sunan Abi Dawud 5079, Musnad Ahmad 4/234."
+            ),
+            DuaEntity(
+                id = 206,
+                category = "Post-Salah Adhkar",
+                title = "Dua for Beneficial Knowledge, Pure Sustenance & Accepted Deeds (After Fajr)",
+                arabic = "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا (بَعْدَ السَّلَامِ مِنْ صَلَاةِ الْفَجْرِ)",
+                transliteration = "Allahumma innee as'aluka 'ilman nafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbala.",
+                translation = "O Allah, I ask You for knowledge that is beneficial, provision that is pure and wholesome, and deeds that are accepted. (Recited after the salam of Fajr prayer).",
+                translationHausa = "Ya Allah! Ina roƙonKa ilimi mai amfani, da arziki mai daɗi da tsarki (na halal), da kuma aiki karɓaɓɓe (wanda Ka yarda da shi). (Bayan sallama daga sallar Asuba).",
+                translationYoruba = "Allāhu, mo tọrọ ìmọ̀ tí ó ní àǹfààní lọ́dọ̀ Rẹ, àti oúnjẹ/ọrọ̀ tí ó mọ́, àti iṣẹ́ tí a tẹ́wọ́gbà. (Lẹ́yìn sọláàti Àfẹ̀mọ́júmọ́).",
+                translationIgbo = "Chineke, ana m arịọ Gị maka mmụta bara uru, ihe eji ebi ndụ dị ọcha, na ọrụ a nabatara. (Mgbe ekpere Fajr gasịrị).",
+                reference = "Narrated by Umm Salamah (RA) that the Prophet (ﷺ) used to say this supplication after completing the Fajr prayer. Reference: Sunan Ibn Majah 925, Musnad Ahmad 6/305 (Sahih)."
+            ),
+            DuaEntity(
+                id = 207,
+                category = "Post-Salah Adhkar",
+                title = "Seeking Refuge from Cowardice, Miserliness, Old Age & Grave Torment",
+                arabic = "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا، وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ",
+                transliteration = "Allahumma innee a'oodhu bika minal-jubn, wa a'oodhu bika an uradda ila ardhalil-'umur, wa a'oodhu bika min fitnatid-dunya, wa a'oodhu bika min 'adhabil-qabr.",
+                translation = "O Allah, I seek refuge in You from cowardice, I seek refuge in You from being brought back to the most decrepit old age, I seek refuge in You from the trials of this world, and I seek refuge in You from the punishment of the grave.",
+                translationHausa = "Ya Allah! Ina neman tsari da Kai daga tsoro (ragwanta), kuma ina neman tsari da Kai daga a mayar da ni zuwa ga mafi kaskancin tsufa (gaza yin komai), kuma ina neman tsari da Kai daga fitinar duniya, kuma ina neman tsari da Kai daga azabar kabari.",
+                translationYoruba = "Allāhu, mo wá ààbò pẹ̀lú Rẹ kúrò nínú ẹ̀rù, mo wá ààbò pẹ̀lú Rẹ kúrò nínú dídápadà sí ọjọ́ ogbó tí kò wúlò, mo wá ààbò pẹ̀lú Rẹ kúrò nínú àdánwò ayé, mo sì wá ààbò pẹ̀lú Rẹ kúrò nínú ìyà ibojì.",
+                translationIgbo = "Chineke, ana m achọ mgbaba n'ebe Ị nọ pụọ n'ụjọ, ana m achọ mgbaba n'ebe Ị nọ pụọ n'ịbụ onye a tụgharịrị gaa na nká kachasị njọ, ana m achọ mgbaba n'ebe Ị nọ pụọ na ọnwụnwa nke ụwa a, ana m achọkwa mgbaba n'ebe Ị nọ pụọ na ahụhụ nke ili.",
+                reference = "Narrated by Sa'd ibn Abi Waqqas (RA) that the Prophet (ﷺ) used to seek refuge with these words at the end of every prayer. Reference: Sahih al-Bukhari 2822."
+            ),
+            DuaEntity(
+                id = 208,
+                category = "Post-Salah Adhkar",
+                title = "Astaghfirullahal-Azim (Supplication for Complete Forgiveness)",
+                arabic = "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْهِ",
+                transliteration = "Astaghfirullāhal-'Azeemalladhee la ilaha illa Huwal-Hayyul-Qayyoomu wa atoobu ilayh.",
+                translation = "I seek the forgiveness of Allah the Magnificent, Whom there is none worthy of worship except Him, the Ever-Living, the Sustainer of all existence, and I repent unto Him.",
+                translationHausa = "Ina neman gafarar Allah Mai girma, Wanda babu abin bautawa da gaskiya sai Shi, Rayayye, Mai tsayuwa da komai, kuma ina tuba zuwa gare Shi.",
+                translationYoruba = "Mo tọrọ àforíjìn lọ́dọ̀ Allāhu Alágbára Ńlá, Ẹni tí kò sí ọlọ́run kan àfi Òun, Ọ̀dáyé, Olùtọ́jú gbogbo ẹ̀dá, mo sì ronúpìwàdà sí Ọ̀dọ̀ Rẹ̀.",
+                translationIgbo = "Ana m arịọ mgbaghara n'aka Chineke Onye Ukwu, Onye na-enweghị chi ọzọ ma e wezụga Ya, Onye Dị Ndụ, Onye Na-elekọta ihe niile, ana m echegharịkwa nye Ya.",
+                reference = "The Prophet (ﷺ) said: 'Whoever says it, his sins will be forgiven even if he had fled from the battlefield.' Reference: Sunan Abi Dawud 1517, Sunan At-Tirmidhi 3577 (Sahih)."
             )
         )
     }
