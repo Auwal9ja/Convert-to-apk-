@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
 import android.app.TimePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -58,60 +60,126 @@ fun openPrivacyPolicy(context: Context, url: String = PRIVACY_POLICY_URL) {
 
 fun openContactUsEmail(context: Context, recipient: String = NAJAH_TECH_EMAIL) {
     val subject = "Noor Zikir App - Tuntuba & Inquiry"
-    val body = "\n\n---\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE}"
+    val body = "Assalamu Alaikum Najah Tech,\n\nIna son yin tambaya / bayani game da manhajar Noor Zikir:\n\n\n---\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE}"
+    
+    // 1. Copy info to clipboard as a safe backup
     try {
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, body)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        val chooser = Intent.createChooser(intent, "Aika Imel ta / Send Email via")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newPlainText("Noor Zikir Contact", "To: $recipient\nSubject: $subject\n\n$body")
+        clipboard?.setPrimaryClip(clip)
+    } catch (_: Exception) {}
+
+    // 2. Try launching standard mailto intent
+    val mailUri = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+    val mailIntent = Intent(Intent.ACTION_SENDTO, mailUri).apply {
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, body)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+
+    try {
+        context.startActivity(mailIntent)
+        Toast.makeText(context, "An buɗe Imel zuwa $recipient", Toast.LENGTH_SHORT).show()
     } catch (_: Exception) {
+        // Fallback A: Try targeting Gmail directly
         try {
-            val genericIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "message/rfc822"
+            val gmailIntent = Intent(Intent.ACTION_SENDTO, mailUri).apply {
+                `package` = "com.google.android.gm"
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, body)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(Intent.createChooser(genericIntent, "Send Email"))
+            context.startActivity(gmailIntent)
+            Toast.makeText(context, "An buɗe Gmail zuwa $recipient", Toast.LENGTH_SHORT).show()
         } catch (_: Exception) {
-            Toast.makeText(context, "Email: $recipient", Toast.LENGTH_LONG).show()
+            // Fallback B: Try generic ACTION_SEND chooser
+            try {
+                val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "message/rfc822"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                    putExtra(Intent.EXTRA_TEXT, body)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(Intent.createChooser(genericIntent, "Send Email"))
+            } catch (_: Exception) {
+                // Fallback C: Open Gmail web compose in browser
+                try {
+                    val webGmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=${Uri.encode(recipient)}&su=${Uri.encode(subject)}&body=${Uri.encode(body)}"
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(webGmailUrl)).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(browserIntent)
+                    Toast.makeText(context, "An buɗe Gmail a Browser zuwa $recipient", Toast.LENGTH_LONG).show()
+                } catch (_: Exception) {
+                    Toast.makeText(context, "Email: $recipient (An kwafi saƙonka)", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 }
 
 fun sendFeedbackEmail(context: Context, category: String, messageText: String, recipient: String = NAJAH_TECH_EMAIL) {
     val subject = "[Noor Zikir Feedback] - $category"
-    val body = "$messageText\n\n---\nCategory: $category\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    val body = "Assalamu Alaikum Najah Tech,\n\nGa ra'ayina / shawarata game da Noor Zikir:\n\n$messageText\n\n---\nCategory: $category\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    
+    // 1. Copy feedback to clipboard as guaranteed backup so the user never loses it
     try {
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, body)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        val chooser = Intent.createChooser(intent, "Aika Ra'ayi ta / Send Feedback via")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newPlainText("Noor Zikir Feedback", "To: $recipient\nSubject: $subject\n\n$body")
+        clipboard?.setPrimaryClip(clip)
+    } catch (_: Exception) {}
+
+    // 2. Try launching standard mailto intent
+    val mailUri = Uri.parse("mailto:$recipient?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+    val mailIntent = Intent(Intent.ACTION_SENDTO, mailUri).apply {
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, body)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+
+    try {
+        context.startActivity(mailIntent)
+        Toast.makeText(context, "An buɗe Imel zuwa $recipient", Toast.LENGTH_SHORT).show()
     } catch (_: Exception) {
+        // Fallback A: Try targeting Gmail package directly
         try {
-            val genericIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "message/rfc822"
+            val gmailIntent = Intent(Intent.ACTION_SENDTO, mailUri).apply {
+                `package` = "com.google.android.gm"
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, body)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(Intent.createChooser(genericIntent, "Send Feedback"))
+            context.startActivity(gmailIntent)
+            Toast.makeText(context, "An buɗe Gmail zuwa $recipient", Toast.LENGTH_SHORT).show()
         } catch (_: Exception) {
-            Toast.makeText(context, "Email: $recipient", Toast.LENGTH_LONG).show()
+            // Fallback B: Try generic ACTION_SEND chooser
+            try {
+                val genericIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "message/rfc822"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                    putExtra(Intent.EXTRA_TEXT, body)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(Intent.createChooser(genericIntent, "Send Feedback"))
+            } catch (_: Exception) {
+                // Fallback C: Open Gmail web compose in browser
+                try {
+                    val webGmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=${Uri.encode(recipient)}&su=${Uri.encode(subject)}&body=${Uri.encode(body)}"
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(webGmailUrl)).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(browserIntent)
+                    Toast.makeText(context, "An buɗe Gmail a Browser zuwa $recipient", Toast.LENGTH_LONG).show()
+                } catch (_: Exception) {
+                    Toast.makeText(context, "Email: $recipient (An kwafi saƙonka)", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 }

@@ -17,11 +17,24 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
-    <!-- Queries declaration for Text-to-Speech (TTS) engines on Android 11+ (API 30+) -->
+    <!-- Queries declaration for Text-to-Speech (TTS), Email (Gmail / Mailto), and Web on Android 11+ (API 30+) -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <package android:name="com.google.android.gm" />
         <package android:name="com.google.android.tts" />
         <package android:name="com.samsung.SMT" />
     </queries>
