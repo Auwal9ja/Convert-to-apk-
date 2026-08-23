@@ -125,7 +125,7 @@ object MandatoryAdhkarManager {
         // 1. Morning Schedule
         val morningHour = prefs.getInt(KEY_MORNING_HOUR, 6)
         val morningMin = prefs.getInt(KEY_MORNING_MINUTE, 0)
-        val morningDur = prefs.getInt("duration_$SCHEDULE_ID_MORNING", prefs.getInt(KEY_READING_DURATION, 15))
+        val morningDur = prefs.getInt("duration_$SCHEDULE_ID_MORNING", prefs.getInt(KEY_READING_DURATION, 3))
         val morningEnabled = prefs.getBoolean(KEY_MORNING_ENABLED, true)
         val morningNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_MORNING", 0L)
         val morningLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_MORNING", "") ?: ""
@@ -151,7 +151,7 @@ object MandatoryAdhkarManager {
         // 2. Evening Schedule
         val eveningHour = prefs.getInt(KEY_EVENING_HOUR, 18)
         val eveningMin = prefs.getInt(KEY_EVENING_MINUTE, 0)
-        val eveningDur = prefs.getInt("duration_$SCHEDULE_ID_EVENING", prefs.getInt(KEY_READING_DURATION, 15))
+        val eveningDur = prefs.getInt("duration_$SCHEDULE_ID_EVENING", prefs.getInt(KEY_READING_DURATION, 3))
         val eveningEnabled = prefs.getBoolean(KEY_EVENING_ENABLED, true)
         val eveningNext = prefs.getLong("next_occurrence_$SCHEDULE_ID_EVENING", 0L)
         val eveningLastTriggered = prefs.getString("last_triggered_$SCHEDULE_ID_EVENING", "") ?: ""

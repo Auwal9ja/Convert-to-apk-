@@ -14,7 +14,7 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
         val scheduleTitle = intent.getStringExtra("SCHEDULE_TITLE")
             ?: if (scheduleId == MandatoryAdhkarManager.SCHEDULE_ID_EVENING) "Evening Zikir" else "Morning Zikir"
         val category = intent.getStringExtra("CATEGORY") ?: "Morning & Evening"
-        val durationMinutes = intent.getIntExtra("DURATION_MINUTES", intent.getIntExtra("READING_DURATION", 15))
+        val durationMinutes = intent.getIntExtra("DURATION_MINUTES", intent.getIntExtra("READING_DURATION", 3))
         val isTest = intent.getBooleanExtra("IS_TEST", false)
 
         Log.d(MandatoryAdhkarManager.TAG, "receiver execution: Action received: $action for schedule=$scheduleId ($scheduleTitle), duration=${durationMinutes}m, isTest=$isTest")
