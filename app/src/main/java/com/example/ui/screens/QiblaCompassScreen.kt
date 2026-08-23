@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -173,6 +174,11 @@ fun QiblaCompassScreen(
     var locationName by remember { mutableStateOf("Kano, Nigeria") }
     var isGpsActive by remember { mutableStateOf(false) }
     var showCityDialog by remember { mutableStateOf(false) }
+
+    // Intercept back button if city selection dialog is open
+    BackHandler(enabled = showCityDialog) {
+        showCityDialog = false
+    }
 
     // Compass Sensor State
     var rawAzimuth by remember { mutableFloatStateOf(0f) }

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -135,6 +136,15 @@ fun SettingsScreen(
 ) {
     var showFeedbackDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+
+    // Intercept phone back button to close dialogs or navigate back cleanly to previous screen
+    BackHandler(enabled = true) {
+        when {
+            showFeedbackDialog -> showFeedbackDialog = false
+            showAboutDialog -> showAboutDialog = false
+            else -> onNavigateBack()
+        }
+    }
 
     if (showFeedbackDialog) {
         FeedbackDialog(

@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -10,6 +11,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationManagerCompat
@@ -124,14 +126,11 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) } // 0 = Home, 1 = Library, 2 = Qibla, 3 = Favorites, 4 = Reminders
+    val tabBackStack = remember { mutableStateListOf<Int>() }
+    var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
-    // Instantiate and manage our TTS Speaker
-    val speaker = remember { DuaSpeaker(context) }
-    DisposableEffect(Unit) {
-        onDispose {
-            speaker.shutdown()
-        }
-    }
+    var isFontSizeDialogVisible by remember { mutableStateOf(false) }
+    var isSettingsDialogVisible by remember { mutableStateOf(false) }
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
@@ -145,8 +144,63 @@ fun MainScreen(
     val completedDuas by viewModel.completedDuas.collectAsStateWithLifecycle()
     val isFirstLaunch by viewModel.isFirstLaunch.collectAsStateWithLifecycle()
 
-    var isFontSizeDialogVisible by remember { mutableStateOf(false) }
-    var isSettingsDialogVisible by remember { mutableStateOf(false) }
+    fun navigateToTab(targetTab: Int) {
+        if (selectedTab != targetTab) {
+            tabBackStack.add(selectedTab)
+            selectedTab = targetTab
+        }
+    }
+
+    // Comprehensive Back Button Handling: Prevents accidental app exit and navigates back hierarchically
+    BackHandler(enabled = !isFirstLaunch) {
+        when {
+            isSettingsDialogVisible -> {
+                isSettingsDialogVisible = false
+            }
+            isFontSizeDialogVisible -> {
+                isFontSizeDialogVisible = false
+            }
+            selectedTab == 1 && searchQuery.isNotEmpty() -> {
+                viewModel.setSearchQuery("")
+            }
+            selectedTab == 1 && selectedCategory != null -> {
+                viewModel.selectCategory(null)
+            }
+            tabBackStack.isNotEmpty() -> {
+                val previousTab = tabBackStack.removeAt(tabBackStack.lastIndex)
+                selectedTab = previousTab
+            }
+            selectedTab != 0 -> {
+                selectedTab = 0
+            }
+            else -> {
+                // At Home Screen root: Double tap back button to confirm exit
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastBackPressTime < 2000L) {
+                    (context as? Activity)?.finish()
+                } else {
+                    lastBackPressTime = currentTime
+                    val exitMsg = when (selectedLanguage) {
+                        "Hausa" -> "Latsa baya sau biyu domin fita daga Noor Zikir"
+                        "Yoruba" -> "Tẹ bọtini pada lẹẹkansi lati jade"
+                        "Igbo" -> "Pịa azụ ọzọ ka ịpụ"
+                        "Arabic" -> "اضغط رجوع مرة أخرى للخروج من التطبيق"
+                        "French" -> "Appuyez à nouveau pour quitter"
+                        else -> "Press back again to exit Noor Zikir"
+                    }
+                    Toast.makeText(context, exitMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // Instantiate and manage our TTS Speaker
+    val speaker = remember { DuaSpeaker(context) }
+    DisposableEffect(Unit) {
+        onDispose {
+            speaker.shutdown()
+        }
+    }
 
     if (isFirstLaunch) {
         OnboardingLanguageSelection(
@@ -447,28 +501,28 @@ fun MainScreen(
                 ) {
                     NavigationBarItem(
                         selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
+                        onClick = { navigateToTab(0) },
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                         label = { Text(AppLocalizer.getString("home", selectedLanguage)) },
                         modifier = Modifier.testTag("nav_home")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
+                        onClick = { navigateToTab(1) },
                         icon = { Icon(Icons.Default.Book, contentDescription = "Library") },
                         label = { Text(AppLocalizer.getString("library", selectedLanguage)) },
                         modifier = Modifier.testTag("nav_book")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 2,
-                        onClick = { selectedTab = 2 },
+                        onClick = { navigateToTab(2) },
                         icon = { Icon(Icons.Default.Explore, contentDescription = "Qibla") },
                         label = { Text(AppLocalizer.getString("qibla", selectedLanguage)) },
                         modifier = Modifier.testTag("nav_qibla")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 3,
-                        onClick = { selectedTab = 3 },
+                        onClick = { navigateToTab(3) },
                         icon = {
                             Icon(
                                 imageVector = if (selectedTab == 3) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -480,7 +534,7 @@ fun MainScreen(
                     )
                     NavigationBarItem(
                         selected = selectedTab == 4,
-                        onClick = { selectedTab = 4 },
+                        onClick = { navigateToTab(4) },
                         icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
                         label = { Text(AppLocalizer.getString("daily_reminders", selectedLanguage)) },
                         modifier = Modifier.testTag("nav_reminders")
@@ -508,21 +562,21 @@ fun MainScreen(
                     onCategoryClick = { categoryName ->
                         viewModel.selectCategory(categoryName)
                         viewModel.setTargetDuaId(null)
-                        selectedTab = 1
+                        navigateToTab(1)
                     },
                     onSelectDua = { dua ->
                         viewModel.selectCategory(dua.category)
                         viewModel.setTargetDuaId(dua.id)
-                        selectedTab = 1
+                        navigateToTab(1)
                     },
                     onNavigateToLibraryWithSearch = { query ->
                         viewModel.selectCategory(null)
                         viewModel.setSearchQuery(query)
                         viewModel.setTargetDuaId(null)
-                        selectedTab = 1
+                        navigateToTab(1)
                     },
                     onNavigateToQibla = {
-                        selectedTab = 2
+                        navigateToTab(2)
                     }
                 )
                 1 -> LibraryTab(
