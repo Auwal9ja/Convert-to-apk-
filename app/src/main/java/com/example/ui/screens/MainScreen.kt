@@ -993,14 +993,45 @@ fun LibraryTab(
                 FilterChip(
                     selected = selectedCategory == null,
                     onClick = { viewModel.selectCategory(null) },
+                    leadingIcon = {
+                        Text(text = "✨", fontSize = 14.sp)
+                    },
                     label = { Text(AppLocalizer.getString("all_topics", selectedLanguage)) },
                     modifier = Modifier.testTag("chip_all")
                 )
             }
             items(categories) { category ->
+                val emoji = when (category) {
+                    "Morning & Evening" -> "☀️"
+                    "Sleeping & Waking Up" -> "🌙"
+                    "Prayers & Mosque" -> "🕌"
+                    "Post-Salah Adhkar" -> "📿"
+                    "Ablution & Purification" -> "💧"
+                    "Eating & Drinking" -> "🍽️"
+                    "Dressing" -> "👕"
+                    "Travel & Home" -> "🚗"
+                    "Hardship & Anxiety" -> "🤲"
+                    "Protection & Evil Eye" -> "🛡️"
+                    "Visiting the Sick" -> "🩺"
+                    "Good Manners" -> "🤝"
+                    "Greetings & Social" -> "💬"
+                    "Rain & Wind" -> "🌧️"
+                    "Market & Shopping" -> "🛒"
+                    "Grave & Funeral" -> "⚰️"
+                    "Fasting & Ramadan" -> "🏮"
+                    "Hajj & Umrah" -> "🕋"
+                    "Marriage & Family" -> "💍"
+                    "Repentance & Seeking Forgiveness" -> "🧎"
+                    "Ruqyah" -> "🌿"
+                    "40 Rabbana Duas" -> "📖"
+                    else -> "✨"
+                }
                 FilterChip(
                     selected = selectedCategory == category,
                     onClick = { viewModel.selectCategory(category) },
+                    leadingIcon = {
+                        Text(text = emoji, fontSize = 14.sp)
+                    },
                     label = { Text(AppLocalizer.getCategoryName(category, selectedLanguage)) },
                     modifier = Modifier.testTag("chip_$category")
                 )
@@ -2614,29 +2645,170 @@ fun HomeTab(
 
         // Grid of All Categories and Azkar
         item {
+            val countLabel = when (selectedLanguage) {
+                "Hausa" -> "Addu'a"
+                "Arabic" -> "دعاء"
+                "Yoruba" -> "Adua"
+                "Igbo" -> "Ekpere"
+                "French" -> "Duas"
+                else -> "Duas"
+            }
+
             val categoriesList = listOf(
-                CategoryGridItem(AppLocalizer.getCategoryName("Morning & Evening", selectedLanguage), "Morning & Evening", "☀️", Icons.Default.WbSunny),
-                CategoryGridItem(AppLocalizer.getCategoryName("Sleeping & Waking Up", selectedLanguage), "Sleeping & Waking Up", "🛌", Icons.Default.Hotel),
-                CategoryGridItem(AppLocalizer.getCategoryName("Prayers & Mosque", selectedLanguage), "Prayers & Mosque", "🕌", Icons.Default.Place),
-                CategoryGridItem(AppLocalizer.getCategoryName("Post-Salah Adhkar", selectedLanguage), "Post-Salah Adhkar", "📿", Icons.Default.CheckCircle),
-                CategoryGridItem(AppLocalizer.getCategoryName("Ablution & Purification", selectedLanguage), "Ablution & Purification", "💧", Icons.Default.WaterDrop),
-                CategoryGridItem(AppLocalizer.getCategoryName("Eating & Drinking", selectedLanguage), "Eating & Drinking", "🍽️", Icons.Default.Restaurant),
-                CategoryGridItem(AppLocalizer.getCategoryName("Dressing", selectedLanguage), "Dressing", "👕", Icons.Default.Checkroom),
-                CategoryGridItem(AppLocalizer.getCategoryName("Travel & Home", selectedLanguage), "Travel & Home", "🚗", Icons.Default.DirectionsCar),
-                CategoryGridItem(AppLocalizer.getCategoryName("Hardship & Anxiety", selectedLanguage), "Hardship & Anxiety", "🤲", Icons.Default.Healing),
-                CategoryGridItem(AppLocalizer.getCategoryName("Protection & Evil Eye", selectedLanguage), "Protection & Evil Eye", "🛡️", Icons.Default.Security),
-                CategoryGridItem(AppLocalizer.getCategoryName("Visiting the Sick", selectedLanguage), "Visiting the Sick", "🩺", Icons.Default.LocalHospital),
-                CategoryGridItem(AppLocalizer.getCategoryName("Good Manners", selectedLanguage), "Good Manners", "🤝", Icons.Default.People),
-                CategoryGridItem(AppLocalizer.getCategoryName("Greetings & Social", selectedLanguage), "Greetings & Social", "💬", Icons.Default.Chat),
-                CategoryGridItem(AppLocalizer.getCategoryName("Rain & Wind", selectedLanguage), "Rain & Wind", "🌧️", Icons.Default.Cloud),
-                CategoryGridItem(AppLocalizer.getCategoryName("Market & Shopping", selectedLanguage), "Market & Shopping", "🛒", Icons.Default.ShoppingCart),
-                CategoryGridItem(AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage), "Grave & Funeral", "⚰️", Icons.Default.HourglassEmpty),
-                CategoryGridItem(AppLocalizer.getCategoryName("Fasting & Ramadan", selectedLanguage), "Fasting & Ramadan", "🌙", Icons.Default.NightsStay),
-                CategoryGridItem(AppLocalizer.getCategoryName("Hajj & Umrah", selectedLanguage), "Hajj & Umrah", "🕋", Icons.Default.LocationOn),
-                CategoryGridItem(AppLocalizer.getCategoryName("Marriage & Family", selectedLanguage), "Marriage & Family", "💍", Icons.Default.Favorite),
-                CategoryGridItem(AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage), "Repentance & Seeking Forgiveness", "🧎", Icons.Default.Refresh),
-                CategoryGridItem(AppLocalizer.getCategoryName("Ruqyah", selectedLanguage), "Ruqyah", "🌿", Icons.Default.Healing),
-                CategoryGridItem(AppLocalizer.getCategoryName("40 Rabbana Duas", selectedLanguage), "40 Rabbana Duas", "📖", Icons.Default.MenuBook)
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Morning & Evening", selectedLanguage),
+                    dbCategory = "Morning & Evening",
+                    emoji = "☀️",
+                    gradient = listOf(Color(0xFFFFA000), Color(0xFFFF6F00), Color(0xFFD84315)),
+                    duaCount = allDuas.count { it.category.equals("Morning & Evening", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Sleeping & Waking Up", selectedLanguage),
+                    dbCategory = "Sleeping & Waking Up",
+                    emoji = "🌙",
+                    gradient = listOf(Color(0xFF3949AB), Color(0xFF1E88E5), Color(0xFF0D47A1)),
+                    duaCount = allDuas.count { it.category.equals("Sleeping & Waking Up", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Prayers & Mosque", selectedLanguage),
+                    dbCategory = "Prayers & Mosque",
+                    emoji = "🕌",
+                    gradient = listOf(Color(0xFF00897B), Color(0xFF004D40), Color(0xFF00796B)),
+                    duaCount = allDuas.count { it.category.equals("Prayers & Mosque", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Post-Salah Adhkar", selectedLanguage),
+                    dbCategory = "Post-Salah Adhkar",
+                    emoji = "📿",
+                    gradient = listOf(Color(0xFF00ACC1), Color(0xFF00838F), Color(0xFF006064)),
+                    duaCount = allDuas.count { it.category.equals("Post-Salah Adhkar", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Ablution & Purification", selectedLanguage),
+                    dbCategory = "Ablution & Purification",
+                    emoji = "💧",
+                    gradient = listOf(Color(0xFF039BE5), Color(0xFF0288D1), Color(0xFF01579B)),
+                    duaCount = allDuas.count { it.category.equals("Ablution & Purification", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Eating & Drinking", selectedLanguage),
+                    dbCategory = "Eating & Drinking",
+                    emoji = "🍽️",
+                    gradient = listOf(Color(0xFFFB8C00), Color(0xFFE65100), Color(0xFFBF360C)),
+                    duaCount = allDuas.count { it.category.equals("Eating & Drinking", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Dressing", selectedLanguage),
+                    dbCategory = "Dressing",
+                    emoji = "👕",
+                    gradient = listOf(Color(0xFF8E24AA), Color(0xFF6A1B9A), Color(0xFF4A148C)),
+                    duaCount = allDuas.count { it.category.equals("Dressing", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Travel & Home", selectedLanguage),
+                    dbCategory = "Travel & Home",
+                    emoji = "🚗",
+                    gradient = listOf(Color(0xFF0097A7), Color(0xFF00838F), Color(0xFF006064)),
+                    duaCount = allDuas.count { it.category.equals("Travel & Home", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Hardship & Anxiety", selectedLanguage),
+                    dbCategory = "Hardship & Anxiety",
+                    emoji = "🤲",
+                    gradient = listOf(Color(0xFF43A047), Color(0xFF2E7D32), Color(0xFF1B5E20)),
+                    duaCount = allDuas.count { it.category.equals("Hardship & Anxiety", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Protection & Evil Eye", selectedLanguage),
+                    dbCategory = "Protection & Evil Eye",
+                    emoji = "🛡️",
+                    gradient = listOf(Color(0xFF546E7A), Color(0xFF37474F), Color(0xFF263238)),
+                    duaCount = allDuas.count { it.category.equals("Protection & Evil Eye", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Visiting the Sick", selectedLanguage),
+                    dbCategory = "Visiting the Sick",
+                    emoji = "🩺",
+                    gradient = listOf(Color(0xFFE91E63), Color(0xFFC2185B), Color(0xFF880E4F)),
+                    duaCount = allDuas.count { it.category.equals("Visiting the Sick", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Good Manners", selectedLanguage),
+                    dbCategory = "Good Manners",
+                    emoji = "🤝",
+                    gradient = listOf(Color(0xFF8D6E63), Color(0xFF6D4C41), Color(0xFF3E2723)),
+                    duaCount = allDuas.count { it.category.equals("Good Manners", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Greetings & Social", selectedLanguage),
+                    dbCategory = "Greetings & Social",
+                    emoji = "💬",
+                    gradient = listOf(Color(0xFF26A69A), Color(0xFF00897B), Color(0xFF004D40)),
+                    duaCount = allDuas.count { it.category.equals("Greetings & Social", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Rain & Wind", selectedLanguage),
+                    dbCategory = "Rain & Wind",
+                    emoji = "🌧️",
+                    gradient = listOf(Color(0xFF455A64), Color(0xFF37474F), Color(0xFF263238)),
+                    duaCount = allDuas.count { it.category.equals("Rain & Wind", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Market & Shopping", selectedLanguage),
+                    dbCategory = "Market & Shopping",
+                    emoji = "🛒",
+                    gradient = listOf(Color(0xFF2E7D32), Color(0xFF1B5E20), Color(0xFF004D40)),
+                    duaCount = allDuas.count { it.category.equals("Market & Shopping", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage),
+                    dbCategory = "Grave & Funeral",
+                    emoji = "⚰️",
+                    gradient = listOf(Color(0xFF616161), Color(0xFF424242), Color(0xFF212121)),
+                    duaCount = allDuas.count { it.category.equals("Grave & Funeral", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Fasting & Ramadan", selectedLanguage),
+                    dbCategory = "Fasting & Ramadan",
+                    emoji = "🏮",
+                    gradient = listOf(Color(0xFFC2185B), Color(0xFFAD1457), Color(0xFF4A0E17)),
+                    duaCount = allDuas.count { it.category.equals("Fasting & Ramadan", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Hajj & Umrah", selectedLanguage),
+                    dbCategory = "Hajj & Umrah",
+                    emoji = "🕋",
+                    gradient = listOf(Color(0xFFD4AF37), Color(0xFF8D6E63), Color(0xFF212121)),
+                    duaCount = allDuas.count { it.category.equals("Hajj & Umrah", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Marriage & Family", selectedLanguage),
+                    dbCategory = "Marriage & Family",
+                    emoji = "💍",
+                    gradient = listOf(Color(0xFFEC407A), Color(0xFFD81B60), Color(0xFF880E4F)),
+                    duaCount = allDuas.count { it.category.equals("Marriage & Family", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage),
+                    dbCategory = "Repentance & Seeking Forgiveness",
+                    emoji = "🧎",
+                    gradient = listOf(Color(0xFF00796B), Color(0xFF004D40), Color(0xFF04261E)),
+                    duaCount = allDuas.count { it.category.equals("Repentance & Seeking Forgiveness", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Ruqyah", selectedLanguage),
+                    dbCategory = "Ruqyah",
+                    emoji = "🌿",
+                    gradient = listOf(Color(0xFF689F38), Color(0xFF558B2F), Color(0xFF33691E)),
+                    duaCount = allDuas.count { it.category.equals("Ruqyah", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("40 Rabbana Duas", selectedLanguage),
+                    dbCategory = "40 Rabbana Duas",
+                    emoji = "📖",
+                    gradient = listOf(Color(0xFFD4AF37), Color(0xFFA0781A), Color(0xFF422F07)),
+                    duaCount = allDuas.count { it.category.equals("40 Rabbana Duas", ignoreCase = true) }
+                )
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -2650,8 +2822,10 @@ fun HomeTab(
                             cardBg = cardBg,
                             cardBorder = cardBorder,
                             textPrimary = textPrimary,
+                            textSecondary = textSecondary,
                             goldAccent = goldAccent,
                             isDarkTheme = isDarkTheme,
+                            countLabel = countLabel,
                             onClick = { onCategoryClick(categoriesList[i].dbCategory) },
                             modifier = Modifier.weight(1f)
                         )
@@ -2661,8 +2835,10 @@ fun HomeTab(
                                 cardBg = cardBg,
                                 cardBorder = cardBorder,
                                 textPrimary = textPrimary,
+                                textSecondary = textSecondary,
                                 goldAccent = goldAccent,
                                 isDarkTheme = isDarkTheme,
+                                countLabel = countLabel,
                                 onClick = { onCategoryClick(categoriesList[i + 1].dbCategory) },
                                 modifier = Modifier.weight(1f)
                             )
@@ -2867,7 +3043,8 @@ data class CategoryGridItem(
     val title: String,
     val dbCategory: String?,
     val emoji: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val gradient: List<Color>,
+    val duaCount: Int = 0
 )
 
 @Composable
@@ -2876,8 +3053,10 @@ fun CategoryCard(
     cardBg: Color,
     cardBorder: Color,
     textPrimary: Color,
+    textSecondary: Color,
     goldAccent: Color,
     isDarkTheme: Boolean,
+    countLabel: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -2885,14 +3064,15 @@ fun CategoryCard(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = cardBg),
         border = BorderStroke(1.dp, cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
         modifier = modifier
-            .height(108.dp)
+            .height(122.dp)
             .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(14.dp),
+                .padding(13.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -2900,23 +3080,57 @@ fun CategoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(if (isDarkTheme) Color(0xFF132D27) else MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
+                // Realistic 3D Miniature Badge Container with glossy gradient highlight
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = Color.Transparent,
+                    border = BorderStroke(
+                        1.2.dp,
+                        Brush.linearGradient(
+                            listOf(
+                                Color.White.copy(alpha = 0.6f),
+                                Color.White.copy(alpha = 0.1f)
+                            )
+                        )
+                    ),
+                    modifier = Modifier.size(44.dp)
                 ) {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.title,
-                        tint = goldAccent,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.radialGradient(
+                                    colors = item.gradient,
+                                    center = Offset(22f, 18f),
+                                    radius = 50f
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = item.emoji,
+                            fontSize = 22.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
-                Text(
-                    text = item.emoji,
-                    fontSize = 18.sp
-                )
+
+                // Dua Count Badge Pill
+                if (item.duaCount > 0) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isDarkTheme) Color(0xFF143B33) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                        border = BorderStroke(0.6.dp, goldAccent.copy(alpha = 0.3f))
+                    ) {
+                        Text(
+                            text = "${item.duaCount} $countLabel",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDarkTheme) Color(0xFFECC76A) else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                        )
+                    }
+                }
             }
 
             Text(
@@ -2926,7 +3140,7 @@ fun CategoryCard(
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                lineHeight = 16.sp
+                lineHeight = 16.5.sp
             )
         }
     }

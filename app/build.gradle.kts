@@ -14,7 +14,7 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.hisnulmuslim.fwksq"
+    applicationId = "com.aistudio.noorzikir.app"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -31,11 +31,14 @@ android {
       keyAlias = "upload"
       keyPassword = System.getenv("KEY_PASSWORD")
     }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
+    val debugKeystoreFile = file("${rootDir}/debug.keystore")
+    if (debugKeystoreFile.exists()) {
+      create("debugConfig") {
+        storeFile = debugKeystoreFile
+        storePassword = "android"
+        keyAlias = "androiddebugkey"
+        keyPassword = "android"
+      }
     }
   }
 
@@ -46,7 +49,11 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("release")
     }
-    debug { signingConfig = signingConfigs.getByName("debugConfig") }
+    debug {
+      signingConfigs.findByName("debugConfig")?.let {
+        signingConfig = it
+      }
+    }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
