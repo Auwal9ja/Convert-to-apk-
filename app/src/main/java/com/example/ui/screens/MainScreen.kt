@@ -113,6 +113,25 @@ fun openWebsite(context: Context, websiteUrl: String = COMPANY_WEBSITE_URL) {
     }
 }
 
+fun openPlayStoreRating(context: Context) {
+    val packageName = context.packageName
+    try {
+        val rateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        }
+        context.startActivity(rateIntent)
+    } catch (_: Exception) {
+        try {
+            val webRateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(webRateIntent)
+        } catch (_: Exception) {
+            Toast.makeText(context, "Could not open Google Play Store", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -143,6 +162,22 @@ fun MainScreen(
     val textFontSize by viewModel.textFontSize.collectAsStateWithLifecycle()
     val completedDuas by viewModel.completedDuas.collectAsStateWithLifecycle()
     val isFirstLaunch by viewModel.isFirstLaunch.collectAsStateWithLifecycle()
+
+    val ratePrefs = remember { context.getSharedPreferences("app_rate_prefs", Context.MODE_PRIVATE) }
+    var showRateDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFirstLaunch) {
+        if (!isFirstLaunch) {
+            val hasRated = ratePrefs.getBoolean("has_rated", false)
+            if (!hasRated) {
+                val currentCount = ratePrefs.getInt("launch_count", 0) + 1
+                ratePrefs.edit().putInt("launch_count", currentCount).apply()
+                if (currentCount == 3) {
+                    showRateDialog = true
+                }
+            }
+        }
+    }
 
     fun navigateToTab(targetTab: Int) {
         if (selectedTab != targetTab) {
@@ -293,14 +328,7 @@ fun MainScreen(
                         }
                     }
                 },
-                title = {
-                    Text(
-                        AppLocalizer.getString("app_title", selectedLanguage),
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Serif,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
+                title = {},
                 actions = {
                     var isLangMenuExpanded by remember { mutableStateOf(false) }
 
@@ -892,6 +920,153 @@ fun MainScreen(
                     onClick = { isFontSizeDialogVisible = false }
                 ) {
                     Text(AppLocalizer.getString("done", selectedLanguage))
+                }
+            }
+        )
+    }
+
+    if (showRateDialog) {
+        AlertDialog(
+            onDismissRequest = { showRateDialog = false },
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFFD4AF37), Color(0xFF1B5E20))
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Rate Stars",
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = AppLocalizer.getString("rate_dialog_title", selectedLanguage),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Text(
+                        text = AppLocalizer.getString("rate_dialog_msg", selectedLanguage),
+                        fontSize = 13.5.sp,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 19.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    // 5 Golden Interactive Stars Row
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        repeat(5) { index ->
+                            IconButton(
+                                onClick = {
+                                    ratePrefs.edit().putBoolean("has_rated", true).apply()
+                                    showRateDialog = false
+                                    openPlayStoreRating(context)
+                                },
+                                modifier = Modifier.size(38.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "Star ${index + 1}",
+                                    tint = Color(0xFFD4AF37),
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Direct Rate 5 Stars Button
+                    Surface(
+                        onClick = {
+                            ratePrefs.edit().putBoolean("has_rated", true).apply()
+                            showRateDialog = false
+                            openPlayStoreRating(context)
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("rate_dialog_rate_now_button")
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(Color(0xFF1B5E20), Color(0xFFD4AF37))
+                                    )
+                                )
+                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = AppLocalizer.getString("rate_dialog_btn_rate", selectedLanguage),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        ratePrefs.edit().putBoolean("has_rated", true).apply()
+                        showRateDialog = false
+                    },
+                    modifier = Modifier.testTag("rate_dialog_never_button")
+                ) {
+                    Text(
+                        text = AppLocalizer.getString("rate_dialog_btn_never", selectedLanguage),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        fontSize = 12.sp
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showRateDialog = false },
+                    modifier = Modifier.testTag("rate_dialog_later_button")
+                ) {
+                    Text(
+                        text = AppLocalizer.getString("rate_dialog_btn_later", selectedLanguage),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 13.sp
+                    )
                 }
             }
         )
@@ -4104,6 +4279,8 @@ fun SettingsDialog(
                     Surface(
                         onClick = {
                             try {
+                                context.getSharedPreferences("app_rate_prefs", Context.MODE_PRIVATE)
+                                    .edit().putBoolean("has_rated", true).apply()
                                 val rateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}")).apply {
                                     addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                                 }

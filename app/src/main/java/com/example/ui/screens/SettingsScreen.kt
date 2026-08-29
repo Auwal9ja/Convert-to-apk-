@@ -830,6 +830,8 @@ fun SettingsScreen(
                         Surface(
                             onClick = {
                                 try {
+                                    context.getSharedPreferences("app_rate_prefs", Context.MODE_PRIVATE)
+                                        .edit().putBoolean("has_rated", true).apply()
                                     val rateIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${context.packageName}")).apply {
                                         addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                                     }

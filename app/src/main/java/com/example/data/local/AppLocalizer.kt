@@ -348,6 +348,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "Da Sunan Allah Mai Rahama Mai Jin Kai."
                 "feedback_copied_toast" -> "An kwafi sakon! Ana bude manhajar imel..."
                 "app_description_full" -> "Zakiru Muslim manhaja ce mai cike da ingantattun addu'o'i da azkar na Musulunci don kowane lokaci tare da fassarori daban-daban."
+                "rate_dialog_title" -> "Kuna jin daɗin Zakiru Muslim?"
+                "rate_dialog_msg" -> "Muna rokonka ka ba mu tauraro 5 (★★★★★) a Google Play Store domin tallafa mana wajen yaɗa wannan manhaja mai albarka."
+                "rate_dialog_btn_rate" -> "Bamu Tauraro 5 ★★★★★"
+                "rate_dialog_btn_later" -> "Daga Baya"
+                "rate_dialog_btn_never" -> "Kar a sake tambaya"
                 else -> key
             }
             "Yoruba" -> when (key) {
@@ -484,6 +489,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "Ni orukọ Allāhu, Ajọkẹ-aiye, Aṣakẹ-ọrun."
                 "feedback_copied_toast" -> "A ti kọ ifiranṣẹ! N ṣii ohun elo imeeli..."
                 "app_description_full" -> "Zakiru Muslim jẹ ohun elo ti o ni gbogbo àdúrà ati zikiri to daju fun gbogbo akoko pẹlu awọn itumọ orisirisi."
+                "rate_dialog_title" -> "Ṣe o n gbadun Zakiru Muslim?"
+                "rate_dialog_msg" -> "Jọwọ gba akoko diẹ lati fun wa ni irawo 5 (★★★★★) lori Google Play Store lati ṣe iranlọwọ lati tan ohun elo yii ka."
+                "rate_dialog_btn_rate" -> "Fun wa ni Irawo 5 ★★★★★"
+                "rate_dialog_btn_later" -> "Nigbamii"
+                "rate_dialog_btn_never" -> "Ma ṣe beere mọ"
                 else -> key
             }
             "Igbo" -> when (key) {
@@ -620,6 +630,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "N'aha Chineke, Onye Amara, Onye Ebere."
                 "feedback_copied_toast" -> "E depụtaghachiri ozi ahụ! Na-emeghe ngwa email..."
                 "app_description_full" -> "Zakiru Muslim bụ ngwa nwere ekpere na azkar niile ziri ezi n'asụsụ dị iche iche."
+                "rate_dialog_title" -> "Ị na-enwe mmasị na Zakiru Muslim?"
+                "rate_dialog_msg" -> "Biko were obere oge nye anyị kpakpando 5 (★★★★★) na Google Play Store iji nyere aka gbasaa ngwa a."
+                "rate_dialog_btn_rate" -> "Nye Kpakpando 5 ★★★★★"
+                "rate_dialog_btn_later" -> "Mgbe Emesịa"
+                "rate_dialog_btn_never" -> "Ajụla Ọzọ"
                 else -> key
             }
             "Spanish" -> when (key) {
@@ -756,6 +771,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "En el nombre de Allah, el Clemente, el Misericordioso."
                 "feedback_copied_toast" -> "¡Mensaje copiado! Abriendo aplicación de correo..."
                 "app_description_full" -> "Zakiru Muslim contiene auténticas súplicas y recuerdos islámicos para toda ocasión con traducciones en varios idiomas."
+                "rate_dialog_title" -> "¿Disfruta de Zakiru Muslim?"
+                "rate_dialog_msg" -> "Tómese un momento para calificarnos con 5 estrellas (★★★★★) en Google Play Store para apoyarnos y difundir esta bendita aplicación."
+                "rate_dialog_btn_rate" -> "Calificar 5 Estrellas ★★★★★"
+                "rate_dialog_btn_later" -> "Más tarde"
+                "rate_dialog_btn_never" -> "No volver a preguntar"
                 else -> key
             }
             "French" -> when (key) {
@@ -892,6 +912,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux."
                 "feedback_copied_toast" -> "Message copié ! Ouverture de votre application e-mail..."
                 "app_description_full" -> "Zakiru Muslim contient des invocations et rappels authentiques pour chaque moment avec traductions multilingues."
+                "rate_dialog_title" -> "Appréciez-vous Zakiru Muslim ?"
+                "rate_dialog_msg" -> "Veuillez prendre un moment pour nous donner 5 étoiles (★★★★★) sur Google Play Store pour soutenir la diffusion de cette application."
+                "rate_dialog_btn_rate" -> "Noter 5 Étoiles ★★★★★"
+                "rate_dialog_btn_later" -> "Plus tard"
+                "rate_dialog_btn_never" -> "Ne plus demander"
                 else -> key
             }
             "Arabic" -> when (key) {
@@ -1028,6 +1053,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
                 "feedback_copied_toast" -> "تم نسخ الرسالة! جاري فتح تطبيق البريد..."
                 "app_description_full" -> "تطبيق ذاكر المسلم يضم صحيح الأذكار والأدعية النبوية لجميع الأوقات بدعم لغات متعددة."
+                "rate_dialog_title" -> "هل يعجبك تطبيق ذاكر المسلم؟"
+                "rate_dialog_msg" -> "يرجى تقييمنا بـ 5 نجوم (★★★★★) على متجر Google Play لدعمنا في نشر هذا التطبيق المبارك."
+                "rate_dialog_btn_rate" -> "تقييم الآن ★★★★★"
+                "rate_dialog_btn_later" -> "لاحقاً"
+                "rate_dialog_btn_never" -> "عدم السؤال مجدداً"
                 else -> key
             }
             "Urdu" -> when (key) {
@@ -1164,6 +1194,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
                 "feedback_copied_toast" -> "پیغام کاپی ہو گیا! ای میل ایپ کھل رہی ہے..."
                 "app_description_full" -> "ذاکر المسلم مستند دعاؤں اور مسنون اذکار پر مشتمل ایک جامع ایپ ہے۔"
+                "rate_dialog_title" -> "کیا آپ کو ذاکر المسلم پسند آ رہا ہے؟"
+                "rate_dialog_msg" -> "براہ کرم گوگل پلے اسٹور پر ہمیں 5 ستارے (★★★★★) دے کر اس مبارک ایپ کو پھیلانے میں ہمارا ساتھ دیں۔"
+                "rate_dialog_btn_rate" -> "5 ستارے دیں ★★★★★"
+                "rate_dialog_btn_later" -> "بعد میں"
+                "rate_dialog_btn_never" -> "دوبارہ نہ پوچھیں"
                 else -> key
             }
             "Chinese" -> when (key) {
@@ -1300,6 +1335,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "奉普慈特慈的真主之名。"
                 "feedback_copied_toast" -> "内容已复制！正在打开邮件应用..."
                 "app_description_full" -> "Zakiru Muslim 是一款包含圣训圣传正确赞念祈祷词的综合应用，支持多语种呈现。"
+                "rate_dialog_title" -> "您喜欢 Zakiru Muslim 吗？"
+                "rate_dialog_msg" -> "请花一点时间在 Google Play 商店给我们 5 星好评（★★★★★），以支持本应用的传播与更新。"
+                "rate_dialog_btn_rate" -> "给予 5 星好评 ★★★★★"
+                "rate_dialog_btn_later" -> "稍后"
+                "rate_dialog_btn_never" -> "不再提示"
                 else -> key
             }
             else -> when (key) {
@@ -1440,6 +1480,11 @@ object AppLocalizer {
                 "bismillah_preview" -> "In the Name of Allah, the Most Gracious, the Most Merciful."
                 "feedback_copied_toast" -> "Message copied! Opening your email app..."
                 "app_description_full" -> "Zakiru Muslim contains authentic Islamic supplications and daily adhkar with multi-language translations."
+                "rate_dialog_title" -> "Enjoying Zakiru Muslim?"
+                "rate_dialog_msg" -> "Please take a moment to rate us 5 stars (★★★★★) on Google Play Store to support our work and help spread this app."
+                "rate_dialog_btn_rate" -> "Rate 5 Stars ★★★★★"
+                "rate_dialog_btn_later" -> "Later"
+                "rate_dialog_btn_never" -> "Don't ask again"
                 else -> key
             }
         }
