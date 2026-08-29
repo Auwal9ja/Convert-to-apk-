@@ -59,13 +59,13 @@ fun openPrivacyPolicy(context: Context, url: String = PRIVACY_POLICY_URL) {
 }
 
 fun openContactUsEmail(context: Context, recipient: String = NAJAH_TECH_EMAIL) {
-    val subject = "Noor Zikir App - Tuntuba & Inquiry"
-    val body = "Assalamu Alaikum Najah Tech,\n\nIna son yin tambaya / bayani game da manhajar Noor Zikir:\n\n\n---\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE}"
+    val subject = "Zakiru Muslim App - Tuntuba & Inquiry"
+    val body = "Assalamu Alaikum Najah Tech,\n\nIna son yin tambaya / bayani game da manhajar Zakiru Muslim:\n\n\n---\nApp: Zakiru Muslim v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE}"
     
     // 1. Copy info to clipboard as a safe backup
     try {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-        val clip = ClipData.newPlainText("Noor Zikir Contact", "To: $recipient\nSubject: $subject\n\n$body")
+        val clip = ClipData.newPlainText("Zakiru Muslim Contact", "To: $recipient\nSubject: $subject\n\n$body")
         clipboard?.setPrimaryClip(clip)
     } catch (_: Exception) {}
 
@@ -122,13 +122,13 @@ fun openContactUsEmail(context: Context, recipient: String = NAJAH_TECH_EMAIL) {
 }
 
 fun sendFeedbackEmail(context: Context, category: String, messageText: String, recipient: String = NAJAH_TECH_EMAIL) {
-    val subject = "[Noor Zikir Feedback] - $category"
-    val body = "Assalamu Alaikum Najah Tech,\n\nGa ra'ayina / shawarata game da Noor Zikir:\n\n$messageText\n\n---\nCategory: $category\nApp: Noor Zikir v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    val subject = "[Zakiru Muslim Feedback] - $category"
+    val body = "Assalamu Alaikum Najah Tech,\n\nGa ra'ayina / shawarata game da Zakiru Muslim:\n\n$messageText\n\n---\nCategory: $category\nApp: Zakiru Muslim v1.0.0\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}\nAndroid OS: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
     
     // 1. Copy feedback to clipboard as guaranteed backup so the user never loses it
     try {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-        val clip = ClipData.newPlainText("Noor Zikir Feedback", "To: $recipient\nSubject: $subject\n\n$body")
+        val clip = ClipData.newPlainText("Zakiru Muslim Feedback", "To: $recipient\nSubject: $subject\n\n$body")
         clipboard?.setPrimaryClip(clip)
     } catch (_: Exception) {}
 
@@ -248,7 +248,7 @@ fun SettingsScreen(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = if (selectedLanguage == "Hausa") "Saitin Noor Zikir & Harshe" else "Preferences & Configuration",
+                            text = if (selectedLanguage == "Hausa") "Saitin Zakiru Muslim & Harshe" else "Preferences & Configuration",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -582,7 +582,7 @@ fun SettingsScreen(
                 SettingsSectionCard(
                     title = if (selectedLanguage == "Hausa") "Sabunta Manhaja" else "App Updates",
                     icon = Icons.Default.SystemUpdate,
-                    subtitle = if (selectedLanguage == "Hausa") "Duban sabon sigar Noor Zikir a Google Play" else "Check for the latest version on Google Play"
+                    subtitle = if (selectedLanguage == "Hausa") "Duban sabon sigar Zakiru Muslim a Google Play" else "Check for the latest version on Google Play"
                 ) {
                     SettingsInAppUpdateTile(
                         updateState = updateState,
@@ -871,7 +871,7 @@ fun SettingsScreen(
                                 }
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = if (selectedLanguage == "Hausa") "Bamu Tauraro 5 a Play Store ★★★★★" else "Rate Noor Zikir 5 Stars ★★★★★",
+                                        text = if (selectedLanguage == "Hausa") "Bamu Tauraro 5 a Play Store ★★★★★" else "Rate Zakiru Muslim 5 Stars ★★★★★",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -1006,7 +1006,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = "Noor Zikir v1.0.0",
+                        text = "Zakiru Muslim v1.0.0",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -1736,7 +1736,7 @@ fun AboutAppDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mosque,
-                        contentDescription = "Noor Zikir",
+                        contentDescription = "Zakiru Muslim",
                         tint = Color.White,
                         modifier = Modifier.size(38.dp)
                     )
@@ -1745,13 +1745,13 @@ fun AboutAppDialog(
                 // Title & Version
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Noor Zikir",
+                        text = "Zakiru Muslim",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "نور الذكر • Version 1.0.0",
+                        text = "ذاكر المسلم • Version 1.0.0",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -1766,9 +1766,9 @@ fun AboutAppDialog(
                 ) {
                     Text(
                         text = if (selectedLanguage == "Hausa")
-                            "Noor Zikir manhaja ce ta Musulunci mai kunshe da ingantattun addu'o'in Hisnul Muslim, zikiri na safe da yamma, fassara a yaruka daban-daban (Hausa, English, Yorùbá, Igbo, Larabci...), kamfas din Alƙibla, sauti da jadawalin tunatarwa kyauta."
+                            "Zakiru Muslim manhaja ce ta Musulunci mai kunshe da ingantattun addu'o'in Hisnul Muslim, zikiri na safe da yamma, fassara a yaruka daban-daban (Hausa, English, Yorùbá, Igbo, Larabci...), kamfas din Alƙibla, sauti da jadawalin tunatarwa kyauta."
                         else
-                            "Noor Zikir is a comprehensive Islamic fortress application featuring authentic Hisnul Muslim Duas, morning & evening Adhkar, multi-language translations, precision Qibla compass, audio recitations, and scheduled reminders.",
+                            "Zakiru Muslim is a comprehensive Islamic fortress application featuring authentic Hisnul Muslim Duas, morning & evening Adhkar, multi-language translations, precision Qibla compass, audio recitations, and scheduled reminders.",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(12.dp),

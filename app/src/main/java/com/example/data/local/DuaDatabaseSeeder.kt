@@ -595,14 +595,14 @@ object DuaDatabaseSeeder {
             DuaEntity(
                 id = 36,
                 category = "Market & Shopping",
-                title = "Entering the Marketplace (Suq)",
+                title = "Entering the Market (Dua Shiga Kasuwa)",
                 arabic = "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ حَيٌّ لَا يَمُوتُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
-                transliteration = "La ilaha illallahu wahdahu la sharika lahu, lahul-mulku wa lahul-hamdu, yuhyi wa yumitu, wa Huwa hayyun la yamutu, biyadihil-khayr, wa Huwa 'ala kulli shay'in Qadir.",
-                translation = "There is none worthy of worship but Allah alone, who has no partner.",
-                translationHausa = "Babu abin bautawa da gaskiya sai Allah Shi kadai ba Ya da abokin tarayya, mulki Ya tabbata a gare Shi kuma godiya Ta tabbata a gare Shi.",
-                translationYoruba = "Ko si ọba miran ti a gbọdọ jọsin fun afi Allāhu nikan ti ko ni akegbe kankan.",
-                translationIgbo = "Ọ dịghị onye kwesịrị ofufe ma ọ bụghị Chineke naanị Ya Onye na-enweghị onye ibe Ya.",
-                reference = "At-Tirmidhi 5/291."
+                transliteration = "La ilaha illallahu wahdahu la sharika lahu, lahul-mulku wa lahul-hamdu, yuhyee wa yumeetu, wa Huwa hayyun la yamootu, biyadihil-khayru, wa Huwa 'ala kulli shay'in Qadeer.",
+                translation = "There is none worthy of worship but Allah alone, Who has no partner. His is the kingdom and to Him belongs all praise. He gives life and causes death, and He is Ever-Living and does not die. In His Hand is all good, and He is over all things capable. (The Prophet ﷺ said: Whoever enters the market and says this, Allah will record for him one million good deeds, erase from him one million bad deeds, and raise him one million degrees).",
+                translationHausa = "Babu abin bautawa da gaskiya sai Allah Shi kaɗai ba Shi da abokin tarayya, mulki ya tabbata a gare Shi kuma dukkan godiya ta tabbata a gare Shi, Yana rayawa kuma Yana kashewa, kuma Shi Rayayye ne da ba Ya mutuwa, a hannunSa kaɗai alheri yake, kuma Shi a kan komai Mai cikakken iko ne. (Manzon Allah ﷺ ya ce: Wanda ya shiga kasuwa ya faɗi wannan addu'ar, Allah zai rubuta masa lada miliyan ɗaya, Ya goge masa zunubai miliyan ɗaya, kuma Ya ɗaga masa daraja matakai miliyan ɗaya).",
+                translationYoruba = "Ko si ọba miran ti a gbọdọ jọsin fun afi Allāhu nikan ti ko ni akegbe kankan, Tirẹ ni gbogbo ijọba ati gbogbo iyin, O n sọ di alaaye O si n sọ di oku, Oun si ni Alaye ti ko ni ku laelae, ọwọ Rẹ ni gbogbo oore wa, O si ni agbara lori gbogbo nkan.",
+                translationIgbo = "Ọ dịghị onye kwesịrị ofufe ma ọ bụghị Chineke naanị Ya Onye na-enweghị onye ibe Ya. Ọchịchị niile bụ nke Ya na otuto niile bụ nke Ya. Ọ na-enye ndụ ma na-ewere ndụ, Ọ bụkwa Onye Dị Ndụ nke na-adịghị anwụ anwụ. N'aka Ya ka ihe ọma niile dị, Ọ nwekwara ike n'elu ihe niile.",
+                reference = "Jami' at-Tirmidhi 3428, Sunan Ibn Majah 2235, Al-Mustadrak 'alas-Sahihayn 1/538 (Hasan/Sahih)."
             ),
             DuaEntity(
                 id = 38,
@@ -2474,6 +2474,130 @@ object DuaDatabaseSeeder {
                 translationYoruba = "Mo tọrọ àforíjìn lọ́dọ̀ Allāhu Alágbára Ńlá, Ẹni tí kò sí ọlọ́run kan àfi Òun, Ọ̀dáyé, Olùtọ́jú gbogbo ẹ̀dá, mo sì ronúpìwàdà sí Ọ̀dọ̀ Rẹ̀.",
                 translationIgbo = "Ana m arịọ mgbaghara n'aka Chineke Onye Ukwu, Onye na-enweghị chi ọzọ ma e wezụga Ya, Onye Dị Ndụ, Onye Na-elekọta ihe niile, ana m echegharịkwa nye Ya.",
                 reference = "The Prophet (ﷺ) said: 'Whoever says it, his sins will be forgiven even if he had fled from the battlefield.' Reference: Sunan Abi Dawud 1517, Sunan At-Tirmidhi 3577 (Sahih)."
+            ),
+
+            // DUA SHIGA DA FITA DAGA GIDA (HOUSE & HOME DUAS - HISNUL MUSLIM CHAPTERS 6 & 7)
+            DuaEntity(
+                id = 209,
+                category = "Travel & Home",
+                title = "Supplication When Leaving the House (Dua Fita Daga Gida 1)",
+                arabic = "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+                transliteration = "Bismillahi, tawakkaltu 'alallah, wa la hawla wa la quwwata illa billah.",
+                translation = "In the Name of Allah, I place my trust in Allah; there is no might and no power except with Allah. (It will be said to him: You are guided, you are sufficed, and you are protected, and the devils will move away from him).",
+                translationHausa = "Da sunan Allah, na dogara ga Allah, babu dabarar kaucewa sabo kuma babu karfin yin biyayya sai da taimakon Allah. (Za a ce wa wanda ya faɗe ta: An shiryar da kai, an isar maka, kuma an tsare ka; sai shaiɗanu su nesanta daga gare shi).",
+                translationYoruba = "Pẹlu orukọ Allāhu, mo gbẹkẹle Allāhu, ko si ẹtan ko si agbara afi pẹlu Allāhu.",
+                translationIgbo = "N'aha Chineke, ana m atụkwasị obi m na Chineke; ọ dịghị ike ma ọ bụ ikike ma ọ bụghị n'aka Chineke.",
+                reference = "Sunan Abi Dawud 5095, Sunan At-Tirmidhi 3426. Hisnul Muslim Chapter 6 (Sahih)."
+            ),
+            DuaEntity(
+                id = 210,
+                category = "Travel & Home",
+                title = "Supplication When Leaving the House (Dua Fita Daga Gida 2)",
+                arabic = "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ",
+                transliteration = "Allahumma innee a'oodhu bika an adilla, aw udalla, aw azilla, aw uzalla, aw azlima, aw uzlama, aw ajhala, aw yujhala 'alayya.",
+                translation = "O Allah, I seek refuge in You lest I stray or be led astray, slip or be made to slip, oppress or be oppressed, behave ignorantly or have ignorance shown toward me.",
+                translationHausa = "Ya Allah! Lallai ina neman tsari da Kai daga in ɓace ko a ɓatar da ni, ko in kauce (daga gaskiya) ko a kauce da ni, ko in yi zalunci ko a zalunce ni, ko in yi jahilci ko a yi jahilci a kaina.",
+                translationYoruba = "Allāhu, mo wa aabo pẹlu Rẹ ki n ma ṣina tabi ki a mu mi ṣina, tabi ki n yọ tabi ki a mu mi yọ, tabi ki n ṣe aiṣododo tabi ki a ṣe aiṣododo si mi, tabi ki n hu iwa aisi-imọ tabi ki a hu iwa aisi-imọ si mi.",
+                translationIgbo = "Chineke, ana m achọ ebe mgbaba n'aka Gị ka m ghara ịkpafu ma ọ bụ ka a kpafuo m, ka m ghara ịda ma ọ bụ mee ka m daa, ka m ghara imegbu ma ọ bụ ka a megbuo m.",
+                reference = "Sunan Abi Dawud 5094, Sunan At-Tirmidhi 3427, Sunan an-Nasa'i 5486, Sunan Ibn Majah 3884. Hisnul Muslim Chapter 6 (Sahih)."
+            ),
+            DuaEntity(
+                id = 211,
+                category = "Travel & Home",
+                title = "Supplication When Entering the House (Dua Shiga Gida 1)",
+                arabic = "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا (ثُمَّ يُسَلِّمُ عَلَى أَهْلِهِ)",
+                transliteration = "Bismillahi walajna, wa bismillahi kharajna, wa 'ala Rabbina tawakkalna.",
+                translation = "In the Name of Allah we enter, and in the Name of Allah we leave, and upon Allah our Lord we place our trust. (Then he should greet his family with Salam).",
+                translationHausa = "Da sunan Allah muka shiga, kuma da sunan Allah muka fita, kuma a kan Allah Ubangijinmu muka dogara. (Sannan mutum ya yi sallama ga iyalansa: Assalamu Alaykum).",
+                translationYoruba = "Pẹlu orukọ Allāhu ni a wọle, pẹlu orukọ Allāhu ni a jade, ati lori Allāhu Oluwa wa ni a gbẹkẹle. (Lẹhinna ki o kẹ́ si awọn eeyan ile pẹlu Alaafia).",
+                translationIgbo = "N'aha Chineke ka anyị batara, n'aha Chineke ka anyị pụrụ, ma n'elu Chineke Onyenwe anyị ka anyị tụkwasịrị obi. (Mgbe ahụ kelee ndị ezinụlọ gị).",
+                reference = "Sunan Abi Dawud 5096, Hisnul Muslim Chapter 7 (Hasan/Sahih)."
+            ),
+            DuaEntity(
+                id = 212,
+                category = "Travel & Home",
+                title = "Mentioning Allah's Name When Entering Home to Expel Satan",
+                arabic = "بِسْمِ اللَّهِ (إِذَا دَخَلَ الرَّجُلُ بَيْتَهُ فَذَكَرَ اللَّهَ عِنْدَ دُخُولِهِ وَعِنْدَ طَعَامِهِ، قَالَ الشَّيْطَانُ: لَا مَبِيتَ لَكُمْ وَلَا عَشَاءَ)",
+                transliteration = "Bismillah (Idha dakhalar-rajulu baytahu fadhakarallaha 'inda dukhoolihi wa 'inda ta'aamihi, qaala ash-shaytan: La mabeeta lakum wa la 'ashaa').",
+                translation = "In the Name of Allah. (The Prophet ﷺ said: If a person mentions Allah's Name upon entering his home and upon eating, Satan says to his companions: You have no place to spend the night and no dinner).",
+                translationHausa = "Bismillah (Da sunan Allah). Manzon Allah ﷺ ya ce: Idan mutum ya shiga gidansa ya ambaci Allah yayin shigarsa da kuma yayin cin abincinsa, sai Shaidan ya ce (ga mabiyansa): Babu wurin kwana a gare ku a daren nan kuma babu abincin dare a gare ku.",
+                translationYoruba = "Bismillāh (Pẹlu orukọ Allāhu). Nigbati eniyan ba wọ ile rẹ ti o ba darukọ Allāhu nigba ti o wọle ati nigba ti o jẹun, Eṣu yoo sọ pe: Ko si ibi ibugbe ati ko si ounjẹ alẹ fun yin.",
+                translationIgbo = "Bismillah (N'aha Chineke). Mgbe mmadụ batara n'ụlọ ya ma kpọọ aha Chineke mgbe ọ na-abata na mgbe ọ na-eri nri, Setan na-asị: Ọ dịghị ebe obibi ma ọ dịghị nri abalị maka gị n'abalị a.",
+                reference = "Sahih Muslim 2018. Hisnul Muslim Chapter 7."
+            ),
+            DuaEntity(
+                id = 213,
+                category = "Travel & Home",
+                title = "Supplication When Stopping at a Place / Entering a New Dwelling",
+                arabic = "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+                transliteration = "A'oodhu bi-kalimatillahit-tammati min sharri ma khalaq.",
+                translation = "I seek refuge in the perfect words of Allah from the evil of what He has created. (The Prophet ﷺ said: Whoever stops at a place or enters a house and recites this, nothing will harm him until he departs from that place).",
+                translationHausa = "Ina neman tsari da cikkakun kalmomin Allah daga sharrin abin da Ya halitta. (Manzon Allah ﷺ ya ce: Wanda ya sauka a wani wuri ko ya shiga wani sabon gida ya faɗi wannan addu'ar, babu wani abu da zai cutar da shi har sai ya tashi daga wannan wurin).",
+                translationYoruba = "Mo wa aabo pẹlu awọn ọrọ Allāhu ti o pe kuro ninu aburu ohun ti O da.",
+                translationIgbo = "Ana m achọ ebe mgbaba n'okwu zuru oke nke Chineke pụọ n'ihe ọjọọ nke ihe Ọ kere.",
+                reference = "Sahih Muslim 2708. Hisnul Muslim Chapter 98."
+            ),
+
+            // ADDU'O'IN KASUWA & SAYE DA SAYARWA (MARKET & SHOPPING AUTHENTIC DUAS)
+            DuaEntity(
+                id = 214,
+                category = "Market & Shopping",
+                title = "Seeking Good of the Market & Protection from False Oaths and Loss",
+                arabic = "بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ السُّوقِ وَخَيْرَ مَا فِيهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ مَا فِيهَا، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أُصِيبَ فِيهَا يَمِينًا فَاجِرَةً، أَوْ صَفْقَةً خَاسِرَةً",
+                transliteration = "Bismillahi, Allahumma innee as'aluka khayra hadhis-sooqi wa khayra ma feeha, wa a'oodhu bika min sharriha wa sharri ma feeha, Allahumma innee a'oodhu bika an useeba feeha yameenan fajiratan, aw safqatan khasirah.",
+                translation = "In the Name of Allah. O Allah, I ask You for the good of this market and the good of what is in it, and I seek refuge in You from its evil and the evil of what is in it. O Allah, I seek refuge in You from taking a false oath in it or making a losing deal.",
+                translationHausa = "Da sunan Allah. Ya Allah! Lallai ina roƙonKa alherin wannan kasuwar da alherin abin da ke cikinta, kuma ina neman tsari da Kai daga sharrinta da sharrin abin da ke cikinta. Ya Allah! Ina neman tsari da Kai daga in aikata rantsuwar ƙarya a cikinta ko kuma in yi cinikin da zai jawo mini asara.",
+                translationYoruba = "Pẹlu orukọ Allāhu. Allāhu, mo tọrọ oore ọjà yi ati oore ohun ti o wa ninu rẹ lọwọ Rẹ, mo si wa aabo pẹlu Rẹ kuro ninu aburu rẹ ati aburu ohun ti o wa ninu rẹ. Allāhu, mo wa aabo pẹlu Rẹ ki n ma ṣe ibura eke tabi ki n ṣe iṣowo adanu ninu rẹ.",
+                translationIgbo = "N'aha Chineke. Chineke, ana m arịọ Gị maka mma nke ahịa a na ihe ọma dị na ya, ma na-achọ mgbaba n'ebe Ị nọ pụọ n'ihe ọjọọ ya na ihe ọjọọ dị na ya. Chineke, ana m achọ mgbaba n'ebe Ị nọ ka m ghara ịṅụ iyi ụgha ma ọ bụ mee ahịa mfu.",
+                reference = "Al-Mustadrak 'alas-Sahihayn 1/539, Al-Mu'jam al-Kabeer li-Tabarani, Sahih al-Jami' 4683."
+            ),
+            DuaEntity(
+                id = 215,
+                category = "Market & Shopping",
+                title = "Entering a Town, Commercial City or Market Settlement",
+                arabic = "اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَمَا أَظْلَلْنَ، وَرَبَّ الأَرَضِينَ السَّبْعِ وَمَا أَقْلَلْنَ، وَرَبَّ الشَّيَاطِينِ وَمَا أَضْلَلْنَ، وَرَبَّ الرِّيَاحِ وَمَا ذَرَيْنَ، فَإِنَّا نَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ وَخَيْرَ أَهْلِهَا، وَخَيْرَ مَا فِيهَا، وَنَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ أَهْلِهَا، وَشَرِّ مَا فِيهَا",
+                transliteration = "Allahumma Rabbas-samawatis-sab'i wa ma azlalna, wa Rabbal-aradeenas-sab'i wa ma aqlalna, wa Rabbash-shayaateeni wa ma adlalna, wa Rabbar-riyaahi wa ma dharayna, fa-inna nas'aluka khayra hadhihil-qaryati wa khayra ahliha, wa khayra ma feeha, wa na'oodhu bika min sharriha, wa sharri ahliha, wa sharri ma feeha.",
+                translation = "O Allah, Lord of the seven heavens and all they overshadow, Lord of the seven earths and all they uphold, Lord of the devils and all they lead astray, Lord of the winds and all they scatter: We ask You for the good of this town, the good of its people, and the good of what is in it; and we seek refuge in You from its evil, the evil of its people, and the evil of what is in it.",
+                translationHausa = "Ya Allah, Ubangijin sammai bakwai da abin da suka yi wa inuwa, kuma Ubangijin ƙasashe bakwai da abin da suka ɗauka, kuma Ubangijin shaiɗanu da waɗanda suka ɓatar, kuma Ubangijin iskoki da abin da suka watsar; Lallai muna roƙonKa alherin wannan alƙarya/gari da alherin mutanenta da alherin abin da ke cikinta, kuma muna neman tsari da Kai daga sharrinta da sharrin mutanenta da sharrin abin da ke cikinta.",
+                translationYoruba = "Allāhu, Oluwa awọn sanma meje ati ohun ti wọn bò, Oluwa awọn ilẹ meje ati ohun ti wọn gbé, Oluwa awọn Eṣu ati awọn ti wọn ṣina, Oluwa awọn afẹfẹ ati ohun ti wọn fẹ: A tọrọ oore ilu yii, oore awọn eniyan rẹ, ati oore ohun ti o wa ninu rẹ lọwọ Rẹ.",
+                translationIgbo = "Chineke, Onyenwe nke eluigwe asaa na ihe niile ha kpuchiri, Onyenwe nke ụwa asaa na ihe niile ha bu, Onyenwe nke ndị mmụọ ọjọọ na ndị ha duhiere: Anyị na-arịọ Gị maka mma nke obodo a, mma nke ndị bi na ya, na mma nke ihe dị na ya.",
+                reference = "Al-Hakim 2/100, Ibn As-Sunni 524, Hisnul Muslim Chapter 83 (Sahih)."
+            ),
+            DuaEntity(
+                id = 216,
+                category = "Market & Shopping",
+                title = "Prophetic Supplication for Lenience & Mercy in Buying and Selling",
+                arabic = "رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى",
+                transliteration = "Rahimallahur-rajulan samhan idha ba'a, wa idhashtara, wa idhaqtada.",
+                translation = "May Allah have mercy on a person who is lenient and easy-going when he sells, when he buys, and when he demands his rights or settles debts.",
+                translationHausa = "Allah Ya yi wa mutum rahama (Ya ji ƙansa) wanda yake mai sauƙi da sassauci yayin da yake sayarwa, da kuma yayin da yake saye, da kuma yayin da yake karɓar basussukansa ko biyan haƙƙi.",
+                translationYoruba = "Ki Allāhu ṣaanu fun ẹni ti o jẹ oninuure nigba ti o ba n ta ọja, nigba ti o ba n ra ọja, ati nigba ti o ba n gba gbese rẹ.",
+                translationIgbo = "Ka Chineke meere onye nwere obi ebere ebere mgbe ọ na-ere ahịa, mgbe ọ na-azụ ahịa, na mgbe ọ na-anata ụgwọ ya.",
+                reference = "Sahih al-Bukhari 2076."
+            ),
+            DuaEntity(
+                id = 217,
+                category = "Market & Shopping",
+                title = "Supplication Upon Settling Debt or Completing a Deal",
+                arabic = "بَارَكَ اللَّهُ لَكَ فِي أَهْلِكَ وَمَالِكَ، إِنَّمَا جَزَاءُ السَّلَفِ الْحَمْدُ وَالأَدَاءُ",
+                transliteration = "Barakallahu laka fee ahlika wa malika, innama jaza'us-salafil-hamdu wal-ada'.",
+                translation = "May Allah bless you in your family and your wealth. For indeed, the only reward for a loan or assistance is praise and prompt repayment with goodwill.",
+                translationHausa = "Allah Ya yi maka albarka a cikin iyalinka da dukiyarka. Domin lallai sakamakon bashi ko amana shine godiya da kuma biya cikin aminci da kyautatawa.",
+                translationYoruba = "Ki Allāhu ṣe ibukun fun ọ ninu idile rẹ ati ọrọ rẹ. Nitori pe ere ti o tọ fun gbese ni ọpẹ ati sisan pada pẹlu iwa rere.",
+                translationIgbo = "Ka Chineke gọzie gị n'ezinụlọ gị na akụ na ụba gị. N'ezie, ụgwọ ọrụ nke mbinye ego bụ ekele na ịkwụghachi ya n'oge.",
+                reference = "Sunan an-Nasa'i 4683, Sunan Ibn Majah 2424, Hisnul Muslim Chapter 86 (Hasan)."
+            ),
+            DuaEntity(
+                id = 218,
+                category = "Market & Shopping",
+                title = "Supplication for Barakah in City Markets, Produce & Measurements",
+                arabic = "اللَّهُمَّ بَارِكْ لَنَا فِي ثَمَرِنَا، وَبَارِكْ لَنَا فِي مَدِينَتِنَا، وَبَارِكْ لَنَا فِي صَاعِنَا، وَبَارِكْ لَنَا فِي مُدِّنَا",
+                transliteration = "Allahumma barik lana fee thamarina, wa barik lana fee madeenatina, wa barik lana fee sa'ina, wa barik lana fee muddina.",
+                translation = "O Allah, bless us in our fruits and produce, bless us in our city and marketplaces, bless us in our Sa' (larger measure), and bless us in our Mudd (smaller measure).",
+                translationHausa = "Ya Allah! Ka albarkace mu a cikin 'ya'yan itatuwanmu da kayan amfaninmu, Ka albarkace mu a cikin garinmu da kasuwanninmu, Ka albarkace mu a cikin sa'inmu (ma'aunin awo babba), kuma Ka albarkace mu a cikin mudunmu (ma'aunin awo karami).",
+                translationYoruba = "Allāhu, ṣe ibukun fun wa ninu awọn eso wa, ṣe ibukun fun wa ninu ilu wa, ṣe ibukun fun wa ninu iwọn Sa' wa, ki O si ṣe ibukun fun wa ninu iwọn Mudd wa.",
+                translationIgbo = "Chineke, gọzie anyị na mkpụrụ osisi anyị na ihe ubi anyị, gọzie anyị n'obodo anyị na ahịa anyị, gọzie anyị na ihe atụ Sa' anyị, ma gọzie anyị na ihe atụ Mudd anyị.",
+                reference = "Sahih Muslim 1373."
             )
         )
     }

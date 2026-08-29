@@ -281,7 +281,7 @@ object OneSignalHelper {
     /**
      * Sends an immediate local test notification to verify notification channel, sound, and display.
      */
-    fun sendTestLocalNotification(context: Context, title: String = "Noor Zikir - Test Notification", message: String = "Test notification successful! Your device is ready to receive reminders and adhkar.") {
+    fun sendTestLocalNotification(context: Context, title: String = "Zakiru Muslim - Test Notification", message: String = "Test notification successful! Your device is ready to receive reminders and adhkar.") {
         try {
             val channelId = "onesignal_test_channel"
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -289,7 +289,7 @@ object OneSignalHelper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
                     channelId,
-                    "Noor Zikir Push Notifications",
+                    "Zakiru Muslim Push Notifications",
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
                     description = "Used for push notifications and instant reminders"

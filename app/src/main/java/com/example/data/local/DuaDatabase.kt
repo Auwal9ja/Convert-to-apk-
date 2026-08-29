@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [DuaEntity::class, DuaTranslationEntity::class], version = 14, exportSchema = false)
+@Database(entities = [DuaEntity::class, DuaTranslationEntity::class], version = 15, exportSchema = false)
 abstract class DuaDatabase : RoomDatabase() {
     abstract fun duaDao(): DuaDao
 

@@ -345,7 +345,7 @@ fun MandatoryAdhkarSessionScreen(
 
                         Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
-                                text = "NOOR ZIKIR",
+                                text = "ZAKIRU MUSLIM",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = goldAccent,

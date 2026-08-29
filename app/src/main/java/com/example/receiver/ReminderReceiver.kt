@@ -16,7 +16,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
     companion object {
         const val CHANNEL_ID = "noor_zikir_reminders"
-        const val CHANNEL_NAME = "Noor Zikir Daily Reminders"
+        const val CHANNEL_NAME = "Zakiru Muslim Daily Reminders"
         const val NOTIFICATION_ID_MORNING = 1001
         const val NOTIFICATION_ID_EVENING = 1002
 
@@ -129,9 +129,9 @@ class ReminderReceiver : BroadcastReceiver() {
         )
 
         val title = if (type == "MORNING") {
-            "☀️ Noor zikir: Morning Adhkar"
+            "☀️ Zakiru Muslim: Morning Adhkar"
         } else {
-            "🌙 Noor zikir: Evening Adhkar"
+            "🌙 Zakiru Muslim: Evening Adhkar"
         }
 
         val contentText = if (type == "MORNING") {

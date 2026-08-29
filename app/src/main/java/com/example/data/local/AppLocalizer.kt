@@ -211,7 +211,7 @@ object AppLocalizer {
     fun getString(key: String, language: String): String {
         return when (language) {
             "Hausa" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "Hasken Zikiri"
                 "app_slogan" -> "Hasken Zikiri da Ambato"
                 "home" -> "Gida"
@@ -259,8 +259,8 @@ object AppLocalizer {
                 "target" -> "Niya"
                 "reset" -> "Sake Farawa"
                 "audio_player" -> "Dan Wasan Murya"
-                "about_title" -> "Mawallafi & Game da Noor Zikir"
-                "about_body" -> "Wannan manhaja ta Noor Zikir ta kunshi ingantattun addu'o'i da zikiri tare da fassara cikin harsuna daban-daban."
+                "about_title" -> "Mawallafi & Game da Zakiru Muslim"
+                "about_body" -> "Wannan manhaja ta Zakiru Muslim ta kunshi ingantattun addu'o'i da zikiri tare da fassara cikin harsuna daban-daban."
                 "more_apps" -> "Samo Wasu Manhajoji (Play Store)"
                 "more_apps_subtitle" -> "Bincika sauran manhajojinmu ingantattu a Google Play Store"
                 "developer_apps" -> "Manhajojin Mawallafi"
@@ -289,7 +289,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Aika shawara ko gyara zuwa najahtechng@gmail.com"
                 "contact_us" -> "Tuntube Mu (Contact Us)"
                 "contact_us_subtitle" -> "Aika imel kai tsaye zuwa najahtechng@gmail.com"
-                "about_us" -> "Game da Noor Zikir (About)"
+                "about_us" -> "Game da Zakiru Muslim (About)"
                 "about_us_subtitle" -> "Bayanin manhaja, fasaha da tawagar Najah Tech"
                 "feedback_dialog_title" -> "Aiko da Ra'ayi / Feedback"
                 "feedback_type_label" -> "Rukuni:"
@@ -303,7 +303,7 @@ object AppLocalizer {
                 else -> key
             }
             "Yoruba" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "Ìmọ́lẹ̀ Ìrántí"
                 "app_slogan" -> "Ìmọ́lẹ̀ Ìrántí"
                 "home" -> "Ilé"
@@ -351,8 +351,8 @@ object AppLocalizer {
                 "target" -> "Afojusun"
                 "reset" -> "Tún bẹ̀rẹ̀"
                 "audio_player" -> "Aṣe Audio"
-                "about_title" -> "Nípa Noor Zikir"
-                "about_body" -> "Abalaye Noor Zikir yi ni gbogbo adura inganti pelu itumo ni orisirisi ede."
+                "about_title" -> "Nípa Zakiru Muslim"
+                "about_body" -> "Abalaye Zakiru Muslim yi ni gbogbo adura inganti pelu itumo ni orisirisi ede."
                 "more_apps" -> "Gba Àwọn Abalaye Míràn (Play Store)"
                 "more_apps_subtitle" -> "Ṣawari awọn abalaye miiran ti o wulo lori Google Play Store"
                 "developer_apps" -> "Abalaye Oluṣeto"
@@ -377,7 +377,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Firanṣẹ awọn imọran si najahtechng@gmail.com"
                 "contact_us" -> "Kan Si Wa (Contact Us)"
                 "contact_us_subtitle" -> "Firanṣẹ imeeli taara si najahtechng@gmail.com"
-                "about_us" -> "Nípa Noor Zikir (About)"
+                "about_us" -> "Nípa Zakiru Muslim (About)"
                 "about_us_subtitle" -> "Àlàyé nípa ohun elo ati Najah Tech"
                 "feedback_dialog_title" -> "Fi Èsì Ransẹ́ / Feedback"
                 "feedback_type_label" -> "Ẹ̀ka:"
@@ -391,7 +391,7 @@ object AppLocalizer {
                 else -> key
             }
             "Igbo" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "Ihe Ncheta"
                 "app_slogan" -> "Ihe Ncheta"
                 "home" -> "Ụlọ"
@@ -439,8 +439,8 @@ object AppLocalizer {
                 "target" -> "Ebumnuche"
                 "reset" -> "Malite Ọzọ"
                 "audio_player" -> "Ihe Ọkpụkpọ Audio"
-                "about_title" -> "Banyere Noor Zikir"
-                "about_body" -> "Ngwa Noor Zikir a nwere ekpere na azkar niile doro anya sitere na ebe nsinyere ziri ezi."
+                "about_title" -> "Banyere Zakiru Muslim"
+                "about_body" -> "Ngwa Zakiru Muslim a nwere ekpere na azkar niile doro anya sitere na ebe nsinyere ziri ezi."
                 "more_apps" -> "Budata Ngwa Ndị Ọzọ (Play Store)"
                 "more_apps_subtitle" -> "Chọpụta ma budata ngwa ndị ọzọ na Google Play Store"
                 "developer_apps" -> "Ngwa Onye Mmepụta"
@@ -465,7 +465,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Ziga aro ma ọ bụ akụkọ na najahtechng@gmail.com"
                 "contact_us" -> "Kpọtụrụ Anyị (Contact Us)"
                 "contact_us_subtitle" -> "Ziga ozi email ozugbo na najahtechng@gmail.com"
-                "about_us" -> "Banyere Noor Zikir (About)"
+                "about_us" -> "Banyere Zakiru Muslim (About)"
                 "about_us_subtitle" -> "Nkọwa gbasara ngwa na Najah Tech"
                 "feedback_dialog_title" -> "Ziga Nzaghachi / Feedback"
                 "feedback_type_label" -> "Ụdị:"
@@ -479,7 +479,7 @@ object AppLocalizer {
                 else -> key
             }
             "Spanish" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "La Luz del Recuerdo"
                 "app_slogan" -> "La Luz del Recuerdo"
                 "home" -> "Inicio"
@@ -527,8 +527,8 @@ object AppLocalizer {
                 "target" -> "Objetivo"
                 "reset" -> "Reiniciar"
                 "audio_player" -> "Reproductor de Audio"
-                "about_title" -> "Acerca de Noor Zikir"
-                "about_body" -> "Esta aplicación Noor Zikir contiene súplicas y azkar auténticos con traducción en varios idiomas."
+                "about_title" -> "Acerca de Zakiru Muslim"
+                "about_body" -> "Esta aplicación Zakiru Muslim contiene súplicas y azkar auténticos con traducción en varios idiomas."
                 "more_apps" -> "Descargar más aplicaciones"
                 "more_apps_subtitle" -> "Explora y descarga más aplicaciones islámicas en Google Play Store"
                 "developer_apps" -> "Aplicaciones del desarrollador"
@@ -553,7 +553,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Envíe sugerencias a najahtechng@gmail.com"
                 "contact_us" -> "Contáctenos (Contact Us)"
                 "contact_us_subtitle" -> "Enviar correo directo a najahtechng@gmail.com"
-                "about_us" -> "Acerca de Noor Zikir"
+                "about_us" -> "Acerca de Zakiru Muslim"
                 "about_us_subtitle" -> "Información de la aplicación y Najah Tech"
                 "feedback_dialog_title" -> "Enviar Comentarios"
                 "feedback_type_label" -> "Categoría:"
@@ -567,7 +567,7 @@ object AppLocalizer {
                 else -> key
             }
             "French" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "La Lumière du Rappel"
                 "app_slogan" -> "La Lumière du Rappel"
                 "home" -> "Accueil"
@@ -615,8 +615,8 @@ object AppLocalizer {
                 "target" -> "Objectif"
                 "reset" -> "Réinitialiser"
                 "audio_player" -> "Lecteur Audio"
-                "about_title" -> "À propos de Noor Zikir"
-                "about_body" -> "Cette application Noor Zikir réunit les invocations et adhkar authentiques avec support multilingue."
+                "about_title" -> "À propos de Zakiru Muslim"
+                "about_body" -> "Cette application Zakiru Muslim réunit les invocations et adhkar authentiques avec support multilingue."
                 "more_apps" -> "Télécharger plus d'applications"
                 "more_apps_subtitle" -> "Découvrez et téléchargez d'autres applications sur Google Play Store"
                 "developer_apps" -> "Applications du développeur"
@@ -641,7 +641,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Envoyez vos suggestions à najahtechng@gmail.com"
                 "contact_us" -> "Nous Contacter (Contact Us)"
                 "contact_us_subtitle" -> "Envoyez un e-mail à najahtechng@gmail.com"
-                "about_us" -> "À Propos de Noor Zikir"
+                "about_us" -> "À Propos de Zakiru Muslim"
                 "about_us_subtitle" -> "Informations de l'application et Najah Tech"
                 "feedback_dialog_title" -> "Envoyer des Commentaires"
                 "feedback_type_label" -> "Catégorie :"
@@ -655,9 +655,9 @@ object AppLocalizer {
                 else -> key
             }
             "Arabic" -> when (key) {
-                "app_title" -> "نور الذكر"
-                "app_subtitle" -> "نور الذكر"
-                "app_slogan" -> "نور الذكر والأدعية"
+                "app_title" -> "ذاكر المسلم"
+                "app_subtitle" -> "ذاكر المسلم"
+                "app_slogan" -> "ذاكر المسلم والأدعية"
                 "home" -> "الرئيسية"
                 "library" -> "المكتبة"
                 "favorites" -> "المفضلة"
@@ -703,8 +703,8 @@ object AppLocalizer {
                 "target" -> "الهدف"
                 "reset" -> "إعادة ضبط"
                 "audio_player" -> "مشغل الصوتيات"
-                "about_title" -> "عن تطبيق نور الذكر"
-                "about_body" -> "تطبيق نور الذكر يحتوي على صحيح الأذكار والأدعية اليومية مع الترجمة بعدة لغات."
+                "about_title" -> "عن تطبيق ذاكر المسلم"
+                "about_body" -> "تطبيق ذاكر المسلم يحتوي على صحيح الأذكار والأدعية اليومية مع الترجمة بعدة لغات."
                 "more_apps" -> "تحميل المزيد من التطبيقات"
                 "more_apps_subtitle" -> "استكشف وتحميل المزيد من التطبيقات الإسلامية من متجر جوجل"
                 "developer_apps" -> "تطبيقات المطور"
@@ -729,7 +729,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "أرسل اقتراحاتك إلى najahtechng@gmail.com"
                 "contact_us" -> "اتصل بنا (Contact Us)"
                 "contact_us_subtitle" -> "مراسلتنا عبر البريد الإلكتروني najahtechng@gmail.com"
-                "about_us" -> "عن نور الذكر (About)"
+                "about_us" -> "عن ذاكر المسلم (About)"
                 "about_us_subtitle" -> "معلومات التطبيق والمطورين في Najah Tech"
                 "feedback_dialog_title" -> "إرسال ملاحظات"
                 "feedback_type_label" -> "النوع:"
@@ -743,9 +743,9 @@ object AppLocalizer {
                 else -> key
             }
             "Urdu" -> when (key) {
-                "app_title" -> "نور الذکر"
-                "app_subtitle" -> "ذکر کا نور"
-                "app_slogan" -> "ذکر کا نور"
+                "app_title" -> "ذاکر المسلم"
+                "app_subtitle" -> "ذاکر المسلم"
+                "app_slogan" -> "ذاکر المسلم"
                 "home" -> "ہوم"
                 "library" -> "لائبریری"
                 "favorites" -> "من پسند"
@@ -791,8 +791,8 @@ object AppLocalizer {
                 "target" -> "ہدف"
                 "reset" -> "دوبارہ شروع"
                 "audio_player" -> "آڈیو پلیئر"
-                "about_title" -> "نور الذکر کے بارے میں"
-                "about_body" -> "یہ ایپ نور الذکر مستند دعاؤں اور روزمرہ کے اذکار پر مشتمل ہے۔"
+                "about_title" -> "ذاکر المسلم کے بارے میں"
+                "about_body" -> "یہ ایپ ذاکر المسلم مستند دعاؤں اور روزمرہ کے اذکار پر مشتمل ہے۔"
                 "more_apps" -> "مزید ایپس ڈاؤن لوڈ کریں"
                 "more_apps_subtitle" -> "گوگل پلے اسٹور پر ہماری مزید اسلامی ایپس دیکھیں"
                 "developer_apps" -> "ڈیولپر کی ایپس"
@@ -831,7 +831,7 @@ object AppLocalizer {
                 else -> key
             }
             "Chinese" -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "记念之光"
                 "app_slogan" -> "记念之光"
                 "home" -> "首页"
@@ -879,8 +879,8 @@ object AppLocalizer {
                 "target" -> "目标"
                 "reset" -> "重置"
                 "audio_player" -> "音频播放器"
-                "about_title" -> "关于 Noor Zikir"
-                "about_body" -> "本 Noor Zikir 应用收录了正确的赞念与祈祷词。"
+                "about_title" -> "关于 Zakiru Muslim"
+                "about_body" -> "本 Zakiru Muslim 应用收录了正确的赞念与祈祷词。"
                 "more_apps" -> "下载更多应用"
                 "more_apps_subtitle" -> "在 Google Play 商店探索并下载更多应用"
                 "developer_apps" -> "开发者应用"
@@ -905,7 +905,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "发送建议至 najahtechng@gmail.com"
                 "contact_us" -> "联系我们 (Contact Us)"
                 "contact_us_subtitle" -> "直接发送邮件至 najahtechng@gmail.com"
-                "about_us" -> "关于 Noor Zikir"
+                "about_us" -> "关于 Zakiru Muslim"
                 "about_us_subtitle" -> "关于应用及 Najah Tech"
                 "feedback_dialog_title" -> "发送反馈"
                 "feedback_type_label" -> "类型:"
@@ -919,7 +919,7 @@ object AppLocalizer {
                 else -> key
             }
             else -> when (key) {
-                "app_title" -> "Noor zikir"
+                "app_title" -> "Zakiru Muslim"
                 "app_subtitle" -> "The Light of Remembrance"
                 "app_slogan" -> "The Light of Remembrance"
                 "home" -> "Home"
@@ -967,8 +967,8 @@ object AppLocalizer {
                 "target" -> "Target"
                 "reset" -> "Reset"
                 "audio_player" -> "Audio Player"
-                "about_title" -> "About Noor Zikir"
-                "about_body" -> "This Noor Zikir application contains authentic daily supplications and remembrance with multi-language support."
+                "about_title" -> "About Zakiru Muslim"
+                "about_body" -> "This Zakiru Muslim application contains authentic daily supplications and remembrance with multi-language support."
                 "more_apps" -> "Download More Apps"
                 "more_apps_subtitle" -> "Explore and download more apps on Google Play Store"
                 "developer_apps" -> "Developer Applications"
@@ -997,7 +997,7 @@ object AppLocalizer {
                 "send_feedback_subtitle" -> "Send suggestions, corrections or issues to najahtechng@gmail.com"
                 "contact_us" -> "Contact Us"
                 "contact_us_subtitle" -> "Send direct email to najahtechng@gmail.com"
-                "about_us" -> "About Noor Zikir"
+                "about_us" -> "About Zakiru Muslim"
                 "about_us_subtitle" -> "App mission, version and Najah Tech team"
                 "feedback_dialog_title" -> "Send Feedback / Ra'ayi"
                 "feedback_type_label" -> "Category:"

@@ -181,12 +181,12 @@ fun MainScreen(
                 } else {
                     lastBackPressTime = currentTime
                     val exitMsg = when (selectedLanguage) {
-                        "Hausa" -> "Latsa baya sau biyu domin fita daga Noor Zikir"
+                        "Hausa" -> "Latsa baya sau biyu domin fita daga Zakiru Muslim"
                         "Yoruba" -> "Tẹ bọtini pada lẹẹkansi lati jade"
                         "Igbo" -> "Pịa azụ ọzọ ka ịpụ"
                         "Arabic" -> "اضغط رجوع مرة أخرى للخروج من التطبيق"
                         "French" -> "Appuyez à nouveau pour quitter"
-                        else -> "Press back again to exit Noor Zikir"
+                        else -> "Press back again to exit Zakiru Muslim"
                     }
                     Toast.makeText(context, exitMsg, Toast.LENGTH_SHORT).show()
                 }
@@ -234,19 +234,19 @@ fun MainScreen(
                         onClick = {
                             val appTitle = AppLocalizer.getString("app_title", selectedLanguage)
                             val shareBody = when (selectedLanguage) {
-                                "Hausa" -> "🌙 *Noor Zikir - Hasken Ambato*\n\nKu sauki manhajar Noor Zikir domin samun cikakkun addu'o'in Hisnul Muslim, Zikirin Safiya da Marece, Ruqiya, da Addu'o'in Rabbana 40 tare da fassarar Hausa da sauran harsuna!\n\n📲 Sauke a Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                "Yoruba" -> "🌙 *Noor Zikir*\n\nṢe igbasilẹ Noor Zikir fun awọn adua Hisnul Muslim ti o daju, Adhkar Owurọ ati Alẹ, Ruqyah, ati Awọn Adua Rabbana 40!\n\n📲 Ṣe igbasilẹ lori Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                "Igbo" -> "🌙 *Noor Zikir*\n\nBudata ngwa Noor Zikir maka ekpere Hisnul Muslim zuru oke, Adhkar Ụtụtụ na Anyasị, Ruqyah na Ekpere Rabbana 40!\n\n📲 Budata na Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                "Arabic" -> "🌙 *نور الذكر - حصن المسلم والأذكار*\n\nحمل تطبيق نور الذكر للأذكار اليومية الصحيحة، أذكار الصباح والمساء، الرقية الشرعية، و٤٠ دعاء ربنا من القرآن الكريم.\n\n📲 التحميل من متجر جوجل:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                "French" -> "🌙 *Noor Zikir - Invocations & Adhkar*\n\nTéléchargez l'application Noor Zikir pour les invocations authentiques de Hisnul Muslim, Adhkar du matin et du soir, Ruqyah et les 40 Duas Rabbana !\n\n📲 Télécharger sur Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
-                                else -> "🌙 *Noor Zikir - The Light of Remembrance*\n\nDownload Noor Zikir app for authentic Islamic supplications (Hisnul Muslim), Morning & Evening Adhkar, Ruqyah healing, and 40 Quranic Rabbana Duas with multi-language translations!\n\n📲 Get it on Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Hausa" -> "🌙 *Zakiru Muslim - Addu'o'in Musulmi*\n\nKu sauki manhajar Zakiru Muslim domin samun cikakkun addu'o'in Hisnul Muslim, Zikirin Safiya da Marece, Ruqiya, da Addu'o'in Rabbana 40 tare da fassarar Hausa da sauran harsuna!\n\n📲 Sauke a Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Yoruba" -> "🌙 *Zakiru Muslim*\n\nṢe igbasilẹ Zakiru Muslim fun awọn adua Hisnul Muslim ti o daju, Adhkar Owurọ ati Alẹ, Ruqyah, ati Awọn Adua Rabbana 40!\n\n📲 Ṣe igbasilẹ lori Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Igbo" -> "🌙 *Zakiru Muslim*\n\nBudata ngwa Zakiru Muslim maka ekpere Hisnul Muslim zuru oke, Adhkar Ụtụtụ na Anyasị, Ruqyah na Ekpere Rabbana 40!\n\n📲 Budata na Play Store:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "Arabic" -> "🌙 *ذاكر المسلم - حصن المسلم والأذكار*\n\nحمل تطبيق ذاكر المسلم للأذكار اليومية الصحيحة، أذكار الصباح والمساء، الرقية الشرعية، و٤٠ دعاء ربنا من القرآن الكريم.\n\n📲 التحميل من متجر جوجل:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                "French" -> "🌙 *Zakiru Muslim - Invocations & Adhkar*\n\nTéléchargez l'application Zakiru Muslim pour les invocations authentiques de Hisnul Muslim, Adhkar du matin et du soir, Ruqyah et les 40 Duas Rabbana !\n\n📲 Télécharger sur Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+                                else -> "🌙 *Zakiru Muslim - Daily Duas & Adhkar*\n\nDownload Zakiru Muslim app for authentic Islamic supplications (Hisnul Muslim), Morning & Evening Adhkar, Ruqyah healing, and 40 Quranic Rabbana Duas with multi-language translations!\n\n📲 Get it on Google Play:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
                             }
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_SUBJECT, appTitle)
                                 putExtra(Intent.EXTRA_TEXT, shareBody)
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, "Share Noor Zikir via"))
+                            context.startActivity(Intent.createChooser(shareIntent, "Share Zakiru Muslim via"))
                         },
                         shape = RoundedCornerShape(18.dp),
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
@@ -270,7 +270,7 @@ fun MainScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Share,
-                                contentDescription = "Share Noor Zikir App",
+                                contentDescription = "Share Zakiru Muslim App",
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -924,7 +924,7 @@ fun LibraryTab(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_hisnul_muslim_banner),
-                contentDescription = "Noor Zikir Banner",
+                contentDescription = "Zakiru Muslim Banner",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -941,14 +941,14 @@ fun LibraryTab(
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
-                    "نور الذكر",
+                    "ذاكر المسلم",
                     color = Color.White,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Serif
                 )
                 Text(
-                    "Noor Zikir • The Light of Remembrance",
+                    "Zakiru Muslim • The Fortress of Remembrance",
                     color = Color(0xFFECC76A),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
@@ -3416,17 +3416,17 @@ fun OnboardingLanguageSelection(
                     Text(
                         text = when (activePermissionStep) {
                             1 -> if (isHausa)
-                                "Wannan izini yana ba Noor Zikir damar aiko maka da sanarwa da kararrawar zikirin safe da yamma a ainihin lokacinsu domin kada ka manta."
+                                "Wannan izini yana ba Zakiru Muslim damar aiko maka da sanarwa da kararrawar zikirin safe da yamma a ainihin lokacinsu domin kada ka manta."
                             else
-                                "Allows Noor Zikir to deliver timely audio alerts, vibrations, and notifications for all your morning and evening supplications."
+                                "Allows Zakiru Muslim to deliver timely audio alerts, vibrations, and notifications for all your morning and evening supplications."
                             2 -> if (isHausa)
-                                "Wayoyi kamar Samsung, Tecno, Infinix, Xiaomi, Oppo suna kashe manhajoji a bayan fage. Cire Noor Zikir daga takunkumin baturi don zikirin safe da yamma ya riƙa fita kan lokaci ba tare da jinkiri ba."
+                                "Wayoyi kamar Samsung, Tecno, Infinix, Xiaomi, Oppo suna kashe manhajoji a bayan fage. Cire Zakiru Muslim daga takunkumin baturi don zikirin safe da yamma ya riƙa fita kan lokaci ba tare da jinkiri ba."
                             else
-                                "Device battery savers (Samsung, Tecno, Infinix, Xiaomi, Oppo) put apps to sleep. Exempting Noor Zikir guarantees your morning and evening focus alarms trigger punctually."
+                                "Device battery savers (Samsung, Tecno, Infinix, Xiaomi, Oppo) put apps to sleep. Exempting Zakiru Muslim guarantees your morning and evening focus alarms trigger punctually."
                             else -> if (isHausa)
                                 "Wannan izini yana ba da damar allon zikiri ya fito kai tsaye a kan wayarka koda kana amfani da wani app (kamar WhatsApp ko Browser) ko wayar tana ajiye lokacin da lokacin zikiri yayi."
                             else
-                                "Allows Noor Zikir to pop up full-screen Adhkar reading sessions directly over other apps at scheduled times so you never miss your daily focus sessions."
+                                "Allows Zakiru Muslim to pop up full-screen Adhkar reading sessions directly over other apps at scheduled times so you never miss your daily focus sessions."
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF2E4039),
@@ -3581,7 +3581,7 @@ fun OnboardingLanguageSelection(
                     }
 
                     Text(
-                        text = "Noor zikir",
+                        text = "Zakiru Muslim",
                         style = MaterialTheme.typography.headlineMedium,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
@@ -3590,7 +3590,7 @@ fun OnboardingLanguageSelection(
                     )
 
                     Text(
-                        text = "THE LIGHT OF REMEMBRANCE",
+                        text = "THE FORTRESS OF REMEMBRANCE",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2E7D32),
@@ -3807,9 +3807,9 @@ fun OnboardingLanguageSelection(
 
                             Text(
                                 text = if (isHausa)
-                                    "Yana ba Noor Zikir damar buɗe allon zikiri kai tsaye lokacin da lokacin zikirin safe ko na yamma yayi koda kana wani app."
+                                    "Yana ba Zakiru Muslim damar buɗe allon zikiri kai tsaye lokacin da lokacin zikirin safe ko na yamma yayi koda kana wani app."
                                 else
-                                    "Allows Noor Zikir to pop up full-screen Adhkar recitation sessions directly over other apps at scheduled times.",
+                                    "Allows Zakiru Muslim to pop up full-screen Adhkar recitation sessions directly over other apps at scheduled times.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF4A6058)
                             )
@@ -3957,7 +3957,7 @@ fun OnboardingLanguageSelection(
                                 text = if (isHausa)
                                     "Yana ba da damar aiko maka da sanarwa da kararrawar zikiri da sauran addu'o'in yau da kullum a ainihin lokaci."
                                 else
-                                    "Allows Noor Zikir to deliver exact time alerts, vibrations, and notifications for all daily supplications.",
+                                    "Allows Zakiru Muslim to deliver exact time alerts, vibrations, and notifications for all daily supplications.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF4A6058)
                             )
@@ -4026,7 +4026,7 @@ fun OnboardingLanguageSelection(
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {
                         Text(
-                            text = if (isHausa) "FARA AMFANI DA NOOR ZIKIR" else "START USING NOOR ZIKIR",
+                            text = if (isHausa) "FARA AMFANI DA ZAKIRU MUSLIM" else "START USING ZAKIRU MUSLIM",
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             letterSpacing = 1.sp
@@ -4145,7 +4145,7 @@ fun SettingsDialog(
                             }
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = if (selectedLanguage == "Hausa") "Bamu Tauraro 5 a Play Store ★★★★★" else "Rate Noor Zikir 5 Stars ★★★★★",
+                                    text = if (selectedLanguage == "Hausa") "Bamu Tauraro 5 a Play Store ★★★★★" else "Rate Zakiru Muslim 5 Stars ★★★★★",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -4959,7 +4959,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                     text = if (hasBatteryExemption) {
                         "Battery optimizations are configured so your scheduled Zikir sessions will trigger punctually on Samsung, Tecno, Infinix, Xiaomi and other devices."
                     } else {
-                        "Many phone manufacturers (Samsung, Xiaomi, Tecno, Infinix, Oppo, Vivo) aggressively sleep background tasks. Exclude Noor Zikir from battery restrictions to guarantee on-time sessions."
+                        "Many phone manufacturers (Samsung, Xiaomi, Tecno, Infinix, Oppo, Vivo) aggressively sleep background tasks. Exclude Zakiru Muslim from battery restrictions to guarantee on-time sessions."
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

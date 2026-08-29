@@ -68,15 +68,15 @@ fun InAppUpdateBanner(
                     else -> "New Update Available!"
                 }
                 val sub = when (selectedLanguage) {
-                    "Hausa" -> "Sabunta Noor Zikir domin samun sabbin fasaloli da inganta natsuwar karatu."
-                    "Yoruba" -> "Ṣe imudojuiwọn Noor Zikir fun awọn ẹya tuntun ati iriri to dara julọ."
-                    "Igbo" -> "Melite Noor Zikir maka atụmatụ ọhụrụ na ahụmịhe ka mma."
-                    "Arabic" -> "قم بتحديث نور الذكر للحصول على ميزات جديدة وأداء أفضل."
-                    "French" -> "Mettez à jour Noor Zikir pour profiter des nouvelles fonctionnalités."
-                    "Spanish" -> "Actualiza Noor Zikir para disfrutar de nuevas funciones y mejoras."
-                    "Urdu" -> "نئی خصوصیات اور بہتر تجربے کے لیے نور الذکر اپ ڈیٹ کریں۔"
-                    "Chinese" -> "更新 Noor Zikir 以体验最新功能与性能优化。"
-                    else -> "Update Noor Zikir to get the latest features and improvements."
+                    "Hausa" -> "Sabunta Zakiru Muslim domin samun sabbin fasaloli da inganta natsuwar karatu."
+                    "Yoruba" -> "Ṣe imudojuiwọn Zakiru Muslim fun awọn ẹya tuntun ati iriri to dara julọ."
+                    "Igbo" -> "Melite Zakiru Muslim maka atụmatụ ọhụrụ na ahụmịhe ka mma."
+                    "Arabic" -> "قم بتحديث ذاكر المسلم للحصول على ميزات جديدة وأداء أفضل."
+                    "French" -> "Mettez à jour Zakiru Muslim pour profiter des nouvelles fonctionnalités."
+                    "Spanish" -> "Actualiza Zakiru Muslim para disfrutar de nuevas funciones y mejoras."
+                    "Urdu" -> "نئی خصوصیات اور بہتر تجربے کے لیے ذاکر المسلم اپ ڈیٹ کریں۔"
+                    "Chinese" -> "更新 Zakiru Muslim 以体验最新功能与性能优化。"
+                    else -> "Update Zakiru Muslim to get the latest features and improvements."
                 }
                 val actionText = when (selectedLanguage) {
                     "Hausa" -> "Sabunta Yanzu"
