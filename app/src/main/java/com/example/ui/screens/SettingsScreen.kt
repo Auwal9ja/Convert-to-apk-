@@ -2236,7 +2236,7 @@ fun PrayerTimesAndAthanSettingsSection(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (selectedLanguage == "Hausa") currentSound.displayNameHa else currentSound.displayNameEn,
+                            text = currentSound.getDisplayName(selectedLanguage),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
@@ -2322,8 +2322,12 @@ fun PrayerTimesAndAthanSettingsSection(
                             isTestingAudio = false
                         }
                         PrayerAlarmReceiver.triggerVibration(context)
-                        val soundName = if (selectedLanguage == "Hausa") currentSound.displayNameHa else currentSound.displayNameEn
-                        Toast.makeText(context, "Ana kunna: $soundName", Toast.LENGTH_SHORT).show()
+                        val soundName = currentSound.getDisplayName(selectedLanguage)
+                        Toast.makeText(
+                            context,
+                            if (selectedLanguage == "Hausa") "Ana kunna: $soundName" else "Playing: $soundName",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -2331,11 +2335,7 @@ fun PrayerTimesAndAthanSettingsSection(
                 ) {
                     Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    val soundDisplayName = when (selectedLanguage) {
-                        "Hausa" -> currentSound.displayNameHa
-                        "Arabic" -> currentSound.displayNameEn
-                        else -> currentSound.displayNameEn
-                    }
+                    val soundDisplayName = currentSound.getDisplayName(selectedLanguage)
                     Text(
                         text = if (selectedLanguage == "Hausa") "Saurari Sautin ($soundDisplayName)" else "Test Sound ($soundDisplayName)",
                         fontWeight = FontWeight.Bold,
@@ -2709,12 +2709,12 @@ fun PrayerTimesAndAthanSettingsSection(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = if (selectedLanguage == "Hausa") sound.displayNameHa else sound.displayNameEn,
+                                            text = sound.getDisplayName(selectedLanguage),
                                             fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
                                             fontSize = 13.5.sp
                                         )
                                         Text(
-                                            text = sound.description,
+                                            text = sound.getDescription(selectedLanguage),
                                             fontSize = 11.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

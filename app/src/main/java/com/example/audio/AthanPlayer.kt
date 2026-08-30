@@ -29,58 +29,69 @@ object AthanPlayer {
         val id: String,
         val displayNameEn: String,
         val displayNameHa: String,
-        val description: String,
+        val descriptionEn: String,
+        val descriptionHa: String,
         val rawResId: Int
     ) {
         SOFT_TAKBEER(
             id = "SOFT_TAKBEER",
             displayNameEn = "Short Takbeer (Allahu Akbar x1)",
             displayNameHa = "Allahu Akbar (Sau Ɗaya Kawai)",
-            description = "Gajeren kabbara na gaskiya (Allahu Akbar, Allahu Akbar) sau ɗaya",
+            descriptionEn = "Authentic short Takbeer (Allahu Akbar, Allahu Akbar) once",
+            descriptionHa = "Gajeren kabbara na gaskiya (Allahu Akbar, Allahu Akbar) sau ɗaya",
             rawResId = R.raw.athan_takbeer
         ),
         MAKKAH(
             id = "MAKKAH",
             displayNameEn = "Makkah (Al-Masjid Al-Haram)",
             displayNameHa = "Makkah (Ka'aba - Ali Mulla)",
-            description = "Cikakken kiran sallah na Sheikh Ali Ahmed Mulla",
+            descriptionEn = "Full authentic Call to Prayer by Sheikh Ali Ahmed Mulla (Al-Haram)",
+            descriptionHa = "Cikakken kiran sallah na Sheikh Ali Ahmed Mulla",
             rawResId = R.raw.athan_makkah
         ),
         MADINAH(
             id = "MADINAH",
             displayNameEn = "Madinah (Al-Masjid An-Nabawi)",
             displayNameHa = "Madinah (Masallacin Annabi)",
-            description = "Cikakken kiran sallah na Masallacin Annabi a Madinah",
+            descriptionEn = "Full authentic Call to Prayer from the Prophet's Mosque in Madinah",
+            descriptionHa = "Cikakken kiran sallah na Masallacin Annabi a Madinah",
             rawResId = R.raw.athan_madinah
         ),
         AL_AQSA(
             id = "AL_AQSA",
             displayNameEn = "Al-Aqsa (Jerusalem / Quds)",
             displayNameHa = "Al-Kudus (Masallacin Al-Aqsa)",
-            description = "Cikakken kiran sallah na Masallacin Al-Aqsa",
+            descriptionEn = "Full authentic historical Call to Prayer from Al-Masjid Al-Aqsa",
+            descriptionHa = "Cikakken kiran sallah na Masallacin Al-Aqsa",
             rawResId = R.raw.athan_alaqsa
         ),
         EGYPT(
             id = "EGYPT",
             displayNameEn = "Egypt (Sheikh Muhammad Rifaat)",
             displayNameHa = "Masar (Sheikh Muhammad Rifaat)",
-            description = "Cikakken kiran sallah na Sheikh Muhammad Rifaat",
+            descriptionEn = "Full classical Egyptian Call to Prayer by Sheikh Muhammad Rifaat",
+            descriptionHa = "Cikakken kiran sallah na Sheikh Muhammad Rifaat",
             rawResId = R.raw.athan_egypt
         ),
         MISHARY(
             id = "MISHARY",
             displayNameEn = "Sheikh Mishary Rashid Alafasy",
             displayNameHa = "Sheikh Mishary Rashid Alafasy",
-            description = "Cikakken kiran sallah na Sheikh Mishary Alafasy",
+            descriptionEn = "Full authentic melodic Call to Prayer by Sheikh Mishary Alafasy",
+            descriptionHa = "Cikakken kiran sallah na Sheikh Mishary Alafasy",
             rawResId = R.raw.athan_mishary
         ),
         ARABIC_TTS(
             id = "ARABIC_TTS",
             displayNameEn = "Short Takbeer Call",
             displayNameHa = "Takbira (Allahu Akbar)",
-            description = "Allahu Akbar Allahu Akbar sau ɗaya",
+            descriptionEn = "Short Takbeer call alert (Allahu Akbar)",
+            descriptionHa = "Allahu Akbar Allahu Akbar sau ɗaya",
             rawResId = R.raw.athan_takbeer
         );
+
+        fun getDisplayName(language: String): String = if (language == "Hausa") displayNameHa else displayNameEn
+        fun getDescription(language: String): String = if (language == "Hausa") descriptionHa else descriptionEn
 
         companion object {
             fun fromId(id: String): AthanSound {
