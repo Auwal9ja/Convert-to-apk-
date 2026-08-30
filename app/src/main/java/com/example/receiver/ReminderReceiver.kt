@@ -128,16 +128,59 @@ class ReminderReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val selectedLanguage = sharedPref.getString("selected_language", "English") ?: "English"
+
         val title = if (type == "MORNING") {
-            "☀️ Zakiru Muslim: Morning Adhkar"
+            when (selectedLanguage) {
+                "Hausa" -> "☀️ Zakiru Muslim: Zikirin Safe"
+                "Yoruba" -> "☀️ Zakiru Muslim: Zikiri Ọ̀sán"
+                "Igbo" -> "☀️ Zakiru Muslim: Ekpere Ụtụtụ"
+                "Arabic" -> "☀️ ذاكر المسلم: أذكار الصباح"
+                "French" -> "☀️ Zakiru Muslim : Adhkar du Matin"
+                "Spanish" -> "☀️ Zakiru Muslim: Adhkar Matutino"
+                "Urdu" -> "☀️ ذاکر المسلم: صبح کے اذکار"
+                "Chinese" -> "☀️ Zakiru Muslim: 早晨赞念"
+                else -> "☀️ Zakiru Muslim: Morning Adhkar"
+            }
         } else {
-            "🌙 Zakiru Muslim: Evening Adhkar"
+            when (selectedLanguage) {
+                "Hausa" -> "🌙 Zakiru Muslim: Zikirin Yamma"
+                "Yoruba" -> "🌙 Zakiru Muslim: Zikiri Alẹ́"
+                "Igbo" -> "🌙 Zakiru Muslim: Ekpere Mgbede"
+                "Arabic" -> "🌙 ذاكر المسلم: أذكار المساء"
+                "French" -> "🌙 Zakiru Muslim : Adhkar du Soir"
+                "Spanish" -> "🌙 Zakiru Muslim: Adhkar Vespertino"
+                "Urdu" -> "🌙 ذاکر المسلم: شام کے اذکار"
+                "Chinese" -> "🌙 Zakiru Muslim: 晚夕赞念"
+                else -> "🌙 Zakiru Muslim: Evening Adhkar"
+            }
         }
 
         val contentText = if (type == "MORNING") {
-            "Begin your day with blessings. Tap to read the Morning Supplications."
+            when (selectedLanguage) {
+                "Hausa" -> "Fara ranarka da albarka. Danna nan don karanta addu'o'in safe."
+                "Yoruba" -> "Bẹ̀rẹ̀ ọjọ́ rẹ pẹ̀lú ìbùkún. Tẹ́ ibí láti ka àwọn àdúrà àárọ̀."
+                "Igbo" -> "Bido ụbọchị gị na ngọzi. Pịa ebe a ka ị gụọ ekpere ụtụtụ."
+                "Arabic" -> "ابدأ يومك بالبركة والذكر. اضغط هنا لقراءة أذكار الصباح."
+                "French" -> "Commencez votre journée avec bénédiction. Appuyez pour lire les supplications du matin."
+                "Spanish" -> "Comienza tu día con bendiciones. Toca para leer las súplicas matutinas."
+                "Urdu" -> "اپنے دن کا آغاز برکت کے ساتھ کریں۔ صبح کے اذکار پڑھنے کے لیے یہاں دبائیں۔"
+                "Chinese" -> "以吉祥赞念开启美好的一天。点击阅读早晨祈祷词。"
+                else -> "Begin your day with blessings. Tap to read the Morning Supplications."
+            }
         } else {
-            "Seek peace and protection. Tap to read the Evening Supplications."
+            when (selectedLanguage) {
+                "Hausa" -> "Ka nemi natsuwa da kariya. Danna nan don karanta addu'o'in yamma."
+                "Yoruba" -> "Wá àlàáfíà àti ààbò. Tẹ́ ibí láti ka àwọn àdúrà alẹ́."
+                "Igbo" -> "Chọọ udo na nchedo. Pịa ebe a ka ị gụọ ekpere mgbede."
+                "Arabic" -> "استحضر الطمأنينة والحفظ الإلهي. اضغط هنا لقراءة أذكار المساء."
+                "French" -> "Trouvez la paix et la protection. Appuyez pour lire les supplications du soir."
+                "Spanish" -> "Busca paz y protección. Toca para leer las súplicas vespertinas."
+                "Urdu" -> "سکون اور حفاظت حاصل کریں۔ شام کے اذکار پڑھنے کے لیے یہاں دبائیں۔"
+                "Chinese" -> "寻求内心的平静与庇佑。点击阅读晚夕祈祷词。"
+                else -> "Seek peace and protection. Tap to read the Evening Supplications."
+            }
         }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -152,7 +195,6 @@ class ReminderReceiver : BroadcastReceiver() {
         notificationManager.notify(if (type == "MORNING") NOTIFICATION_ID_MORNING else NOTIFICATION_ID_EVENING, notification)
 
         // Reschedule for next day if still enabled in settings
-        val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val isStillEnabled = if (type == "MORNING") {
             sharedPref.getBoolean("morning_enabled", false)
         } else {

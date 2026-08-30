@@ -760,6 +760,35 @@ object MandatoryAdhkarManager {
         createNotificationChannel(context)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+        val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val selectedLanguage = sharedPref.getString("selected_language", "English") ?: "English"
+
+        val localizedTitle = when (scheduleId) {
+            SCHEDULE_ID_MORNING -> when (selectedLanguage) {
+                "Hausa" -> "Zikirin Safe na Wajibi"
+                "Yoruba" -> "Zikiri Ọ̀sán Ti O Ṣe Kókó"
+                "Igbo" -> "Ekpere Ụtụtụ nke Iwu"
+                "Arabic" -> "أذكار الصباح الإلزامية"
+                "French" -> "Adhkar du Matin Obligatoire"
+                "Spanish" -> "Adhkar Matutino Obligatorio"
+                "Urdu" -> "لازمی صبح کے اذکار"
+                "Chinese" -> "早晨必念赞念"
+                else -> scheduleTitle
+            }
+            SCHEDULE_ID_EVENING -> when (selectedLanguage) {
+                "Hausa" -> "Zikirin Yamma na Wajibi"
+                "Yoruba" -> "Zikiri Alẹ́ Ti O Ṣe Kókó"
+                "Igbo" -> "Ekpere Mgbede nke Iwu"
+                "Arabic" -> "أذكار المساء الإلزامية"
+                "French" -> "Adhkar du Soir Obligatoire"
+                "Spanish" -> "Adhkar Vespertino Obligatorio"
+                "Urdu" -> "لازمی شام کے اذکار"
+                "Chinese" -> "晚夕必念赞念"
+                else -> scheduleTitle
+            }
+            else -> scheduleTitle
+        }
+
         val intent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
@@ -781,8 +810,29 @@ object MandatoryAdhkarManager {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-        val notifTitle = "✨ $scheduleTitle Active"
-        val notifBody = "Your scheduled $durationMinutes-minute Zikir session is in progress. Tap to open and recite."
+        val notifTitle = when (selectedLanguage) {
+            "Hausa" -> "✨ $localizedTitle Ya Fara"
+            "Yoruba" -> "✨ $localizedTitle Ti Bẹ̀rẹ̀"
+            "Igbo" -> "✨ $localizedTitle Ebidola"
+            "Arabic" -> "✨ $localizedTitle قيد التشغيل"
+            "French" -> "✨ $localizedTitle Actif"
+            "Spanish" -> "✨ $localizedTitle Activo"
+            "Urdu" -> "✨ $localizedTitle جاری ہے"
+            "Chinese" -> "✨ $localizedTitle 进行中"
+            else -> "✨ $localizedTitle Active"
+        }
+
+        val notifBody = when (selectedLanguage) {
+            "Hausa" -> "Zaman karatun zikiri na minti $durationMinutes na gudana. Danna nan domin budewa da karantawa."
+            "Yoruba" -> "Àkókò kíkà zikiri ti ìṣẹ́jú $durationMinutes ń lọ lọ́wọ́. Tẹ́ ibí láti ṣí i kí o sì kà á."
+            "Igbo" -> "Oge ịgụ ekpere nke nkeji $durationMinutes na-aga n'ihu. Pịa ebe a ka imeghe ma gụọ."
+            "Arabic" -> "جلسة الذكر المحددة بـ $durationMinutes دقائق قيد التشغيل. اضغط للفتح والقراءة."
+            "French" -> "Votre séance d'Adhkar de $durationMinutes minutes est en cours. Appuyez pour ouvrir et réciter."
+            "Spanish" -> "Tu sesión de Adhkar de $durationMinutes minutos está en curso. Toca para abrir y recitar."
+            "Urdu" -> "آپ کے $durationMinutes منٹ کا ذکر کا سیشن جاری ہے۔ کھولنے اور پڑھنے کے لیے دبائیں۔"
+            "Chinese" -> "您设定的 $durationMinutes 分钟必念赞念正在进行中。点击开启诵读。"
+            else -> "Your scheduled $durationMinutes-minute Zikir session is in progress. Tap to open and recite."
+        }
 
         Log.d(TAG, "notification creation: Building active session notification (FullScreenIntent=true, category=ALARM)")
 

@@ -157,11 +157,19 @@ object PrayerTimeManager {
     }
 
     fun getAthanMode(context: Context): String {
-        return getPreferences(context).getString("athan_mode", "FULL_ATHAN") ?: "FULL_ATHAN"
+        return getPreferences(context).getString("athan_mode", "SOUND_AND_VIBRATE") ?: "SOUND_AND_VIBRATE"
     }
 
     fun setAthanMode(context: Context, mode: String) {
         getPreferences(context).edit().putString("athan_mode", mode).apply()
+    }
+
+    fun getAthanSound(context: Context): String {
+        return getPreferences(context).getString("athan_selected_sound", "MAKKAH") ?: "MAKKAH"
+    }
+
+    fun setAthanSound(context: Context, soundId: String) {
+        getPreferences(context).edit().putString("athan_selected_sound", soundId).apply()
     }
 
     /**

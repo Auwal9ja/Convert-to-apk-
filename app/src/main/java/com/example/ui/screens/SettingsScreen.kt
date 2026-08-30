@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import android.app.TimePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -41,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.local.AppLocalizer
+import com.example.audio.AthanPlayer
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 import com.example.util.CalculationMethod
@@ -1895,6 +1901,7 @@ fun PrayerTimesAndAthanSettingsSection(
     var selectedJuristic by remember { mutableStateOf(PrayerTimeManager.getJuristicMethod(context)) }
     var hijriOffset by remember { mutableIntStateOf(PrayerTimeManager.getHijriOffset(context)) }
     var athanMode by remember { mutableStateOf(PrayerTimeManager.getAthanMode(context)) }
+    var athanSound by remember { mutableStateOf(PrayerTimeManager.getAthanSound(context)) }
 
     var fajrAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "FAJR")) }
     var dhuhrAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "DHUHR")) }
@@ -1905,6 +1912,8 @@ fun PrayerTimesAndAthanSettingsSection(
     var showMethodDialog by remember { mutableStateOf(false) }
     var showJuristicDialog by remember { mutableStateOf(false) }
     var showCityDialog by remember { mutableStateOf(false) }
+    var showSoundDialog by remember { mutableStateOf(false) }
+    var showModeDialog by remember { mutableStateOf(false) }
     var isTestingAudio by remember { mutableStateOf(false) }
 
     SettingsSectionCard(
@@ -2133,7 +2142,116 @@ fun PrayerTimesAndAthanSettingsSection(
                 }
             }
 
-            // 5. Individual Prayer Alarm Toggles
+            // 5. Alert Mode (Sound / Vibrate / Sound+Vibrate / Silent)
+            val currentMode = AthanPlayer.AlertMode.fromId(athanMode)
+            Surface(
+                onClick = { showModeDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth().testTag("settings_athan_mode_btn")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF0288D1).copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = when (currentMode) {
+                                AthanPlayer.AlertMode.SOUND_AND_VIBRATE -> Icons.Default.VolumeUp
+                                AthanPlayer.AlertMode.SOUND_ONLY -> Icons.Default.VolumeUp
+                                AthanPlayer.AlertMode.VIBRATE_ONLY -> Icons.Default.Vibration
+                                AthanPlayer.AlertMode.SILENT -> Icons.Default.VolumeOff
+                            },
+                            contentDescription = "Alert Mode",
+                            tint = Color(0xFF0288D1),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Yanayin Kararrawa (Alert Mode)" else "Athan Alert Mode",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (selectedLanguage == "Hausa") currentMode.titleHa else currentMode.titleEn,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Select",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            // 6. Select Athan Sound (Makkah, Madinah, Al-Aqsa, Egypt, Vocal TTS, Soft Takbeer)
+            val currentSound = AthanPlayer.AthanSound.fromId(athanSound)
+            Surface(
+                onClick = { showSoundDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth().testTag("settings_athan_sound_btn")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD4AF37).copy(alpha = 0.25f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MusicNote,
+                            contentDescription = "Athan Sound",
+                            tint = Color(0xFFD4AF37),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Zaɓin Sautin Athan (Sound)" else "Select Athan Sound",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (selectedLanguage == "Hausa") currentSound.displayNameHa else currentSound.displayNameEn,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Select",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            // 7. Individual Prayer Alarm Toggles
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2192,24 +2310,50 @@ fun PrayerTimesAndAthanSettingsSection(
                 }
             }
 
-            // 6. Test Athan Audio Button
-            Button(
-                onClick = {
-                    isTestingAudio = true
-                    PrayerAlarmReceiver.playAthanAudio(context)
-                    Toast.makeText(context, "Ana kunna kiran sallah (Athan)...", Toast.LENGTH_SHORT).show()
-                },
+            // 8. Test Athan Audio Button
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (selectedLanguage == "Hausa") "Saurari Sautin Athan (Gwaji)" else "Play Test Athan Audio",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
-                )
+                Button(
+                    onClick = {
+                        isTestingAudio = true
+                        PrayerAlarmReceiver.playAthanAudio(context) {
+                            isTestingAudio = false
+                        }
+                        PrayerAlarmReceiver.triggerVibration(context)
+                        val soundName = if (selectedLanguage == "Hausa") currentSound.displayNameHa else currentSound.displayNameEn
+                        Toast.makeText(context, "Ana kunna: $soundName", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Kunna Sautin ($ {currentSound.displayNameHa})" else "Test ($ {currentSound.displayNameEn})",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.5.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (isTestingAudio) {
+                    OutlinedButton(
+                        onClick = {
+                            AthanPlayer.stop()
+                            isTestingAudio = false
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Icon(Icons.Default.Stop, contentDescription = "Stop", modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(if (selectedLanguage == "Hausa") "Tsaya" else "Stop", fontSize = 12.sp)
+                    }
+                }
             }
         }
     }
@@ -2345,26 +2489,75 @@ fun PrayerTimesAndAthanSettingsSection(
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Button(
-                        onClick = {
+                    var isDetectingInSettings by remember { mutableStateOf(false) }
+                    val settingsPermissionLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.RequestMultiplePermissions()
+                    ) { permissions ->
+                        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+                        if (granted) {
+                            isDetectingInSettings = true
                             PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
+                                isDetectingInSettings = false
                                 cityName = city
                                 countryName = country
-                                Toast.makeText(context, "An sabunta: $city, $country", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, if (selectedLanguage == "Hausa") "An sabunta: $city, $country" else "Updated: $city, $country", Toast.LENGTH_SHORT).show()
                                 showCityDialog = false
                             }
+                        } else {
+                            isDetectingInSettings = false
+                            Toast.makeText(context, if (selectedLanguage == "Hausa") "Ana buƙatar izinin GPS" else "GPS permission required", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            if (hasFine || hasCoarse) {
+                                isDetectingInSettings = true
+                                PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
+                                    isDetectingInSettings = false
+                                    cityName = city
+                                    countryName = country
+                                    Toast.makeText(context, if (selectedLanguage == "Hausa") "An sabunta: $city, $country" else "Updated: $city, $country", Toast.LENGTH_SHORT).show()
+                                    showCityDialog = false
+                                }
+                            } else {
+                                settingsPermissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                )
+                            }
                         },
+                        enabled = !isDetectingInSettings,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
                     ) {
-                        Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp
-                        )
+                        if (isDetectingInSettings) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Ana neman wuri ta GPS..." else "Detecting location via GPS...",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        } else {
+                            Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     LazyColumn(
@@ -2400,6 +2593,165 @@ fun PrayerTimesAndAthanSettingsSection(
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    // Alert Mode Selection Dialog
+    if (showModeDialog) {
+        Dialog(onDismissRequest = { showModeDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Zaɓi Yanayin Kararrawa" else "Select Alert Mode",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    AthanPlayer.AlertMode.values().forEach { mode ->
+                        val isSel = athanMode == mode.id
+                        Surface(
+                            onClick = {
+                                athanMode = mode.id
+                                PrayerTimeManager.setAthanMode(context, mode.id)
+                                showModeDialog = false
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") mode.titleHa else mode.titleEn,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium
+                                )
+                                if (isSel) {
+                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Athan Sound Selection Dialog with preview
+    if (showSoundDialog) {
+        Dialog(onDismissRequest = {
+            showSoundDialog = false
+            AthanPlayer.stop()
+        }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth().heightIn(max = 520.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Zaɓi Sautin Athan" else "Select Athan Sound",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        IconButton(onClick = {
+                            showSoundDialog = false
+                            AthanPlayer.stop()
+                        }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(AthanPlayer.AthanSound.values().toList()) { sound ->
+                            val isSel = athanSound == sound.id
+                            Surface(
+                                onClick = {
+                                    athanSound = sound.id
+                                    PrayerTimeManager.setAthanSound(context, sound.id)
+                                    AthanPlayer.playAthan(context, sound)
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = if (selectedLanguage == "Hausa") sound.displayNameHa else sound.displayNameEn,
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 13.5.sp
+                                        )
+                                        Text(
+                                            text = sound.description,
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(
+                                            onClick = {
+                                                AthanPlayer.playAthan(context, sound)
+                                            },
+                                            modifier = Modifier.size(32.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                                contentDescription = "Preview",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                        if (isSel) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = {
+                            showSoundDialog = false
+                            AthanPlayer.stop()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text(if (selectedLanguage == "Hausa") "Adana (Save)" else "Save Selection")
                     }
                 }
             }
