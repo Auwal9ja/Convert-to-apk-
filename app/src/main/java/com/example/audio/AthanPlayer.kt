@@ -32,59 +32,59 @@ object AthanPlayer {
         val description: String,
         val rawResId: Int
     ) {
+        SOFT_TAKBEER(
+            id = "SOFT_TAKBEER",
+            displayNameEn = "Short Takbeer (Allahu Akbar x1)",
+            displayNameHa = "Allahu Akbar (Sau Ɗaya Kawai)",
+            description = "Gajeren kabbara na gaskiya (Allahu Akbar, Allahu Akbar) sau ɗaya",
+            rawResId = R.raw.athan_takbeer
+        ),
         MAKKAH(
             id = "MAKKAH",
             displayNameEn = "Makkah (Al-Masjid Al-Haram)",
             displayNameHa = "Makkah (Ka'aba - Ali Mulla)",
-            description = "Authentic genuine call by Sheikh Ali Ahmed Mulla (Al-Haram)",
+            description = "Cikakken kiran sallah na Sheikh Ali Ahmed Mulla",
             rawResId = R.raw.athan_makkah
         ),
         MADINAH(
             id = "MADINAH",
             displayNameEn = "Madinah (Al-Masjid An-Nabawi)",
             displayNameHa = "Madinah (Masallacin Annabi)",
-            description = "Authentic soulful call from the Prophet's Mosque in Madinah",
+            description = "Cikakken kiran sallah na Masallacin Annabi a Madinah",
             rawResId = R.raw.athan_madinah
         ),
         AL_AQSA(
             id = "AL_AQSA",
             displayNameEn = "Al-Aqsa (Jerusalem / Quds)",
             displayNameHa = "Al-Kudus (Masallacin Al-Aqsa)",
-            description = "Authentic historical call from Al-Masjid Al-Aqsa",
+            description = "Cikakken kiran sallah na Masallacin Al-Aqsa",
             rawResId = R.raw.athan_alaqsa
         ),
         EGYPT(
             id = "EGYPT",
             displayNameEn = "Egypt (Sheikh Muhammad Rifaat)",
             displayNameHa = "Masar (Sheikh Muhammad Rifaat)",
-            description = "Classical Egyptian recitation by legendary Sheikh Muhammad Rifaat",
+            description = "Cikakken kiran sallah na Sheikh Muhammad Rifaat",
             rawResId = R.raw.athan_egypt
         ),
         MISHARY(
             id = "MISHARY",
             displayNameEn = "Sheikh Mishary Rashid Alafasy",
             displayNameHa = "Sheikh Mishary Rashid Alafasy",
-            description = "Authentic melodic Athan by Sheikh Mishary Alafasy",
+            description = "Cikakken kiran sallah na Sheikh Mishary Alafasy",
             rawResId = R.raw.athan_mishary
-        ),
-        SOFT_TAKBEER(
-            id = "SOFT_TAKBEER",
-            displayNameEn = "Short Takbeer Alert",
-            displayNameHa = "Gajeren Takbira (Takbeer)",
-            description = "Short authentic Takbeer call (Allahu Akbar)",
-            rawResId = R.raw.athan_takbeer
         ),
         ARABIC_TTS(
             id = "ARABIC_TTS",
-            displayNameEn = "Takbeer Call",
-            displayNameHa = "Kiran Takbira",
-            description = "Authentic Takbeer call (Allahu Akbar)",
+            displayNameEn = "Short Takbeer Call",
+            displayNameHa = "Takbira (Allahu Akbar)",
+            description = "Allahu Akbar Allahu Akbar sau ɗaya",
             rawResId = R.raw.athan_takbeer
         );
 
         companion object {
             fun fromId(id: String): AthanSound {
-                return entries.find { it.id.equals(id, ignoreCase = true) } ?: MAKKAH
+                return entries.find { it.id.equals(id, ignoreCase = true) } ?: SOFT_TAKBEER
             }
         }
     }

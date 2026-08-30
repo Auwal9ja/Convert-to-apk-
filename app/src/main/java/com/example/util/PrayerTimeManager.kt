@@ -165,7 +165,7 @@ object PrayerTimeManager {
     }
 
     fun getAthanSound(context: Context): String {
-        return getPreferences(context).getString("athan_selected_sound", "MAKKAH") ?: "MAKKAH"
+        return getPreferences(context).getString("athan_selected_sound", "SOFT_TAKBEER") ?: "SOFT_TAKBEER"
     }
 
     fun setAthanSound(context: Context, soundId: String) {
