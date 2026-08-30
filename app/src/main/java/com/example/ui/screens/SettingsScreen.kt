@@ -2331,8 +2331,13 @@ fun PrayerTimesAndAthanSettingsSection(
                 ) {
                     Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
+                    val soundDisplayName = when (selectedLanguage) {
+                        "Hausa" -> currentSound.displayNameHa
+                        "Arabic" -> currentSound.displayNameEn
+                        else -> currentSound.displayNameEn
+                    }
                     Text(
-                        text = if (selectedLanguage == "Hausa") "Kunna Sautin ($ {currentSound.displayNameHa})" else "Test ($ {currentSound.displayNameEn})",
+                        text = if (selectedLanguage == "Hausa") "Saurari Sautin ($soundDisplayName)" else "Test Sound ($soundDisplayName)",
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.5.sp,
                         maxLines = 1,

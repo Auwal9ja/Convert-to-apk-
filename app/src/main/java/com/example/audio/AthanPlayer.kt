@@ -2,36 +2,39 @@ package com.example.audio
 
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.AudioFormat
 import android.media.AudioManager
-import android.media.AudioTrack
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.Locale
-import kotlin.math.PI
-import kotlin.math.sin
 
 /**
- * High quality Athan sound synthesis and playback engine for Islamic Prayer Times.
- * Supports multiple authentic Athan sound styles:
- * 1. Makkah (Al-Masjid Al-Haram - Beautiful Hijaz Maqam melodic call)
- * 2. Madinah (Al-Masjid An-Nabawi - Serene, deep tonal call)
- * 3. Al-Aqsa (Quds - Resonant and soulful call)
- * 4. Classical Egyptian (Traditional warm harmonic call)
- * 5. Text-To-Speech Arabic Recitation (Full clear Arabic phrase recital)
- * 6. Gentle Soft Takbeer (Soft chime & Takbeer tone)
+ * Authentic Islamic Athan (Adhan) Audio Player Engine.
+ * Plays genuine human voice recordings by renowned Mu'adhins:
+ * 1. Makkah (Al-Masjid Al-Haram - Sheikh Ali Ahmed Mulla)
+ * 2. Madinah (Al-Masjid An-Nabawi - Sheikh Essam Bukhari)
+ * 3. Al-Aqsa (Jerusalem / Al-Quds)
+ * 4. Classical Egyptian (Sheikh Abdul Basit Abdul Samad)
+ * 5. Sheikh Mishary Rashid Alafasy
+ * 6. Arabic Vocal Recitation (Full clear Arabic speech recital)
+ * 7. Short Takbeer Call (Allahu Akbar Allahu Akbar)
+ *
+ * Features:
+ * - Direct playback via Android MediaPlayer
+ * - Automatic background caching to local storage for 100% offline availability
+ * - Seamless fallback to high-clarity Arabic TTS / Alarm Ringtone if offline before cache
  */
 object AthanPlayer {
 
@@ -40,13 +43,62 @@ object AthanPlayer {
     private var tts: TextToSpeech? = null
     private var playbackJob: Job? = null
 
-    enum class AthanSound(val id: String, val displayNameEn: String, val displayNameHa: String, val description: String) {
-        MAKKAH("MAKKAH", "Makkah (Al-Haram)", "Makkah (Ka'aba)", "Harmonic Hijaz Maqam with resonant echo"),
-        MADINAH("MADINAH", "Madinah (Al-Nabawi)", "Madinah (Masallacin Annabi)", "Calm, deep soulful melodic resonance"),
-        AL_AQSA("AL_AQSA", "Al-Aqsa (Jerusalem)", "Al-Kudus (Masallacin Al-Aqsa)", "Clear reverberant traditional calling tone"),
-        EGYPT("EGYPT", "Classical Egyptian", "Salon Masar (Masar)", "Warm harmonic vocal-like timbre"),
-        ARABIC_TTS("ARABIC_TTS", "Arabic Vocal Recitation", "Karatun Larabci Kai Tsaye", "Full authentic Arabic recitation text"),
-        SOFT_TAKBEER("SOFT_TAKBEER", "Gentle Takbeer Chime", "Natsuwar Takbira Mai Taushi", "Gentle acoustic bell & spiritual melody");
+    enum class AthanSound(
+        val id: String,
+        val displayNameEn: String,
+        val displayNameHa: String,
+        val description: String,
+        val audioUrl: String
+    ) {
+        MAKKAH(
+            id = "MAKKAH",
+            displayNameEn = "Makkah (Al-Haram - Ali Mulla)",
+            displayNameHa = "Makkah (Ka'aba - Ali Mulla)",
+            description = "Authentic call from Al-Masjid Al-Haram in Makkah",
+            audioUrl = "https://media.sd.ma/assabile/adhan_3748/001.mp3"
+        ),
+        MADINAH(
+            id = "MADINAH",
+            displayNameEn = "Madinah (Al-Nabawi - Essam Bukhari)",
+            displayNameHa = "Madinah (Masallacin Annabi)",
+            description = "Soulful authentic call from the Prophet's Mosque in Madinah",
+            audioUrl = "https://ia801406.us.archive.org/34/items/AdhanMadinah/AdhanMadinah.mp3"
+        ),
+        AL_AQSA(
+            id = "AL_AQSA",
+            displayNameEn = "Al-Aqsa (Jerusalem / Quds)",
+            displayNameHa = "Al-Kudus (Masallacin Al-Aqsa)",
+            description = "Reverberant historical call from Al-Aqsa Mosque",
+            audioUrl = "https://ia801503.us.archive.org/15/items/AdhanAlAqsa/AdhanAlAqsa.mp3"
+        ),
+        EGYPT(
+            id = "EGYPT",
+            displayNameEn = "Egypt (Sheikh Abdul Basit)",
+            displayNameHa = "Salon Masar (Abdul Basit)",
+            description = "Warm classical Egyptian recitation by Sheikh Abdul Basit",
+            audioUrl = "https://ia800302.us.archive.org/10/items/AdhanEgypt/AdhanEgypt.mp3"
+        ),
+        MISHARY(
+            id = "MISHARY",
+            displayNameEn = "Sheikh Mishary Alafasy",
+            displayNameHa = "Mishary Rashid Alafasy",
+            description = "Melodic authentic Athan by Sheikh Mishary Alafasy",
+            audioUrl = "https://ia800701.us.archive.org/22/items/AthanMishary/AthanMishary.mp3"
+        ),
+        ARABIC_TTS(
+            id = "ARABIC_TTS",
+            displayNameEn = "Arabic Voice Recitation",
+            displayNameHa = "Karatun Larabci Kai Tsaye",
+            description = "Full authentic Arabic recitation text (Offline Voice)",
+            audioUrl = ""
+        ),
+        SOFT_TAKBEER(
+            id = "SOFT_TAKBEER",
+            displayNameEn = "Short Takbeer Alert",
+            displayNameHa = "Gajeren Takbira (Takbeer)",
+            description = "Short authentic Takbeer call (Allahu Akbar)",
+            audioUrl = "https://ia800203.us.archive.org/24/items/AdhanMakkah/AdhanTakbeerShort.mp3"
+        );
 
         companion object {
             fun fromId(id: String): AthanSound {
@@ -71,14 +123,16 @@ object AthanPlayer {
     fun stop() {
         playbackJob?.cancel()
         playbackJob = null
+
         try {
-            if (mediaPlayer != null) {
-                if (mediaPlayer?.isPlaying == true) {
-                    mediaPlayer?.stop()
+            mediaPlayer?.let { mp ->
+                if (mp.isPlaying) {
+                    mp.stop()
                 }
-                mediaPlayer?.release()
-                mediaPlayer = null
+                mp.reset()
+                mp.release()
             }
+            mediaPlayer = null
         } catch (_: Exception) {}
 
         try {
@@ -88,6 +142,14 @@ object AthanPlayer {
         } catch (_: Exception) {}
     }
 
+    fun isPlaying(): Boolean {
+        return try {
+            mediaPlayer?.isPlaying == true || tts?.isSpeaking == true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     fun playAthan(
         context: Context,
         sound: AthanSound,
@@ -95,24 +157,131 @@ object AthanPlayer {
     ) {
         stop()
 
-        if (sound == AthanSound.ARABIC_TTS) {
+        if (sound == AthanSound.ARABIC_TTS || sound.audioUrl.isBlank()) {
             playArabicTts(context, onCompletion)
             return
         }
 
-        playbackJob = CoroutineScope(Dispatchers.Default).launch {
-            try {
-                playSynthesizedAthanMelody(context, sound)
-                launch(Dispatchers.Main) {
+        val cacheFile = File(context.filesDir, "athan_${sound.id.lowercase()}.mp3")
+
+        playbackJob = CoroutineScope(Dispatchers.IO).launch {
+            if (cacheFile.exists() && cacheFile.length() > 5000) {
+                // Play directly from offline cached genuine audio file
+                playLocalAudioFile(context, cacheFile, onCompletion)
+            } else {
+                // Stream directly and save in background for offline use
+                val streamed = playFromNetworkStream(context, sound.audioUrl, onCompletion)
+                if (!streamed) {
+                    // Fallback to Arabic voice recitation
+                    withContext(Dispatchers.Main) {
+                        playArabicTts(context, onCompletion)
+                    }
+                }
+                // Background download & cache for next time
+                tryDownloadAndCache(sound.audioUrl, cacheFile)
+            }
+        }
+    }
+
+    private suspend fun playLocalAudioFile(
+        context: Context,
+        file: File,
+        onCompletion: (() -> Unit)?
+    ) = withContext(Dispatchers.Main) {
+        try {
+            mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setLegacyStreamType(AudioManager.STREAM_ALARM)
+                        .build()
+                )
+                setDataSource(context, Uri.fromFile(file))
+                setOnPreparedListener { mp ->
+                    mp.start()
+                }
+                setOnCompletionListener {
+                    stop()
                     onCompletion?.invoke()
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Synthesizer fallback due to: ${e.message}")
-                launch(Dispatchers.Main) {
-                    playRingtoneFallback(context)
+                setOnErrorListener { _, _, _ ->
+                    stop()
+                    playArabicTts(context, onCompletion)
+                    true
+                }
+                prepareAsync()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed playing local Athan file: ${e.message}")
+            playArabicTts(context, onCompletion)
+        }
+    }
+
+    private suspend fun playFromNetworkStream(
+        context: Context,
+        urlStr: String,
+        onCompletion: (() -> Unit)?
+    ): Boolean = withContext(Dispatchers.Main) {
+        try {
+            mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setLegacyStreamType(AudioManager.STREAM_ALARM)
+                        .build()
+                )
+                setDataSource(urlStr)
+                setOnPreparedListener { mp ->
+                    mp.start()
+                }
+                setOnCompletionListener {
+                    stop()
                     onCompletion?.invoke()
+                }
+                setOnErrorListener { _, what, extra ->
+                    Log.w(TAG, "MediaPlayer streaming error what=$what extra=$extra")
+                    stop()
+                    playArabicTts(context, onCompletion)
+                    true
+                }
+                prepareAsync()
+            }
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Network stream failed: ${e.message}")
+            false
+        }
+    }
+
+    private fun tryDownloadAndCache(urlStr: String, destinationFile: File) {
+        try {
+            if (destinationFile.exists() && destinationFile.length() > 5000) return
+            val url = URL(urlStr)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connectTimeout = 8000
+            connection.readTimeout = 15000
+            connection.requestMethod = "GET"
+            connection.connect()
+
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val tempFile = File(destinationFile.parentFile, "${destinationFile.name}.tmp")
+                connection.inputStream.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                if (tempFile.length() > 5000) {
+                    tempFile.renameTo(destinationFile)
+                    Log.d(TAG, "Successfully cached authentic Athan: ${destinationFile.name}")
+                } else {
+                    tempFile.delete()
                 }
             }
+            connection.disconnect()
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not cache Athan file: ${e.message}")
         }
     }
 
@@ -124,14 +293,26 @@ object AthanPlayer {
                     if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
                         tts?.setLanguage(Locale.ENGLISH)
                     }
-                    val athanText = "الله أكبر الله أكبر. أشهد أن لا إله إلا الله. أشهد أن محمدا رسول الله. حي على الصلاة. حي على الفلاح. قد قامت الصلاة. الله أكبر الله أكبر. لا إله إلا الله."
+                    val athanText = "اللهُ أَكْبَرُ، اللهُ أَكْبَرُ. اللهُ أَكْبَرُ، اللهُ أَكْبَرُ. أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللهُ. أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللهُ. أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللهِ. أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللهِ. حَيَّ عَلَى الصَّلَاةِ. حَيَّ عَلَى الصَّلَاةِ. حَيَّ عَلَى الْفَلَاحِ. حَيَّ عَلَى الْفَلَاحِ. اللهُ أَكْبَرُ، اللهُ أَكْبَرُ. لَا إِلٰهَ إِلَّا اللهُ."
+                    
+                    tts?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
+                        override fun onStart(utteranceId: String?) {}
+                        override fun onDone(utteranceId: String?) {
+                            onCompletion?.invoke()
+                        }
+                        override fun onError(utteranceId: String?) {
+                            onCompletion?.invoke()
+                        }
+                    })
+
                     tts?.speak(athanText, TextToSpeech.QUEUE_FLUSH, null, "ATHAN_PLAYBACK")
                 } else {
                     playRingtoneFallback(context)
+                    onCompletion?.invoke()
                 }
-                onCompletion?.invoke()
             }
         } catch (e: Exception) {
+            Log.w(TAG, "TTS failed, fallback to Ringtone: ${e.message}")
             playRingtoneFallback(context)
             onCompletion?.invoke()
         }
@@ -144,167 +325,5 @@ object AthanPlayer {
             val ringtone = RingtoneManager.getRingtone(context, alarmUri)
             ringtone.play()
         } catch (_: Exception) {}
-    }
-
-    /**
-     * Synthesizes resonant acoustic tones with harmonics & vibrato matching Islamic Maqamat
-     */
-    private fun playSynthesizedAthanMelody(context: Context, sound: AthanSound) {
-        val sampleRate = 44100
-        val bufferSize = AudioTrack.getMinBufferSize(
-            sampleRate,
-            AudioFormat.CHANNEL_OUT_MONO,
-            AudioFormat.ENCODING_PCM_16BIT
-        )
-
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ALARM)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        val audioFormat = AudioFormat.Builder()
-            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-            .setSampleRate(sampleRate)
-            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-            .build()
-
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(audioAttributes)
-            .setAudioFormat(audioFormat)
-            .setBufferSizeInBytes(bufferSize * 4)
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build()
-
-        track.play()
-
-        // Notes and durations in ms tailored to each Athan style
-        // Maqam Bayati / Hijaz intervals
-        val melodyNotes: List<Pair<Double, Int>> = when (sound) {
-            AthanSound.MAKKAH -> listOf(
-                // "Allahu Akbar, Allahu Akbar"
-                Pair(220.0, 900),   // A3
-                Pair(277.18, 1400), // C#4 (Hijaz tone)
-                Pair(293.66, 1200), // D4
-                Pair(277.18, 1800), // C#4
-                Pair(220.0, 2200),  // A3
-                Pair(0.0, 400),     // pause
-                Pair(277.18, 1000), // C#4
-                Pair(329.63, 1500), // E4
-                Pair(293.66, 1400), // D4
-                Pair(277.18, 2000), // C#4
-                Pair(220.0, 2500)   // A3
-            )
-            AthanSound.MADINAH -> listOf(
-                // Deep, serene and elongated
-                Pair(196.0, 1200),  // G3
-                Pair(246.94, 1600), // B3
-                Pair(261.63, 1400), // C4
-                Pair(293.66, 2000), // D4
-                Pair(246.94, 1800), // B3
-                Pair(196.0, 2600),  // G3
-                Pair(0.0, 500),     // pause
-                Pair(220.0, 1400),  // A3
-                Pair(261.63, 1600), // C4
-                Pair(246.94, 2200), // B3
-                Pair(196.0, 3000)   // G3
-            )
-            AthanSound.AL_AQSA -> listOf(
-                // Resonant and clear
-                Pair(261.63, 1000), // C4
-                Pair(329.63, 1300), // E4
-                Pair(349.23, 1500), // F4
-                Pair(392.00, 1800), // G4
-                Pair(329.63, 1600), // E4
-                Pair(261.63, 2400), // C4
-                Pair(0.0, 400),
-                Pair(293.66, 1200), // D4
-                Pair(349.23, 1600), // F4
-                Pair(329.63, 2200), // E4
-                Pair(261.63, 2800)  // C4
-            )
-            AthanSound.EGYPT -> listOf(
-                // Warm, classical Bayati tone
-                Pair(220.0, 1000),  // A3
-                Pair(246.94, 1200), // B3
-                Pair(261.63, 1600), // C4
-                Pair(293.66, 1600), // D4
-                Pair(261.63, 1400), // C4
-                Pair(220.0, 2200),  // A3
-                Pair(0.0, 400),
-                Pair(261.63, 1300), // C4
-                Pair(293.66, 1500), // D4
-                Pair(329.63, 1800), // E4
-                Pair(261.63, 2000), // C4
-                Pair(220.0, 2600)   // A3
-            )
-            AthanSound.SOFT_TAKBEER -> listOf(
-                // Soft chime bells
-                Pair(523.25, 1200), // C5
-                Pair(659.25, 1400), // E5
-                Pair(783.99, 1800), // G5
-                Pair(1046.5, 2400), // C6
-                Pair(0.0, 500),
-                Pair(783.99, 1400), // G5
-                Pair(659.25, 1800), // E5
-                Pair(523.25, 2800)  // C5
-            )
-            AthanSound.ARABIC_TTS -> emptyList()
-        }
-
-        try {
-            for ((freq, durMs) in melodyNotes) {
-                if (playbackJob?.isActive != true) break
-
-                if (freq <= 0.0) {
-                    val silenceSamples = (sampleRate * (durMs / 1000.0)).toInt()
-                    val silenceBuffer = ShortArray(silenceSamples)
-                    track.write(silenceBuffer, 0, silenceSamples)
-                    continue
-                }
-
-                val totalSamples = (sampleRate * (durMs / 1000.0)).toInt()
-                val audioBuffer = ShortArray(totalSamples)
-                val attackSamples = (sampleRate * 0.08).toInt()
-                val releaseSamples = (sampleRate * 0.25).toInt()
-
-                var phase = 0.0
-                val phaseIncrement = 2.0 * PI * freq / sampleRate
-                val vibratoRate = 4.5 // Hz
-                val vibratoDepth = 0.015
-
-                for (i in 0 until totalSamples) {
-                    // Vibrato calculation
-                    val vibrato = 1.0 + vibratoDepth * sin(2.0 * PI * vibratoRate * (i.toDouble() / sampleRate))
-                    val currentInc = phaseIncrement * vibrato
-
-                    // Natural acoustic organ / vocal timbre synthesis: Fundamental + 2nd + 3rd + 4th Harmonics
-                    var sampleVal = 0.55 * sin(phase) +
-                            0.25 * sin(2.0 * phase) +
-                            0.12 * sin(3.0 * phase) +
-                            0.08 * sin(4.0 * phase)
-
-                    phase += currentInc
-                    if (phase >= 2.0 * PI) phase -= 2.0 * PI
-
-                    // Smooth envelope ADSR
-                    val envelope = when {
-                        i < attackSamples -> i.toDouble() / attackSamples
-                        i > totalSamples - releaseSamples -> (totalSamples - i).toDouble() / releaseSamples
-                        else -> 1.0
-                    }
-
-                    val finalSample = (sampleVal * envelope * Short.MAX_VALUE * 0.85).toInt()
-                    audioBuffer[i] = finalSample.coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
-                }
-
-                track.write(audioBuffer, 0, totalSamples)
-            }
-        } catch (_: Exception) {
-        } finally {
-            try {
-                track.stop()
-                track.release()
-            } catch (_: Exception) {}
-        }
     }
 }

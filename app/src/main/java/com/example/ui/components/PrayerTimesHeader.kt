@@ -245,9 +245,17 @@ fun PrayerTimesHeaderCard(
                     ) {
                         Text(text = "🕌", fontSize = 16.sp)
                         Text(
-                            text = if (selectedLanguage == "Hausa") "Lokutan Sallah"
-                            else if (selectedLanguage == "Arabic") "أوقات الصلاة"
-                            else "Prayer Times",
+                            text = when (selectedLanguage) {
+                                "Hausa" -> "Lokutan Sallah"
+                                "Arabic" -> "أوقات الصلاة"
+                                "Yoruba" -> "Àkókò Àdúrà"
+                                "Igbo" -> "Oge Ekpere"
+                                "French" -> "Heures de Prière"
+                                "Spanish" -> "Horarios de Oración"
+                                "Urdu" -> "نماز کے اوقات"
+                                "Chinese" -> "礼拜时间"
+                                else -> "Prayer Times"
+                            },
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isDarkTheme) Color(0xFF6EE7B7) else Color(0xFF00796B)
@@ -267,9 +275,17 @@ fun PrayerTimesHeaderCard(
                             .testTag("btn_alarms_athan_config")
                     ) {
                         Text(
-                            text = if (selectedLanguage == "Hausa") "Ƙararrawa"
-                            else if (selectedLanguage == "Arabic") "التنبيهات"
-                            else "Alarms",
+                            text = when (selectedLanguage) {
+                                "Hausa" -> "Ƙararrawa"
+                                "Arabic" -> "التنبيهات"
+                                "Yoruba" -> "Ìkìlọ̀"
+                                "Igbo" -> "Mkpọsa"
+                                "French" -> "Alarmes"
+                                "Spanish" -> "Alarmas"
+                                "Urdu" -> "الارمز"
+                                "Chinese" -> "提醒"
+                                else -> "Alarms"
+                            },
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFD97706)
@@ -286,11 +302,31 @@ fun PrayerTimesHeaderCard(
                 // Next Upcoming Prayer Live Countdown Ribbon
                 val nextPrayer = scheduleInfo.nextPrayer
                 if (nextPrayer != null && scheduleInfo.timeRemainingStr.isNotBlank()) {
-                    val nextName = when (selectedLanguage) {
-                        "Hausa" -> nextPrayer.nameHa
-                        "Arabic" -> nextPrayer.nameAr
-                        else -> nextPrayer.nameEn
+                    val nextName = getLocalizedPrayerName(nextPrayer.id, selectedLanguage)
+                    val nextPrefix = when (selectedLanguage) {
+                        "Hausa" -> "Mai zuwa: "
+                        "Arabic" -> "الصلاة القادمة: "
+                        "Yoruba" -> "Tókàn: "
+                        "Igbo" -> "Na-esote: "
+                        "French" -> "Suivante : "
+                        "Spanish" -> "Siguiente: "
+                        "Urdu" -> "اگلی نماز: "
+                        "Chinese" -> "下一次: "
+                        else -> "Next: "
                     }
+
+                    val remainingText = when (selectedLanguage) {
+                        "Hausa" -> "saura ${scheduleInfo.timeRemainingStr}"
+                        "Arabic" -> "متبقي ${scheduleInfo.timeRemainingStr}"
+                        "Yoruba" -> "ó kù ${scheduleInfo.timeRemainingStr}"
+                        "Igbo" -> "fọdụrụ ${scheduleInfo.timeRemainingStr}"
+                        "French" -> "dans ${scheduleInfo.timeRemainingStr}"
+                        "Spanish" -> "en ${scheduleInfo.timeRemainingStr}"
+                        "Urdu" -> "باقی ${scheduleInfo.timeRemainingStr}"
+                        "Chinese" -> "剩余 ${scheduleInfo.timeRemainingStr}"
+                        else -> "in ${scheduleInfo.timeRemainingStr}"
+                    }
+
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = if (isDarkTheme) Color(0xFF143B33) else Color(0xFFE8F5E9),
@@ -315,9 +351,7 @@ fun PrayerTimesHeaderCard(
                                     fontSize = 12.sp
                                 )
                                 Text(
-                                    text = if (selectedLanguage == "Hausa") "Mai zuwa: $nextName"
-                                    else if (selectedLanguage == "Arabic") "الصلاة القادمة: $nextName"
-                                    else "Next: $nextName",
+                                    text = "$nextPrefix$nextName",
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (isDarkTheme) Color(0xFF6EE7B7) else Color(0xFF2E7D32)
@@ -325,7 +359,7 @@ fun PrayerTimesHeaderCard(
                             }
 
                             Text(
-                                text = "${nextPrayer.formattedTime} (saura ${scheduleInfo.timeRemainingStr})",
+                                text = "${nextPrayer.formattedTime} ($remainingText)",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFFE65100)
@@ -349,12 +383,29 @@ fun PrayerTimesHeaderCard(
                                 if (prayer.id != "SUNRISE") {
                                     val next = !prayer.isAlarmEnabled
                                     PrayerTimeManager.setPrayerAlarmEnabled(context, prayer.id, next)
-                                    val name = if (selectedLanguage == "Hausa") prayer.nameHa else prayer.nameEn
-                                    Toast.makeText(
-                                        context,
-                                        if (next) "An kunna kararrawar $name ✓" else "An kashe kararrawar $name",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    val name = getLocalizedPrayerName(prayer.id, selectedLanguage)
+                                    val msg = if (next) {
+                                        when (selectedLanguage) {
+                                            "Hausa" -> "An kunna kararrawar $name ✓"
+                                            "Arabic" -> "تم تفعيل تنبيه صلاة $name ✓"
+                                            "French" -> "Alarme de $name activée ✓"
+                                            "Spanish" -> "Alarma de $name activada ✓"
+                                            "Yoruba" -> "Ìkìlọ̀ $name ti bẹ̀rẹ̀ ✓"
+                                            "Igbo" -> "Emechiela mkpọsa $name ✓"
+                                            else -> "$name alarm enabled ✓"
+                                        }
+                                    } else {
+                                        when (selectedLanguage) {
+                                            "Hausa" -> "An kashe kararrawar $name"
+                                            "Arabic" -> "تم إيقاف تنبيه صلاة $name"
+                                            "French" -> "Alarme de $name désactivée"
+                                            "Spanish" -> "Alarma de $name desactivada"
+                                            "Yoruba" -> "Ti pa ìkìlọ̀ $name"
+                                            "Igbo" -> "E gbanyụrụ mkpọsa $name"
+                                            else -> "$name alarm disabled"
+                                        }
+                                    }
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                     onScheduleUpdated()
                                 }
                             },
@@ -529,11 +580,7 @@ private fun PrayerColumnItem(
     onToggleAlarm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val displayName = when (selectedLanguage) {
-        "Hausa" -> prayer.nameHa
-        "Arabic" -> prayer.nameAr
-        else -> prayer.nameEn
-    }
+    val displayName = getLocalizedPrayerName(prayer.id, selectedLanguage)
 
     val isNext = prayer.isNext
     val highlightBg = if (isDarkTheme) Color(0xFF133E34) else Color(0xFFD7EFE7)
@@ -589,3 +636,76 @@ private fun PrayerColumnItem(
         }
     }
 }
+
+fun getLocalizedPrayerName(prayerId: String, language: String): String {
+    return when (prayerId) {
+        "FAJR" -> when (language) {
+            "Hausa" -> "Asuba"
+            "Yoruba" -> "Fajr"
+            "Igbo" -> "Fajr"
+            "Arabic" -> "الفجر"
+            "French" -> "Fajr"
+            "Spanish" -> "Fajr"
+            "Urdu" -> "فجر"
+            "Chinese" -> "晨礼"
+            else -> "Fajr"
+        }
+        "SUNRISE" -> when (language) {
+            "Hausa" -> "Fitowar Rana"
+            "Yoruba" -> "Ìyọjú Oòrùn"
+            "Igbo" -> "Ọpụpụ Anyanwụ"
+            "Arabic" -> "الشروق"
+            "French" -> "Lever"
+            "Spanish" -> "Amanecer"
+            "Urdu" -> "طلوع آفتاب"
+            "Chinese" -> "日出"
+            else -> "Sunrise"
+        }
+        "DHUHR" -> when (language) {
+            "Hausa" -> "Azahar"
+            "Yoruba" -> "Dhuhr"
+            "Igbo" -> "Dhuhr"
+            "Arabic" -> "الظهر"
+            "French" -> "Dhuhr"
+            "Spanish" -> "Dhuhr"
+            "Urdu" -> "ظہر"
+            "Chinese" -> "晌礼"
+            else -> "Dhuhr"
+        }
+        "ASR" -> when (language) {
+            "Hausa" -> "La'asar"
+            "Yoruba" -> "Asr"
+            "Igbo" -> "Asr"
+            "Arabic" -> "العصر"
+            "French" -> "Asr"
+            "Spanish" -> "Asr"
+            "Urdu" -> "عصر"
+            "Chinese" -> "晡礼"
+            else -> "Asr"
+        }
+        "MAGHRIB" -> when (language) {
+            "Hausa" -> "Magariba"
+            "Yoruba" -> "Maghrib"
+            "Igbo" -> "Maghrib"
+            "Arabic" -> "المغرب"
+            "French" -> "Maghrib"
+            "Spanish" -> "Maghrib"
+            "Urdu" -> "مغرب"
+            "Chinese" -> "昏礼"
+            else -> "Maghrib"
+        }
+        "ISHA" -> when (language) {
+            "Hausa" -> "Isha'i"
+            "Yoruba" -> "Isha"
+            "Igbo" -> "Isha"
+            "Arabic" -> "العشاء"
+            "French" -> "Isha"
+            "Spanish" -> "Isha"
+            "Urdu" -> "عشاء"
+            "Chinese" -> "宵礼"
+            else -> "Isha"
+        }
+        else -> prayerId
+    }
+}
+
