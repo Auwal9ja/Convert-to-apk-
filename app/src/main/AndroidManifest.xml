@@ -108,6 +108,11 @@
             android:exported="false" />
 
         <receiver
+            android:name=".receiver.PrayerAlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".receiver.MandatoryAdhkarReceiver"
             android:enabled="true"
             android:exported="false" />

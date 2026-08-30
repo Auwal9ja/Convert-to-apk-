@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,7 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.local.AppLocalizer
+import android.speech.tts.TextToSpeech
+import java.util.Locale
+import com.example.util.CalculationMethod
+import com.example.util.JuristicMethod
+import com.example.util.PrayerTimeManager
 import com.example.receiver.MandatoryAdhkarManager
+import com.example.receiver.PrayerAlarmReceiver
 import com.example.ui.components.BannerAd
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.util.UpdateState
@@ -576,12 +583,21 @@ fun SettingsScreen(
                 }
             }
 
-            // 3. SCHEDULED ADHKAR (MANDATORY SESSIONS)
+            // 3. PRAYER TIMES & ATHAN CONFIGURATION (LOKUTAN SALLAH & ATHEN)
+            item {
+                PrayerTimesAndAthanSettingsSection(
+                    context = context,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme
+                )
+            }
+
+            // 4. SCHEDULED ADHKAR (MANDATORY SESSIONS)
             item {
                 FullMandatoryAdhkarSection(context = context, selectedLanguage = selectedLanguage)
             }
 
-            // 4. APP UPDATES (PLAY STORE)
+            // 5. APP UPDATES (PLAY STORE)
             item {
                 SettingsSectionCard(
                     title = if (selectedLanguage == "Hausa") "Sabunta Manhaja" else "App Updates",
@@ -1866,3 +1882,528 @@ fun AboutAppDialog(
         }
     }
 }
+
+@Composable
+fun PrayerTimesAndAthanSettingsSection(
+    context: Context,
+    selectedLanguage: String,
+    isDarkTheme: Boolean
+) {
+    var cityName by remember { mutableStateOf(PrayerTimeManager.getCityName(context)) }
+    var countryName by remember { mutableStateOf(PrayerTimeManager.getCountryName(context)) }
+    var selectedMethod by remember { mutableStateOf(PrayerTimeManager.getCalculationMethod(context)) }
+    var selectedJuristic by remember { mutableStateOf(PrayerTimeManager.getJuristicMethod(context)) }
+    var hijriOffset by remember { mutableIntStateOf(PrayerTimeManager.getHijriOffset(context)) }
+    var athanMode by remember { mutableStateOf(PrayerTimeManager.getAthanMode(context)) }
+
+    var fajrAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "FAJR")) }
+    var dhuhrAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "DHUHR")) }
+    var asrAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "ASR")) }
+    var maghribAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "MAGHRIB")) }
+    var ishaAlarm by remember { mutableStateOf(PrayerTimeManager.isPrayerAlarmEnabled(context, "ISHA")) }
+
+    var showMethodDialog by remember { mutableStateOf(false) }
+    var showJuristicDialog by remember { mutableStateOf(false) }
+    var showCityDialog by remember { mutableStateOf(false) }
+    var isTestingAudio by remember { mutableStateOf(false) }
+
+    SettingsSectionCard(
+        title = if (selectedLanguage == "Hausa") "Lokutan Sallah & Kiran Sallah (Athan)" else "Prayer Times & Athan",
+        icon = Icons.Default.AccessTime,
+        subtitle = if (selectedLanguage == "Hausa") "Saitin Garuruwa, Hanyar Lissafi, Hijri da Kararrawar Athan" else "Location, Calculation Method, Hijri Adjustment & Athan Alarms"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            // 1. Selected Location Row
+            Surface(
+                onClick = { showCityDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth().testTag("settings_prayer_location_btn")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF00796B)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Location",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Wurin da Kake (Gari)" else "Prayer Location / City",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "$cityName, $countryName",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Change Location",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            // 2. Calculation Method Row
+            Surface(
+                onClick = { showMethodDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth().testTag("settings_calc_method_btn")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Calculate,
+                            contentDescription = "Calculation",
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Hanyar Lissafin Lokaci" else "Calculation Method",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = selectedMethod.displayName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Select",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            // 3. Asr Juristic Method Row
+            Surface(
+                onClick = { showJuristicDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                modifier = Modifier.fillMaxWidth().testTag("settings_juristic_method_btn")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WbSunny,
+                            contentDescription = "Asr Method",
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Lissafin Lokacin La'asar (Asr)" else "Asr Juristic Method",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = selectedJuristic.displayName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Select",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            // 4. Hijri Date Offset Stepper
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Daidaita Ranar Hijri" else "Hijri Date Adjustment",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (hijriOffset > 0) "+$hijriOffset kwana" else if (hijriOffset < 0) "$hijriOffset kwana" else "Daidai (0)",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilledTonalButton(
+                        onClick = {
+                            if (hijriOffset > -2) {
+                                hijriOffset--
+                                PrayerTimeManager.setHijriOffset(context, hijriOffset)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("-1 Kwana", fontSize = 12.sp)
+                    }
+
+                    FilledTonalButton(
+                        onClick = {
+                            hijriOffset = 0
+                            PrayerTimeManager.setHijriOffset(context, 0)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Sake Saita", fontSize = 12.sp)
+                    }
+
+                    FilledTonalButton(
+                        onClick = {
+                            if (hijriOffset < 2) {
+                                hijriOffset++
+                                PrayerTimeManager.setHijriOffset(context, hijriOffset)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+1 Kwana", fontSize = 12.sp)
+                    }
+                }
+            }
+
+            // 5. Individual Prayer Alarm Toggles
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = if (selectedLanguage == "Hausa") "Kunna / Kashe Kararrawar Kowace Sallah" else "Prayer Alarms & Notifications",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                val prayerToggles = listOf(
+                    Triple("FAJR", "🌅 Asuba (Fajr)", fajrAlarm) to { next: Boolean ->
+                        fajrAlarm = next
+                        PrayerTimeManager.setPrayerAlarmEnabled(context, "FAJR", next)
+                    },
+                    Triple("DHUHR", "🌞 Azahar (Dhuhr)", dhuhrAlarm) to { next: Boolean ->
+                        dhuhrAlarm = next
+                        PrayerTimeManager.setPrayerAlarmEnabled(context, "DHUHR", next)
+                    },
+                    Triple("ASR", "⛅ La'asar (Asr)", asrAlarm) to { next: Boolean ->
+                        asrAlarm = next
+                        PrayerTimeManager.setPrayerAlarmEnabled(context, "ASR", next)
+                    },
+                    Triple("MAGHRIB", "🌇 Magariba (Maghrib)", maghribAlarm) to { next: Boolean ->
+                        maghribAlarm = next
+                        PrayerTimeManager.setPrayerAlarmEnabled(context, "MAGHRIB", next)
+                    },
+                    Triple("ISHA", "🌙 Isha'i (Isha)", ishaAlarm) to { next: Boolean ->
+                        ishaAlarm = next
+                        PrayerTimeManager.setPrayerAlarmEnabled(context, "ISHA", next)
+                    }
+                )
+
+                prayerToggles.forEach { (item, onToggle) ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = item.second,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = item.third,
+                            onCheckedChange = { onToggle(it) },
+                            modifier = Modifier.testTag("switch_alarm_${item.first}")
+                        )
+                    }
+                }
+            }
+
+            // 6. Test Athan Audio Button
+            Button(
+                onClick = {
+                    isTestingAudio = true
+                    PrayerAlarmReceiver.playAthanAudio(context)
+                    Toast.makeText(context, "Ana kunna kiran sallah (Athan)...", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+            ) {
+                Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (selectedLanguage == "Hausa") "Saurari Sautin Athan (Gwaji)" else "Play Test Athan Audio",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp
+                )
+            }
+        }
+    }
+
+    // Calculation Method Picker Dialog
+    if (showMethodDialog) {
+        Dialog(onDismissRequest = { showMethodDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Zaɓi Hanyar Lissafi" else "Select Calculation Method",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(CalculationMethod.values().toList()) { method ->
+                            val isSel = selectedMethod == method
+                            Surface(
+                                onClick = {
+                                    selectedMethod = method
+                                    PrayerTimeManager.setCalculationMethod(context, method)
+                                    showMethodDialog = false
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = method.displayName,
+                                        fontSize = 13.sp,
+                                        fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (isSel) {
+                                        Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Juristic Method Picker Dialog
+    if (showJuristicDialog) {
+        Dialog(onDismissRequest = { showJuristicDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Zaɓi Hanyar Lissafin La'asar" else "Select Asr Juristic Method",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    JuristicMethod.values().forEach { juristic ->
+                        val isSel = selectedJuristic == juristic
+                        Surface(
+                            onClick = {
+                                selectedJuristic = juristic
+                                PrayerTimeManager.setJuristicMethod(context, juristic)
+                                showJuristicDialog = false
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = juristic.displayName,
+                                    fontSize = 13.sp,
+                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium
+                                )
+                                if (isSel) {
+                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // City Location Dialog in Settings
+    if (showCityDialog) {
+        Dialog(onDismissRequest = { showCityDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Zaɓi Garinku" else "Select Location",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        IconButton(onClick = { showCityDialog = false }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = {
+                            PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
+                                cityName = city
+                                countryName = country
+                                Toast.makeText(context, "An sabunta: $city, $country", Toast.LENGTH_SHORT).show()
+                                showCityDialog = false
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
+                    ) {
+                        Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(PRESET_CITIES) { city ->
+                            val isSel = cityName == city.name
+                            Surface(
+                                onClick = {
+                                    PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)
+                                    cityName = city.name
+                                    countryName = city.country
+                                    showCityDialog = false
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(text = city.name, fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp)
+                                        Text(text = city.country, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    if (isSel) {
+                                        Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

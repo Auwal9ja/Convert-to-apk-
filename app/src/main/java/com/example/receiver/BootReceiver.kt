@@ -18,6 +18,7 @@ class BootReceiver : BroadcastReceiver() {
             // Reschedule and recover all active schedules and detect missed occurrences
             MandatoryAdhkarManager.recoverAndRescheduleAll(context, reason = action)
             ReminderReceiver.rescheduleAllIfEnabled(context)
+            com.example.util.PrayerTimeManager.reschedulePrayerAlarms(context)
 
             Log.d(MandatoryAdhkarManager.TAG, "reboot recovery: Successfully restored all schedules after $action")
         } catch (e: Exception) {

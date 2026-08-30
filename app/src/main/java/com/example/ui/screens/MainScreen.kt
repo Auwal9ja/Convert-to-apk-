@@ -73,6 +73,8 @@ import androidx.compose.foundation.verticalScroll
 import com.example.ui.DuaViewModel
 import com.example.util.UpdateState
 import com.example.ui.components.InAppUpdateBanner
+import com.example.ui.components.PrayerTimesHeaderCard
+import com.example.util.PrayerTimeManager
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
@@ -605,6 +607,9 @@ fun MainScreen(
                     },
                     onNavigateToQibla = {
                         navigateToTab(2)
+                    },
+                    onOpenSettings = {
+                        isSettingsDialogVisible = true
                     }
                 )
                 1 -> LibraryTab(
@@ -2222,8 +2227,15 @@ fun HomeTab(
     onCategoryClick: (String?) -> Unit,
     onSelectDua: (DuaEntity) -> Unit = {},
     onNavigateToLibraryWithSearch: (String) -> Unit = {},
-    onNavigateToQibla: () -> Unit = {}
+    onNavigateToQibla: () -> Unit = {},
+    onOpenSettings: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    var scheduleRefreshTrigger by remember { mutableIntStateOf(0) }
+    val prayerSchedule = remember(scheduleRefreshTrigger, selectedLanguage) {
+        PrayerTimeManager.getTodaySchedule(context)
+    }
+
     val completedCount = completedDuas.size
     val displayCompleted = if (completedCount > 0) completedCount else 12
     val displayTotal = if (totalDuasCount > 0) totalDuasCount else 19
@@ -2282,8 +2294,8 @@ fun HomeTab(
         modifier = Modifier
             .fillMaxSize()
             .background(bgGradient),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
             item {
@@ -2298,77 +2310,15 @@ fun HomeTab(
             }
         }
 
-        // Celestial Hero Header Card
+        // Islamic Bismillah Hero & Curved Prayer Times Header Card
         item {
-            val heroBg = if (isDarkTheme) {
-                Brush.radialGradient(
-                    colors = listOf(Color(0xFF143B33), Color(0xFF0A221E)),
-                    center = Offset(350f, 150f),
-                    radius = 450f
-                )
-            } else {
-                Brush.radialGradient(
-                    colors = listOf(Color(0xFF0F5257), Color(0xFF186F6B)),
-                    center = Offset(350f, 150f),
-                    radius = 450f
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(170.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(heroBg)
-            ) {
-                // Interactive celestial starry background
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    // Golden crescent moon
-                    drawCircle(color = Color(0xFFD4AF37), radius = 28.dp.toPx(), center = Offset(size.width - 50.dp.toPx(), 45.dp.toPx()))
-                    drawCircle(color = if (isDarkTheme) Color(0xFF0A221E) else Color(0xFF186F6B), radius = 26.dp.toPx(), center = Offset(size.width - 58.dp.toPx(), 41.dp.toPx()))
-
-                    // Sparkling celestial stars
-                    drawCircle(color = Color(0xBBFFFFFF), radius = 2.dp.toPx(), center = Offset(size.width - 120.dp.toPx(), 25.dp.toPx()))
-                    drawCircle(color = Color(0x66FFFFFF), radius = 1.5.dp.toPx(), center = Offset(size.width - 80.dp.toPx(), 110.dp.toPx()))
-                    drawCircle(color = Color(0xDDFFFFFF), radius = 2.5.dp.toPx(), center = Offset(size.width - 160.dp.toPx(), 65.dp.toPx()))
-                    drawCircle(color = Color(0x77FFFFFF), radius = 1.2.dp.toPx(), center = Offset(40.dp.toPx(), 30.dp.toPx()))
-                    drawCircle(color = Color(0x99FFFFFF), radius = 2.dp.toPx(), center = Offset(120.dp.toPx(), 140.dp.toPx()))
-                    drawCircle(color = Color(0x55FFFFFF), radius = 1.5.dp.toPx(), center = Offset(220.dp.toPx(), 40.dp.toPx()))
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(22.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Column {
-                            Text(
-                                AppLocalizer.getString("app_title", selectedLanguage),
-                                color = Color.White,
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Serif
-                            )
-                        }
-                    }
-
-                    Column {
-                        Text(
-                            AppLocalizer.getString("app_slogan", selectedLanguage),
-                            color = Color(0xFFD4AF37),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                    }
-                }
-            }
+            PrayerTimesHeaderCard(
+                scheduleInfo = prayerSchedule,
+                selectedLanguage = selectedLanguage,
+                isDarkTheme = isDarkTheme,
+                onOpenAlarmsConfig = onOpenSettings,
+                onScheduleUpdated = { scheduleRefreshTrigger++ }
+            )
         }
 
         // Top Search Bar for Duas & Zikir (Dan Gurbi Mai Kyau na Bincike)
@@ -3239,18 +3189,19 @@ fun CategoryCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = cardBg),
         border = BorderStroke(1.dp, cardBorder),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 0.dp else 1.5.dp),
         modifier = modifier
-            .height(122.dp)
+            .height(88.dp)
             .clickable(onClick = onClick)
+            .testTag("category_card_${item.dbCategory ?: item.title}")
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(13.dp),
+                .padding(horizontal = 11.dp, vertical = 9.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
@@ -3258,20 +3209,20 @@ fun CategoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Realistic 3D Miniature Badge Container with glossy gradient highlight
+                // Miniature Stylish Badge Container
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(10.dp),
                     color = Color.Transparent,
                     border = BorderStroke(
-                        1.2.dp,
+                        1.dp,
                         Brush.linearGradient(
                             listOf(
                                 Color.White.copy(alpha = 0.6f),
-                                Color.White.copy(alpha = 0.1f)
+                                Color.White.copy(alpha = 0.15f)
                             )
                         )
                     ),
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier.size(34.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -3279,15 +3230,15 @@ fun CategoryCard(
                             .background(
                                 Brush.radialGradient(
                                     colors = item.gradient,
-                                    center = Offset(22f, 18f),
-                                    radius = 50f
+                                    center = Offset(17f, 15f),
+                                    radius = 36f
                                 )
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = item.emoji,
-                            fontSize = 22.sp,
+                            fontSize = 17.sp,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -3296,16 +3247,16 @@ fun CategoryCard(
                 // Dua Count Badge Pill
                 if (item.duaCount > 0) {
                     Surface(
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(8.dp),
                         color = if (isDarkTheme) Color(0xFF143B33) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                         border = BorderStroke(0.6.dp, goldAccent.copy(alpha = 0.3f))
                     ) {
                         Text(
                             text = "${item.duaCount} $countLabel",
-                            fontSize = 10.sp,
+                            fontSize = 9.5.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isDarkTheme) Color(0xFFECC76A) else MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
                         )
                     }
                 }
@@ -3314,11 +3265,11 @@ fun CategoryCard(
             Text(
                 text = item.title,
                 color = textPrimary,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                lineHeight = 16.5.sp
+                lineHeight = 15.sp
             )
         }
     }
