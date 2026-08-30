@@ -1,19 +1,29 @@
 package com.example.util
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.example.receiver.PrayerAlarmReceiver
+import com.example.ui.screens.PRESET_CITIES
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.*
 
 data class PrayerTimeItem(
     val id: String, // "FAJR", "SUNRISE", "DHUHR", "ASR", "MAGHRIB", "ISHA"
@@ -24,6 +34,7 @@ data class PrayerTimeItem(
     val time: Date,
     val formattedTime: String,
     val isNext: Boolean = false,
+    val isActiveNow: Boolean = false,
     val isAlarmEnabled: Boolean = true
 )
 
@@ -36,12 +47,14 @@ data class PrayerScheduleInfo(
     val hijriDateStr: String,
     val prayers: List<PrayerTimeItem>,
     val nextPrayer: PrayerTimeItem?,
-    val timeRemainingStr: String
+    val currentActivePrayer: PrayerTimeItem?,
+    val timeRemainingStr: String,
+    val nextPrayerTimeFormatted: String = ""
 )
 
 object PrayerTimeManager {
 
-    private const val TAG = "PrayerTimeManager"
+    const val TAG = "PrayerTimeManager"
     private const val PREFS_NAME = "prayer_time_prefs"
 
     // Default location: Kano, Nigeria
@@ -136,7 +149,7 @@ object PrayerTimeManager {
     }
 
     /**
-     * Calculates the full prayer schedule for today.
+     * Calculates the full prayer schedule dynamically based on exact current timestamp.
      */
     fun getTodaySchedule(context: Context, language: String = "Hausa"): PrayerScheduleInfo {
         val (lat, lng) = getSelectedLocation(context)
@@ -159,7 +172,6 @@ object PrayerTimeManager {
         )
 
         val timeFormat = SimpleDateFormat("h:mm a", Locale.ENGLISH)
-
         val now = System.currentTimeMillis()
 
         val rawList = listOf(
@@ -171,18 +183,30 @@ object PrayerTimeManager {
             Triple("ISHA", Triple("Isha", "Isha'i", "العشاء"), Triple("🌙", prayerTimesResult.isha, isPrayerAlarmEnabled(context, "ISHA")))
         )
 
-        // Find next upcoming prayer
+        // Determine next upcoming prayer and currently active prayer
         var nextId: String? = null
-        for (item in rawList) {
+        var currentActiveId: String? = null
+
+        for (i in rawList.indices) {
+            val item = rawList[i]
             val prayerTime = item.third.second.time
-            if (prayerTime > now) {
+
+            if (prayerTime > now && nextId == null) {
                 nextId = item.first
-                break
+            }
+
+            if (prayerTime <= now) {
+                currentActiveId = item.first
             }
         }
-        // If all prayers today have passed, Fajr of tomorrow is next
+
+        // If all prayers today have passed (after Isha), next prayer is Fajr tomorrow
         if (nextId == null) {
             nextId = "FAJR"
+        }
+        if (currentActiveId == null) {
+            // Before Fajr today (late night), current active state is Night / Post-Isha
+            currentActiveId = "ISHA"
         }
 
         val items = rawList.map { (id, names, meta) ->
@@ -194,21 +218,25 @@ object PrayerTimeManager {
                 emoji = meta.first,
                 time = meta.second,
                 formattedTime = timeFormat.format(meta.second),
-                isNext = id == nextId,
+                isNext = (id == nextId),
+                isActiveNow = (id == currentActiveId),
                 isAlarmEnabled = meta.third
             )
         }
 
         val nextItem = items.find { it.id == nextId }
+        val currentActiveItem = items.find { it.id == currentActiveId }
+
         val timeRemainingStr = if (nextItem != null) {
             var diff = nextItem.time.time - now
             if (diff < 0) {
-                // Next is Fajr tomorrow (+24h approximately)
+                // Next is Fajr of tomorrow (add 24h)
                 diff += 24 * 3600 * 1000L
             }
             val hours = (diff / (1000 * 60 * 60)).toInt()
             val mins = ((diff / (1000 * 60)) % 60).toInt()
-            if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
+            val secs = ((diff / 1000) % 60).toInt()
+            if (hours > 0) "${hours}h ${mins}m" else if (mins > 0) "${mins}m ${secs}s" else "${secs}s"
         } else ""
 
         return PrayerScheduleInfo(
@@ -220,7 +248,9 @@ object PrayerTimeManager {
             hijriDateStr = hijriStr,
             prayers = items,
             nextPrayer = nextItem,
-            timeRemainingStr = timeRemainingStr
+            currentActivePrayer = currentActiveItem,
+            timeRemainingStr = timeRemainingStr,
+            nextPrayerTimeFormatted = nextItem?.formattedTime ?: ""
         )
     }
 
@@ -322,26 +352,181 @@ object PrayerTimeManager {
     }
 
     /**
-     * Auto-detect location using GPS or Network provider.
+     * Reverse geocodes coordinates to a human-friendly city name and country name,
+     * with fallback to nearest known preset cities list.
      */
-    fun tryDetectGpsLocation(context: Context, onSuccess: (cityName: String, country: String, lat: Double, lng: Double) -> Unit) {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
+    fun resolveLocationName(context: Context, lat: Double, lng: Double): Pair<String, String> {
+        var resolvedCity: String? = null
+        var resolvedCountry: String? = null
+
         try {
-            var bestLocation: Location? = null
+            if (Geocoder.isPresent()) {
+                val geocoder = Geocoder(context, Locale.getDefault())
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocation(lat, lng, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    val addr = addresses[0]
+                    resolvedCity = addr.locality
+                        ?: addr.subAdminArea
+                        ?: addr.adminArea
+                        ?: addr.featureName
+                    resolvedCountry = addr.countryName
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Geocoder lookup exception: ${e.message}")
+        }
+
+        if (!resolvedCity.isNullOrBlank() && !resolvedCountry.isNullOrBlank()) {
+            return Pair(resolvedCity, resolvedCountry)
+        }
+
+        // Fallback: Find closest city in preset database
+        var minDistance = Double.MAX_VALUE
+        var closestCity = DEFAULT_CITY
+        var closestCountry = DEFAULT_COUNTRY
+
+        for (city in PRESET_CITIES) {
+            val dLat = Math.toRadians(city.latitude - lat)
+            val dLng = Math.toRadians(city.longitude - lng)
+            val a = sin(dLat / 2).pow(2.0) + cos(Math.toRadians(lat)) * cos(Math.toRadians(city.latitude)) * sin(dLng / 2).pow(2.0)
+            val c = 2 * atan2(sqrt(a), sqrt(1.0 - a))
+            val distanceKm = 6371.0 * c
+            if (distanceKm < minDistance) {
+                minDistance = distanceKm
+                closestCity = city.name
+                closestCountry = city.country
+            }
+        }
+
+        val finalCity = if (minDistance < 80.0) closestCity else (resolvedCity ?: "Lat: ${String.format(Locale.ENGLISH, "%.2f", lat)}")
+        val finalCountry = resolvedCountry ?: closestCountry
+
+        return Pair(finalCity, finalCountry)
+    }
+
+    /**
+     * Auto-detect location using GPS or Network provider with active updates fallback.
+     */
+    fun tryDetectGpsLocation(
+        context: Context,
+        onSuccess: (cityName: String, country: String, lat: Double, lng: Double) -> Unit
+    ) {
+        val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasFine && !hasCoarse) {
+            Log.w(TAG, "GPS permissions not granted")
+            return
+        }
+
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        // 1. Try finding best immediate lastKnownLocation
+        var bestLocation: Location? = null
+        val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
+
+        for (provider in providers) {
+            try {
+                if (locationManager.isProviderEnabled(provider)) {
+                    val loc = locationManager.getLastKnownLocation(provider)
+                    if (loc != null) {
+                        if (bestLocation == null || loc.time > bestLocation.time || loc.accuracy < bestLocation.accuracy) {
+                            bestLocation = loc
+                        }
+                    }
+                }
+            } catch (_: SecurityException) {} catch (_: Exception) {}
+        }
+
+        // If we found a relatively recent location (within 30 mins)
+        if (bestLocation != null && (System.currentTimeMillis() - bestLocation.time < 30 * 60 * 1000L)) {
+            val lat = bestLocation.latitude
+            val lng = bestLocation.longitude
+            Thread {
+                val (city, country) = resolveLocationName(context, lat, lng)
+                mainHandler.post {
+                    setLocation(context, city, country, lat, lng)
+                    onSuccess(city, country, lat, lng)
+                }
+            }.start()
+            return
+        }
+
+        // 2. Request a fresh single fix actively if last location is absent or stale
+        var isLocationResolved = false
+        val listener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                if (!isLocationResolved) {
+                    isLocationResolved = true
+                    try {
+                        locationManager.removeUpdates(this)
+                    } catch (_: Exception) {}
+
+                    val lat = location.latitude
+                    val lng = location.longitude
+                    Thread {
+                        val (city, country) = resolveLocationName(context, lat, lng)
+                        mainHandler.post {
+                            setLocation(context, city, country, lat, lng)
+                            onSuccess(city, country, lat, lng)
+                        }
+                    }.start()
+                }
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+
+        try {
+            var requested = false
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
+                requested = true
+            }
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                bestLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
+                requested = true
             }
-            if (bestLocation == null && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                bestLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            }
-            if (bestLocation != null) {
+
+            // Fallback timeout after 5 seconds if no live fix arrives
+            if (requested) {
+                mainHandler.postDelayed({
+                    if (!isLocationResolved) {
+                        try {
+                            locationManager.removeUpdates(listener)
+                        } catch (_: Exception) {}
+
+                        // Use whatever bestLocation we had, or fallback to current saved
+                        val fallbackLoc = bestLocation
+                        if (fallbackLoc != null) {
+                            val lat = fallbackLoc.latitude
+                            val lng = fallbackLoc.longitude
+                            Thread {
+                                val (city, country) = resolveLocationName(context, lat, lng)
+                                mainHandler.post {
+                                    setLocation(context, city, country, lat, lng)
+                                    onSuccess(city, country, lat, lng)
+                                }
+                            }.start()
+                        }
+                    }
+                }, 5000L)
+            } else if (bestLocation != null) {
                 val lat = bestLocation.latitude
                 val lng = bestLocation.longitude
-                setLocation(context, "Current Location", "GPS", lat, lng)
-                onSuccess("Current Location", "GPS", lat, lng)
+                Thread {
+                    val (city, country) = resolveLocationName(context, lat, lng)
+                    mainHandler.post {
+                        setLocation(context, city, country, lat, lng)
+                        onSuccess(city, country, lat, lng)
+                    }
+                }.start()
             }
-        } catch (_: SecurityException) {
-            // Permission not granted
-        } catch (_: Exception) {}
+        } catch (_: SecurityException) {} catch (_: Exception) {}
     }
 }

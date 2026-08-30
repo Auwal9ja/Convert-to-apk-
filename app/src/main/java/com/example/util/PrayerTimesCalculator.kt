@@ -48,7 +48,7 @@ object PrayerTimesCalculator {
         calendar: Calendar,
         latitude: Double,
         longitude: Double,
-        timezone: Double = calendar.timeZone.rawOffset / 3600000.0,
+        timezone: Double = calendar.timeZone.getOffset(calendar.timeInMillis) / 3600000.0,
         elevationMeters: Double = 0.0,
         method: CalculationMethod = CalculationMethod.EGYPTIAN,
         juristic: JuristicMethod = JuristicMethod.SHAFI_MALIKI_HANBALI,

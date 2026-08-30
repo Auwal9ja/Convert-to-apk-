@@ -2232,8 +2232,16 @@ fun HomeTab(
 ) {
     val context = LocalContext.current
     var scheduleRefreshTrigger by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000L)
+            scheduleRefreshTrigger++
+        }
+    }
+
     val prayerSchedule = remember(scheduleRefreshTrigger, selectedLanguage) {
-        PrayerTimeManager.getTodaySchedule(context)
+        PrayerTimeManager.getTodaySchedule(context, selectedLanguage)
     }
 
     val completedCount = completedDuas.size

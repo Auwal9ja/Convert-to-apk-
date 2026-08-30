@@ -62,7 +62,22 @@ fun PrayerTimesHeaderCard(
 ) {
     val context = LocalContext.current
     var showLocationDialog by remember { mutableStateOf(false) }
-    var showQuickAlarmDialog by remember { mutableStateOf(false) }
+    var isDetectingLocation by remember { mutableStateOf(false) }
+
+    fun startGpsDetection() {
+        isDetectingLocation = true
+        PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
+            isDetectingLocation = false
+            Toast.makeText(
+                context,
+                if (selectedLanguage == "Hausa") "An sabunta wurin ku: $city, $country"
+                else "Location updated: $city, $country",
+                Toast.LENGTH_SHORT
+            ).show()
+            onScheduleUpdated()
+            showLocationDialog = false
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -70,10 +85,15 @@ fun PrayerTimesHeaderCard(
         val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (granted) {
-            PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
-                Toast.makeText(context, "An sabunta wurin ku: $city, $country", Toast.LENGTH_SHORT).show()
-                onScheduleUpdated()
-            }
+            startGpsDetection()
+        } else {
+            isDetectingLocation = false
+            Toast.makeText(
+                context,
+                if (selectedLanguage == "Hausa") "Ana buƙatar izinin GPS don gano wuri"
+                else "Location permission required for GPS",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -83,7 +103,7 @@ fun PrayerTimesHeaderCard(
             .padding(bottom = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 1. Hero Green Islamic Banner (Matching the screenshot exactly)
+        // 1. Hero Green Islamic Banner
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,9 +136,9 @@ fun PrayerTimesHeaderCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .padding(horizontal = 16.dp, vertical = 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 // Centered Bismillah Calligraphy in Arabic
                 Text(
@@ -131,7 +151,7 @@ fun PrayerTimesHeaderCard(
                     lineHeight = 32.sp
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(1.dp))
 
                 // Gregorian Date (e.g. Sunday, August 30, 2026)
                 Text(
@@ -151,7 +171,7 @@ fun PrayerTimesHeaderCard(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
                 // Clickable Location Pin
                 Surface(
@@ -191,7 +211,7 @@ fun PrayerTimesHeaderCard(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 2. Floating Curved Prayer Times Card (Matching screenshot style)
+        // 2. Floating Curved Prayer Times Card
         Card(
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(
@@ -215,7 +235,7 @@ fun PrayerTimesHeaderCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 4.dp, end = 4.dp, bottom = 12.dp),
+                        .padding(start = 4.dp, end = 4.dp, bottom = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -252,7 +272,7 @@ fun PrayerTimesHeaderCard(
                             else "Alarms",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFD97706) // Warm orange/gold matching screenshot
+                            color = Color(0xFFD97706)
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -260,6 +280,57 @@ fun PrayerTimesHeaderCard(
                             tint = Color(0xFFD97706),
                             modifier = Modifier.size(13.dp)
                         )
+                    }
+                }
+
+                // Next Upcoming Prayer Live Countdown Ribbon
+                val nextPrayer = scheduleInfo.nextPrayer
+                if (nextPrayer != null && scheduleInfo.timeRemainingStr.isNotBlank()) {
+                    val nextName = when (selectedLanguage) {
+                        "Hausa" -> nextPrayer.nameHa
+                        "Arabic" -> nextPrayer.nameAr
+                        else -> nextPrayer.nameEn
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isDarkTheme) Color(0xFF143B33) else Color(0xFFE8F5E9),
+                        border = BorderStroke(0.8.dp, if (isDarkTheme) Color(0xFF26735E) else Color(0xFFC8E6C9)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 2.dp, end = 2.dp, bottom = 10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "⏳",
+                                    fontSize = 12.sp
+                                )
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Mai zuwa: $nextName"
+                                    else if (selectedLanguage == "Arabic") "الصلاة القادمة: $nextName"
+                                    else "Next: $nextName",
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkTheme) Color(0xFF6EE7B7) else Color(0xFF2E7D32)
+                                )
+                            }
+
+                            Text(
+                                text = "${nextPrayer.formattedTime} (saura ${scheduleInfo.timeRemainingStr})",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFFE65100)
+                            )
+                        }
                     }
                 }
 
@@ -297,13 +368,13 @@ fun PrayerTimesHeaderCard(
 
     // Location Selection Dialog
     if (showLocationDialog) {
-        Dialog(onDismissRequest = { showLocationDialog = false }) {
+        Dialog(onDismissRequest = { if (!isDetectingLocation) showLocationDialog = false }) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 500.dp)
+                    .heightIn(max = 520.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -323,6 +394,7 @@ fun PrayerTimesHeaderCard(
                         )
                         IconButton(
                             onClick = { showLocationDialog = false },
+                            enabled = !isDetectingLocation,
                             modifier = Modifier.size(28.dp)
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Close")
@@ -331,18 +403,14 @@ fun PrayerTimesHeaderCard(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Auto GPS Detect Button
+                    // Auto GPS Detect Button with active spinner
                     Button(
                         onClick = {
                             val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                             val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
                             if (hasFine || hasCoarse) {
-                                PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
-                                    Toast.makeText(context, "An saita: $city, $country", Toast.LENGTH_SHORT).show()
-                                    onScheduleUpdated()
-                                    showLocationDialog = false
-                                }
+                                startGpsDetection()
                             } else {
                                 permissionLauncher.launch(
                                     arrayOf(
@@ -352,17 +420,32 @@ fun PrayerTimesHeaderCard(
                                 )
                             }
                         },
+                        enabled = !isDetectingLocation,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
                     ) {
-                        Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp
-                        )
+                        if (isDetectingLocation) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Ana neman wuri ta GPS..." else "Detecting location via GPS...",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        } else {
+                            Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -386,9 +469,11 @@ fun PrayerTimesHeaderCard(
                             val isSelected = scheduleInfo.cityName == city.name
                             Surface(
                                 onClick = {
-                                    PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)
-                                    onScheduleUpdated()
-                                    showLocationDialog = false
+                                    if (!isDetectingLocation) {
+                                        PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)
+                                        onScheduleUpdated()
+                                        showLocationDialog = false
+                                    }
                                 },
                                 shape = RoundedCornerShape(10.dp),
                                 color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -460,6 +545,7 @@ private fun PrayerColumnItem(
         onClick = onToggleAlarm,
         shape = RoundedCornerShape(12.dp),
         color = if (isNext) highlightBg else Color.Transparent,
+        border = if (isNext) BorderStroke(1.dp, if (isDarkTheme) Color(0xFF26735E) else Color(0xFF80CBC4)) else null,
         modifier = modifier
             .padding(horizontal = 1.dp)
             .testTag("prayer_item_${prayer.id}")
