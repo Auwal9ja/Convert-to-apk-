@@ -34,37 +34,37 @@ object AthanPlayer {
     ) {
         MAKKAH(
             id = "MAKKAH",
-            displayNameEn = "Makkah (Al-Haram)",
-            displayNameHa = "Makkah (Masallacin Ka'aba)",
-            description = "Authentic resonant call from Al-Masjid Al-Haram in Makkah",
+            displayNameEn = "Makkah (Al-Masjid Al-Haram)",
+            displayNameHa = "Makkah (Ka'aba - Ali Mulla)",
+            description = "Authentic genuine call by Sheikh Ali Ahmed Mulla (Al-Haram)",
             rawResId = R.raw.athan_makkah
         ),
         MADINAH(
             id = "MADINAH",
-            displayNameEn = "Madinah (Al-Nabawi)",
+            displayNameEn = "Madinah (Al-Masjid An-Nabawi)",
             displayNameHa = "Madinah (Masallacin Annabi)",
-            description = "Soulful authentic call from the Prophet's Mosque in Madinah",
+            description = "Authentic soulful call from the Prophet's Mosque in Madinah",
             rawResId = R.raw.athan_madinah
         ),
         AL_AQSA(
             id = "AL_AQSA",
             displayNameEn = "Al-Aqsa (Jerusalem / Quds)",
             displayNameHa = "Al-Kudus (Masallacin Al-Aqsa)",
-            description = "Reverberant historical call from Al-Aqsa Mosque",
+            description = "Authentic historical call from Al-Masjid Al-Aqsa",
             rawResId = R.raw.athan_alaqsa
         ),
         EGYPT(
             id = "EGYPT",
-            displayNameEn = "Egypt (Sheikh Abdul Basit)",
-            displayNameHa = "Salon Masar (Abdul Basit)",
-            description = "Warm classical Egyptian recitation",
+            displayNameEn = "Egypt (Sheikh Muhammad Rifaat)",
+            displayNameHa = "Masar (Sheikh Muhammad Rifaat)",
+            description = "Classical Egyptian recitation by legendary Sheikh Muhammad Rifaat",
             rawResId = R.raw.athan_egypt
         ),
         MISHARY(
             id = "MISHARY",
-            displayNameEn = "Sheikh Mishary Alafasy",
-            displayNameHa = "Mishary Rashid Alafasy",
-            description = "Melodic authentic Athan by Sheikh Mishary Alafasy",
+            displayNameEn = "Sheikh Mishary Rashid Alafasy",
+            displayNameHa = "Sheikh Mishary Rashid Alafasy",
+            description = "Authentic melodic Athan by Sheikh Mishary Alafasy",
             rawResId = R.raw.athan_mishary
         ),
         SOFT_TAKBEER(
@@ -76,9 +76,9 @@ object AthanPlayer {
         ),
         ARABIC_TTS(
             id = "ARABIC_TTS",
-            displayNameEn = "Classic Takbeer Call",
-            displayNameHa = "Kiran Takbira na Gargajiya",
-            description = "Clear Takbeer call (Allahu Akbar)",
+            displayNameEn = "Takbeer Call",
+            displayNameHa = "Kiran Takbira",
+            description = "Authentic Takbeer call (Allahu Akbar)",
             rawResId = R.raw.athan_takbeer
         );
 
