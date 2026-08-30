@@ -563,9 +563,9 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = selectedTab == 4,
                         onClick = { navigateToTab(4) },
-                        icon = { Icon(Icons.Default.Notifications, contentDescription = "Reminders") },
-                        label = { Text(AppLocalizer.getString("daily_reminders", selectedLanguage)) },
-                        modifier = Modifier.testTag("nav_reminders")
+                        icon = { Icon(Icons.Default.TouchApp, contentDescription = "Tasbeeh") },
+                        label = { Text(AppLocalizer.getString("tasbeeh", selectedLanguage)) },
+                        modifier = Modifier.testTag("nav_tasbeeh")
                     )
                 }
             }
@@ -634,7 +634,10 @@ fun MainScreen(
                     completedDuas = completedDuas,
                     isDarkTheme = isDarkTheme
                 )
-                4 -> RemindersTab(selectedLanguage = selectedLanguage)
+                4 -> TasbeehScreen(
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme
+                )
             }
         }
     }
