@@ -520,7 +520,7 @@ fun MainScreen(
         },
         bottomBar = {
             Column {
-                if (selectedTab == 0) {
+                if (selectedTab != 0) {
                     BannerAd()
                 }
                 NavigationBar(

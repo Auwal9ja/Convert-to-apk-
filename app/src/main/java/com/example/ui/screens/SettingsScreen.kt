@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.local.AppLocalizer
 import com.example.receiver.MandatoryAdhkarManager
+import com.example.ui.components.BannerAd
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.util.UpdateState
 
@@ -282,6 +283,9 @@ fun SettingsScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
+        },
+        bottomBar = {
+            BannerAd()
         }
     ) { innerPadding ->
         LazyColumn(
