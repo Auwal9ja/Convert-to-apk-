@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.AppLocalizer
+import com.example.ui.components.InterstitialAdHelper
 import com.example.ui.theme.QuranFontFamily
 import org.json.JSONArray
 import org.json.JSONObject
@@ -228,6 +230,9 @@ fun TasbeehScreen(
             AppLocalizer.getString("goal_reached", selectedLanguage),
             Toast.LENGTH_SHORT
         ).show()
+        (context as? Activity)?.let { activity ->
+            InterstitialAdHelper.showAd(activity)
+        }
     }
 
     fun saveRecentSession(dhikr: TasbeehDhikr, countToRecord: Int) {

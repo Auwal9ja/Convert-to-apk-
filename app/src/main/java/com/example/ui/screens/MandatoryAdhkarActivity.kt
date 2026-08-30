@@ -67,6 +67,7 @@ import com.example.receiver.MandatoryAdhkarManager
 import com.example.receiver.MandatorySessionState
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
+import com.example.ui.components.InterstitialAdHelper
 import com.example.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
@@ -104,6 +105,7 @@ class MandatoryAdhkarActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        InterstitialAdHelper.loadAd(this)
         speaker = DuaSpeaker(this)
         audioManager = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
 
@@ -146,7 +148,9 @@ class MandatoryAdhkarActivity : ComponentActivity() {
                     onCloseAfterCompletion = {
                         speaker?.stop()
                         Toast.makeText(this@MandatoryAdhkarActivity, "May Allah accept your Adhkar.", Toast.LENGTH_LONG).show()
-                        finish()
+                        InterstitialAdHelper.showAd(this@MandatoryAdhkarActivity) {
+                            finish()
+                        }
                     }
                 )
             }

@@ -78,6 +78,7 @@ import com.example.util.PrayerTimeManager
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.ui.audio.DuaSpeaker
 import com.example.ui.components.BannerAd
+import com.example.ui.components.InterstitialAdHelper
 import com.example.ui.components.AutoScrollSideBar
 import java.util.Calendar
 
@@ -185,6 +186,9 @@ fun MainScreen(
         if (selectedTab != targetTab) {
             tabBackStack.add(selectedTab)
             selectedTab = targetTab
+            (context as? Activity)?.let { activity ->
+                InterstitialAdHelper.triggerAdOnAction(activity, threshold = 3)
+            }
         }
     }
 
@@ -522,9 +526,7 @@ fun MainScreen(
         },
         bottomBar = {
             Column {
-                if (selectedTab != 0) {
-                    BannerAd()
-                }
+                BannerAd()
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 8.dp

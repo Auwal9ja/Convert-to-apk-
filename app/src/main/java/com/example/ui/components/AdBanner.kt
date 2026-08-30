@@ -12,9 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -27,6 +29,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoa
 object AdConstants {
     // User AdMob Account IDs
     const val APP_ID = "ca-app-pub-3975025431204010~3916645921"
+    const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3975025431204010/8766402527"
     const val REWARDED_INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3975025431204010/3201692020"
     const val REWARDED_AD_UNIT_ID = "ca-app-pub-3975025431204010/9691716786"
 
@@ -69,8 +72,12 @@ fun BannerAd(
  */
 object InterstitialAdHelper {
     private var mInterstitialAd: InterstitialAd? = null
+    private var isLoading = false
+    private var actionCount = 0
 
-    fun loadAd(context: Context, adUnitId: String = AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID) {
+    fun loadAd(context: Context, adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID) {
+        if (mInterstitialAd != null || isLoading) return
+        isLoading = true
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             context,
@@ -80,25 +87,56 @@ object InterstitialAdHelper {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     Log.d("AdMob", "Interstitial ad failed to load: ${adError.message}")
                     mInterstitialAd = null
+                    isLoading = false
                 }
 
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     Log.d("AdMob", "Interstitial ad loaded successfully")
                     mInterstitialAd = interstitialAd
+                    isLoading = false
                 }
             }
         )
     }
 
-    fun showAd(activity: Activity) {
-        if (mInterstitialAd != null) {
-            mInterstitialAd?.show(activity)
-            mInterstitialAd = null
-            // Preload next ad
-            loadAd(activity)
+    fun showAd(activity: Activity, onAdClosed: (() -> Unit)? = null) {
+        val ad = mInterstitialAd
+        if (ad != null) {
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d("AdMob", "Interstitial ad dismissed")
+                    mInterstitialAd = null
+                    loadAd(activity)
+                    onAdClosed?.invoke()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    Log.d("AdMob", "Interstitial ad failed to show: ${adError.message}")
+                    mInterstitialAd = null
+                    loadAd(activity)
+                    onAdClosed?.invoke()
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    Log.d("AdMob", "Interstitial ad showed")
+                    mInterstitialAd = null
+                }
+            }
+            ad.show(activity)
         } else {
             Log.d("AdMob", "The interstitial ad wasn't ready yet.")
             loadAd(activity)
+            onAdClosed?.invoke()
+        }
+    }
+
+    fun triggerAdOnAction(activity: Activity, threshold: Int = 3, onAdClosed: (() -> Unit)? = null) {
+        actionCount++
+        if (actionCount >= threshold) {
+            actionCount = 0
+            showAd(activity, onAdClosed)
+        } else {
+            onAdClosed?.invoke()
         }
     }
 }
