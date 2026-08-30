@@ -2233,6 +2233,8 @@ fun HomeTab(
     val context = LocalContext.current
     var scheduleRefreshTrigger by remember { mutableIntStateOf(0) }
 
+    val managerUpdateTrigger by PrayerTimeManager.scheduleUpdateFlow.collectAsState()
+
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(1000L)
@@ -2240,7 +2242,7 @@ fun HomeTab(
         }
     }
 
-    val prayerSchedule = remember(scheduleRefreshTrigger, selectedLanguage) {
+    val prayerSchedule = remember(scheduleRefreshTrigger, managerUpdateTrigger, selectedLanguage) {
         PrayerTimeManager.getTodaySchedule(context, selectedLanguage)
     }
 

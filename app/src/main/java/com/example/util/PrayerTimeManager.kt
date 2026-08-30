@@ -19,6 +19,8 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.receiver.PrayerAlarmReceiver
 import com.example.ui.screens.PRESET_CITIES
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -57,6 +59,10 @@ object PrayerTimeManager {
     const val TAG = "PrayerTimeManager"
     private const val PREFS_NAME = "prayer_time_prefs"
 
+    // Reactive StateFlow to notify all screens instantly when location or calculation method updates
+    private val _scheduleUpdateFlow = MutableStateFlow(System.currentTimeMillis())
+    val scheduleUpdateFlow = _scheduleUpdateFlow.asStateFlow()
+
     // Default location: Kano, Nigeria
     const val DEFAULT_CITY = "Kano"
     const val DEFAULT_COUNTRY = "Nigeria"
@@ -90,8 +96,14 @@ object PrayerTimeManager {
             .putFloat("longitude", lng.toFloat())
             .apply()
 
+        _scheduleUpdateFlow.value = System.currentTimeMillis()
+
         // Reschedule alarms for new location
-        reschedulePrayerAlarms(context)
+        try {
+            reschedulePrayerAlarms(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error rescheduling alarms: ${e.message}")
+        }
     }
 
     fun getCalculationMethod(context: Context): CalculationMethod {
@@ -105,6 +117,7 @@ object PrayerTimeManager {
 
     fun setCalculationMethod(context: Context, method: CalculationMethod) {
         getPreferences(context).edit().putString("calculation_method", method.name).apply()
+        _scheduleUpdateFlow.value = System.currentTimeMillis()
         reschedulePrayerAlarms(context)
     }
 
@@ -119,6 +132,7 @@ object PrayerTimeManager {
 
     fun setJuristicMethod(context: Context, method: JuristicMethod) {
         getPreferences(context).edit().putString("juristic_method", method.name).apply()
+        _scheduleUpdateFlow.value = System.currentTimeMillis()
         reschedulePrayerAlarms(context)
     }
 
@@ -128,6 +142,7 @@ object PrayerTimeManager {
 
     fun setHijriOffset(context: Context, offset: Int) {
         getPreferences(context).edit().putInt("hijri_offset", offset).apply()
+        _scheduleUpdateFlow.value = System.currentTimeMillis()
     }
 
     fun isPrayerAlarmEnabled(context: Context, prayerId: String): Boolean {
@@ -137,6 +152,7 @@ object PrayerTimeManager {
 
     fun setPrayerAlarmEnabled(context: Context, prayerId: String, enabled: Boolean) {
         getPreferences(context).edit().putBoolean("alarm_enabled_$prayerId", enabled).apply()
+        _scheduleUpdateFlow.value = System.currentTimeMillis()
         reschedulePrayerAlarms(context)
     }
 
@@ -352,36 +368,9 @@ object PrayerTimeManager {
     }
 
     /**
-     * Reverse geocodes coordinates to a human-friendly city name and country name,
-     * with fallback to nearest known preset cities list.
+     * Finds the closest preset city immediately based on lat/lng coordinates (instant).
      */
-    fun resolveLocationName(context: Context, lat: Double, lng: Double): Pair<String, String> {
-        var resolvedCity: String? = null
-        var resolvedCountry: String? = null
-
-        try {
-            if (Geocoder.isPresent()) {
-                val geocoder = Geocoder(context, Locale.getDefault())
-                @Suppress("DEPRECATION")
-                val addresses = geocoder.getFromLocation(lat, lng, 1)
-                if (!addresses.isNullOrEmpty()) {
-                    val addr = addresses[0]
-                    resolvedCity = addr.locality
-                        ?: addr.subAdminArea
-                        ?: addr.adminArea
-                        ?: addr.featureName
-                    resolvedCountry = addr.countryName
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Geocoder lookup exception: ${e.message}")
-        }
-
-        if (!resolvedCity.isNullOrBlank() && !resolvedCountry.isNullOrBlank()) {
-            return Pair(resolvedCity, resolvedCountry)
-        }
-
-        // Fallback: Find closest city in preset database
+    fun findClosestPresetCity(lat: Double, lng: Double): Pair<String, String> {
         var minDistance = Double.MAX_VALUE
         var closestCity = DEFAULT_CITY
         var closestCountry = DEFAULT_COUNTRY
@@ -398,15 +387,40 @@ object PrayerTimeManager {
                 closestCountry = city.country
             }
         }
-
-        val finalCity = if (minDistance < 80.0) closestCity else (resolvedCity ?: "Lat: ${String.format(Locale.ENGLISH, "%.2f", lat)}")
-        val finalCountry = resolvedCountry ?: closestCountry
-
-        return Pair(finalCity, finalCountry)
+        return Pair(closestCity, closestCountry)
     }
 
     /**
-     * Auto-detect location using GPS or Network provider with active updates fallback.
+     * Resolves human-friendly city and country name without delay.
+     */
+    fun resolveLocationName(context: Context, lat: Double, lng: Double): Pair<String, String> {
+        val (closestCity, closestCountry) = findClosestPresetCity(lat, lng)
+
+        try {
+            if (Geocoder.isPresent()) {
+                val geocoder = Geocoder(context, Locale.getDefault())
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocation(lat, lng, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    val addr = addresses[0]
+                    val city = addr.locality ?: addr.subAdminArea ?: addr.adminArea ?: addr.featureName
+                    val country = addr.countryName
+                    if (!city.isNullOrBlank() && !country.isNullOrBlank()) {
+                        return Pair(city, country)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Geocoder lookup exception: ${e.message}")
+        }
+
+        return Pair(closestCity, closestCountry)
+    }
+
+    /**
+     * Fast, reliable GPS Auto-detection:
+     * 1. Instantly reads any available cached location from any provider and sets location immediately.
+     * 2. Concurrently requests high-accuracy live GPS/Network update to refine if needed.
      */
     fun tryDetectGpsLocation(
         context: Context,
@@ -423,8 +437,8 @@ object PrayerTimeManager {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
         val mainHandler = Handler(Looper.getMainLooper())
 
-        // 1. Try finding best immediate lastKnownLocation
-        var bestLocation: Location? = null
+        // Step 1: Immediate check for any available location from any provider
+        var immediateLocation: Location? = null
         val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
 
         for (provider in providers) {
@@ -432,45 +446,60 @@ object PrayerTimeManager {
                 if (locationManager.isProviderEnabled(provider)) {
                     val loc = locationManager.getLastKnownLocation(provider)
                     if (loc != null) {
-                        if (bestLocation == null || loc.time > bestLocation.time || loc.accuracy < bestLocation.accuracy) {
-                            bestLocation = loc
+                        if (immediateLocation == null || loc.time > immediateLocation.time || (loc.hasAccuracy() && loc.accuracy < immediateLocation.accuracy)) {
+                            immediateLocation = loc
                         }
                     }
                 }
             } catch (_: SecurityException) {} catch (_: Exception) {}
         }
 
-        // If we found a relatively recent location (within 30 mins)
-        if (bestLocation != null && (System.currentTimeMillis() - bestLocation.time < 30 * 60 * 1000L)) {
-            val lat = bestLocation.latitude
-            val lng = bestLocation.longitude
+        var hasHandledImmediate = false
+
+        if (immediateLocation != null) {
+            hasHandledImmediate = true
+            val lat = immediateLocation.latitude
+            val lng = immediateLocation.longitude
+            // Instant resolution with nearest preset city so UI responds in 0 milliseconds
+            val (fastCity, fastCountry) = findClosestPresetCity(lat, lng)
+            setLocation(context, fastCity, fastCountry, lat, lng)
+            onSuccess(fastCity, fastCountry, lat, lng)
+
+            // Asynchronously resolve detailed Geocoder in background to refine city name
             Thread {
-                val (city, country) = resolveLocationName(context, lat, lng)
-                mainHandler.post {
-                    setLocation(context, city, country, lat, lng)
-                    onSuccess(city, country, lat, lng)
+                val (resolvedCity, resolvedCountry) = resolveLocationName(context, lat, lng)
+                if (resolvedCity != fastCity || resolvedCountry != fastCountry) {
+                    mainHandler.post {
+                        setLocation(context, resolvedCity, resolvedCountry, lat, lng)
+                        onSuccess(resolvedCity, resolvedCountry, lat, lng)
+                    }
                 }
             }.start()
-            return
         }
 
-        // 2. Request a fresh single fix actively if last location is absent or stale
-        var isLocationResolved = false
+        // Step 2: Request fresh live GPS update
+        var liveFixReceived = false
         val listener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                if (!isLocationResolved) {
-                    isLocationResolved = true
+                if (!liveFixReceived) {
+                    liveFixReceived = true
                     try {
                         locationManager.removeUpdates(this)
                     } catch (_: Exception) {}
 
                     val lat = location.latitude
                     val lng = location.longitude
+                    val (fastCity, fastCountry) = findClosestPresetCity(lat, lng)
+                    setLocation(context, fastCity, fastCountry, lat, lng)
+                    onSuccess(fastCity, fastCountry, lat, lng)
+
                     Thread {
-                        val (city, country) = resolveLocationName(context, lat, lng)
-                        mainHandler.post {
-                            setLocation(context, city, country, lat, lng)
-                            onSuccess(city, country, lat, lng)
+                        val (resolvedCity, resolvedCountry) = resolveLocationName(context, lat, lng)
+                        if (resolvedCity != fastCity || resolvedCountry != fastCountry) {
+                            mainHandler.post {
+                                setLocation(context, resolvedCity, resolvedCountry, lat, lng)
+                                onSuccess(resolvedCity, resolvedCountry, lat, lng)
+                            }
                         }
                     }.start()
                 }
@@ -483,50 +512,36 @@ object PrayerTimeManager {
         }
 
         try {
-            var requested = false
+            var updateRequested = false
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
-                requested = true
+                updateRequested = true
             }
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
-                requested = true
+                updateRequested = true
             }
 
-            // Fallback timeout after 5 seconds if no live fix arrives
-            if (requested) {
+            if (updateRequested) {
+                // Remove listener after 4 seconds to conserve battery
                 mainHandler.postDelayed({
-                    if (!isLocationResolved) {
-                        try {
-                            locationManager.removeUpdates(listener)
-                        } catch (_: Exception) {}
-
-                        // Use whatever bestLocation we had, or fallback to current saved
-                        val fallbackLoc = bestLocation
-                        if (fallbackLoc != null) {
-                            val lat = fallbackLoc.latitude
-                            val lng = fallbackLoc.longitude
-                            Thread {
-                                val (city, country) = resolveLocationName(context, lat, lng)
-                                mainHandler.post {
-                                    setLocation(context, city, country, lat, lng)
-                                    onSuccess(city, country, lat, lng)
-                                }
-                            }.start()
-                        }
-                    }
-                }, 5000L)
-            } else if (bestLocation != null) {
-                val lat = bestLocation.latitude
-                val lng = bestLocation.longitude
-                Thread {
-                    val (city, country) = resolveLocationName(context, lat, lng)
-                    mainHandler.post {
-                        setLocation(context, city, country, lat, lng)
+                    try {
+                        locationManager.removeUpdates(listener)
+                    } catch (_: Exception) {}
+                    if (!liveFixReceived && !hasHandledImmediate) {
+                        val (lat, lng) = getSelectedLocation(context)
+                        val city = getCityName(context)
+                        val country = getCountryName(context)
                         onSuccess(city, country, lat, lng)
                     }
-                }.start()
+                }, 4000L)
+            } else if (!hasHandledImmediate) {
+                val (lat, lng) = getSelectedLocation(context)
+                val city = getCityName(context)
+                val country = getCountryName(context)
+                onSuccess(city, country, lat, lng)
             }
-        } catch (_: SecurityException) {} catch (_: Exception) {}
+        } catch (_: SecurityException) {
+        } catch (_: Exception) {}
     }
 }

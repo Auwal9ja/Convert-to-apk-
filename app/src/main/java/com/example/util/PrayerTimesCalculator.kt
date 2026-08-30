@@ -2,7 +2,6 @@ package com.example.util
 
 import java.util.Calendar
 import java.util.Date
-import java.util.TimeZone
 import kotlin.math.*
 
 enum class CalculationMethod(val displayName: String, val fajrAngle: Double, val ishaAngle: Double, val ishaMinutes: Double = 0.0) {
@@ -40,7 +39,7 @@ data class PrayerTimesResult(
 )
 
 /**
- * Astronomical Prayer Times Calculator based on standard solar position algorithms.
+ * Astronomical Prayer Times Calculator based on standard solar position algorithms (PrayTimes standard).
  */
 object PrayerTimesCalculator {
 
@@ -58,30 +57,30 @@ object PrayerTimesCalculator {
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val julianDate = julianDate(year, month, day) - longitude / (15.0 * 24.0)
+        val jd = julianDate(year, month, day) - longitude / (15.0 * 24.0)
 
         // Solar parameters
-        val sunDeclination = sunDeclination(julianDate)
-        val eqOfTime = equationOfTime(julianDate)
+        val (sunDeclination, eqOfTime) = sunPosition(jd)
 
-        // Base noon (Dhuhr)
-        val noon = fixHour(12.0 + timezone - longitude / 15.0 - eqOfTime / 60.0)
+        // Solar Noon (Dhuhr) in hours standard time
+        val noon = fixHour(12.0 + timezone - longitude / 15.0 - eqOfTime)
 
-        // Sunrise and Sunset (elevation refraction included)
-        val sunAngle = 0.833 + 0.0347 * sqrt(elevationMeters.coerceAtLeast(0.0))
-        val sunriseHour = noon - sunAngleHour(sunAngle, sunDeclination, latitude)
-        val sunsetHour = noon + sunAngleHour(sunAngle, sunDeclination, latitude)
+        // Sunrise and Sunset: Sun depression angle (-0.833° - refraction from elevation)
+        val sunriseSunsetAngle = -(0.833 + 0.0347 * sqrt(elevationMeters.coerceAtLeast(0.0)))
+        val sunriseHour = noon - sunAltitudeHourAngle(sunriseSunsetAngle, sunDeclination, latitude)
+        val sunsetHour = noon + sunAltitudeHourAngle(sunriseSunsetAngle, sunDeclination, latitude)
 
-        // Fajr
-        val fajrHour = noon - sunAngleHour(method.fajrAngle, sunDeclination, latitude)
+        // Fajr: Sun is at negative fajrAngle below horizon
+        val fajrHour = noon - sunAltitudeHourAngle(-method.fajrAngle, sunDeclination, latitude)
 
-        // Asr (shadow factor)
-        val asrAngle = -atan(1.0 / (juristic.shadowFactor + tan(Math.toRadians(abs(latitude - sunDeclination)))))
-        val asrHour = noon + sunAngleHour(Math.toDegrees(-asrAngle), sunDeclination, latitude)
+        // Asr: Sun altitude above horizon based on shadow length factor (positive angle)
+        val diffLatDec = abs(latitude - sunDeclination)
+        val asrAltitude = Math.toDegrees(atan(1.0 / (juristic.shadowFactor + tan(Math.toRadians(diffLatDec)))))
+        val asrHour = noon + sunAltitudeHourAngle(asrAltitude, sunDeclination, latitude)
 
         // Maghrib
         val maghribHour = if (method == CalculationMethod.TEHRAN) {
-            noon + sunAngleHour(4.5, sunDeclination, latitude)
+            noon + sunAltitudeHourAngle(-4.5, sunDeclination, latitude)
         } else {
             sunsetHour
         }
@@ -90,7 +89,7 @@ object PrayerTimesCalculator {
         val ishaHour = if (method.ishaMinutes > 0.0) {
             maghribHour + method.ishaMinutes / 60.0
         } else {
-            noon + sunAngleHour(method.ishaAngle, sunDeclination, latitude)
+            noon + sunAltitudeHourAngle(-method.ishaAngle, sunDeclination, latitude)
         }
 
         // Adjust for high latitudes if needed
@@ -120,31 +119,42 @@ object PrayerTimesCalculator {
         return floor(365.25 * (y + 4716)) + floor(30.6001 * (m + 1)) + day + b - 1524.5
     }
 
-    private fun sunDeclination(julianDate: Double): Double {
+    /**
+     * Calculates Sun Declination (degrees) and Equation of Time (hours).
+     */
+    private fun sunPosition(julianDate: Double): Pair<Double, Double> {
         val d = julianDate - 2451545.0
         val g = fixAngle(357.529 + 0.98560028 * d)
         val q = fixAngle(280.459 + 0.98564736 * d)
         val l = fixAngle(q + 1.915 * sin(Math.toRadians(g)) + 0.020 * sin(Math.toRadians(2 * g)))
         val e = 23.439 - 0.00000036 * d
-        return Math.toDegrees(asin(sin(Math.toRadians(e)) * sin(Math.toRadians(l))))
+
+        val dRad = Math.toRadians(e)
+        val lRad = Math.toRadians(l)
+
+        val sinDec = sin(dRad) * sin(lRad)
+        val dec = Math.toDegrees(asin(sinDec))
+
+        var ra = Math.toDegrees(atan2(cos(dRad) * sin(lRad), cos(lRad))) / 15.0
+        ra = fixHour(ra)
+
+        var eq = q / 15.0 - ra
+        while (eq > 12.0) eq -= 24.0
+        while (eq <= -12.0) eq += 24.0
+
+        return Pair(dec, eq)
     }
 
-    private fun equationOfTime(julianDate: Double): Double {
-        val d = julianDate - 2451545.0
-        val g = fixAngle(357.529 + 0.98560028 * d)
-        val q = fixAngle(280.459 + 0.98564736 * d)
-        val l = fixAngle(q + 1.915 * sin(Math.toRadians(g)) + 0.020 * sin(Math.toRadians(2 * g)))
-        val e = 23.439 - 0.00000036 * d
-        val ra = fixAngle(Math.toDegrees(atan2(cos(Math.toRadians(e)) * sin(Math.toRadians(l)), cos(Math.toRadians(l))))) / 15.0
-        return (q / 15.0 - fixHour(ra)) * 60.0
-    }
-
-    private fun sunAngleHour(angle: Double, declination: Double, latitude: Double): Double {
+    /**
+     * Computes the hour angle (in hours) for a given sun altitude angle (in degrees).
+     * Altitude is positive above horizon (e.g. Asr) and negative below horizon (e.g. Fajr, Sunset).
+     */
+    private fun sunAltitudeHourAngle(altitudeDegrees: Double, declination: Double, latitude: Double): Double {
         val latRad = Math.toRadians(latitude)
         val decRad = Math.toRadians(declination)
-        val angRad = Math.toRadians(angle)
+        val altRad = Math.toRadians(altitudeDegrees)
 
-        val cosH = (-sin(angRad) - sin(latRad) * sin(decRad)) / (cos(latRad) * cos(decRad))
+        val cosH = (sin(altRad) - sin(latRad) * sin(decRad)) / (cos(latRad) * cos(decRad))
         val clampedCosH = cosH.coerceIn(-1.0, 1.0)
         return Math.toDegrees(acos(clampedCosH)) / 15.0
     }
