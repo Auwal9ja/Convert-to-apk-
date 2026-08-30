@@ -3304,6 +3304,13 @@ fun OnboardingLanguageSelection(
     var locationStatusMessage by remember { mutableStateOf<String?>(null) }
 
     // Live permission states
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
     var hasOverlayPermission by remember {
         mutableStateOf(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Settings.canDrawOverlays(context) else true
@@ -3338,8 +3345,72 @@ fun OnboardingLanguageSelection(
         )
     }
 
-    // Step-by-step permission prompt dialog state (0 = None, 1 = Notif, 2 = Battery, 3 = Overlay)
+    // Step-by-step permission prompt dialog state (0 = None, 1 = Location, 2 = Notif, 3 = Battery, 4 = Overlay)
     var activePermissionStep by remember { mutableIntStateOf(0) }
+
+    // Sequential helper that checks and prompts for missing permissions one-by-one
+    fun proceedNextPermissionStep(fromStep: Int) {
+        val needsLocation = !hasLocationPermission
+        val needsNotif = !hasNotificationPermission
+        val needsBattery = !hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        val needsOverlay = !hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
+        when (fromStep) {
+            0 -> {
+                // Starting initial check
+                if (needsLocation) {
+                    activePermissionStep = 1
+                } else if (needsNotif) {
+                    activePermissionStep = 2
+                } else if (needsBattery) {
+                    activePermissionStep = 3
+                } else if (needsOverlay) {
+                    activePermissionStep = 4
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            1 -> {
+                // After Location
+                if (needsNotif) {
+                    activePermissionStep = 2
+                } else if (needsBattery) {
+                    activePermissionStep = 3
+                } else if (needsOverlay) {
+                    activePermissionStep = 4
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            2 -> {
+                // After Notification
+                if (needsBattery) {
+                    activePermissionStep = 3
+                } else if (needsOverlay) {
+                    activePermissionStep = 4
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            3 -> {
+                // After Battery
+                if (needsOverlay) {
+                    activePermissionStep = 4
+                } else {
+                    activePermissionStep = 0
+                    onComplete()
+                }
+            }
+            4 -> {
+                // After Overlay
+                activePermissionStep = 0
+                onComplete()
+            }
+        }
+    }
 
     // Location Permission Launcher
     val locationPermissionLauncher = rememberLauncherForActivityResult(
@@ -3347,6 +3418,7 @@ fun OnboardingLanguageSelection(
     ) { permissions ->
         val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        hasLocationPermission = granted
         if (granted) {
             isDetectingLocation = true
             PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
@@ -3359,18 +3431,25 @@ fun OnboardingLanguageSelection(
             isDetectingLocation = false
             locationStatusMessage = if (tempSelectedLanguage == "Hausa") "Ba a bada izinin GPS ba. Za ka iya zaɓar gari daga lissafin ƙasa." else "GPS permission not granted. You can select a city from the list below."
         }
+        if (activePermissionStep == 1) {
+            proceedNextPermissionStep(1)
+        }
     }
 
     fun startLocationDetection() {
         val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (hasFine || hasCoarse) {
+            hasLocationPermission = true
             isDetectingLocation = true
             PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
                 isDetectingLocation = false
                 currentCityName = city
                 currentCountryName = country
                 locationStatusMessage = if (tempSelectedLanguage == "Hausa") "An gano wurinku: $city, $country ✓" else "Detected location: $city, $country ✓"
+            }
+            if (activePermissionStep == 1) {
+                proceedNextPermissionStep(1)
             }
         } else {
             locationPermissionLauncher.launch(
@@ -3379,54 +3458,6 @@ fun OnboardingLanguageSelection(
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
-        }
-    }
-
-    // Sequential helper that checks and prompts for missing permissions one-by-one
-    fun proceedNextPermissionStep(fromStep: Int) {
-        val needsNotif = !hasNotificationPermission
-        val needsBattery = !hasBatteryExemption && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-        val needsOverlay = !hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-
-        when (fromStep) {
-            0 -> {
-                // Starting initial check
-                if (needsNotif) {
-                    activePermissionStep = 1
-                } else if (needsBattery) {
-                    activePermissionStep = 2
-                } else if (needsOverlay) {
-                    activePermissionStep = 3
-                } else {
-                    activePermissionStep = 0
-                    onComplete()
-                }
-            }
-            1 -> {
-                // After Notification
-                if (needsBattery) {
-                    activePermissionStep = 2
-                } else if (needsOverlay) {
-                    activePermissionStep = 3
-                } else {
-                    activePermissionStep = 0
-                    onComplete()
-                }
-            }
-            2 -> {
-                // After Battery
-                if (needsOverlay) {
-                    activePermissionStep = 3
-                } else {
-                    activePermissionStep = 0
-                    onComplete()
-                }
-            }
-            3 -> {
-                // After Overlay
-                activePermissionStep = 0
-                onComplete()
-            }
         }
     }
 
@@ -3443,8 +3474,8 @@ fun OnboardingLanguageSelection(
                 Toast.LENGTH_SHORT
             ).show()
         }
-        if (activePermissionStep == 1) {
-            proceedNextPermissionStep(1)
+        if (activePermissionStep == 2) {
+            proceedNextPermissionStep(2)
         }
     }
 
@@ -3503,6 +3534,12 @@ fun OnboardingLanguageSelection(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                hasLocationPermission = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     hasOverlayPermission = Settings.canDrawOverlays(context)
                     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -3548,8 +3585,9 @@ fun OnboardingLanguageSelection(
                 ) {
                     Icon(
                         imageVector = when (activePermissionStep) {
-                            1 -> Icons.Default.NotificationsActive
-                            2 -> Icons.Default.BatteryChargingFull
+                            1 -> Icons.Default.LocationOn
+                            2 -> Icons.Default.NotificationsActive
+                            3 -> Icons.Default.BatteryChargingFull
                             else -> Icons.Default.Layers
                         },
                         contentDescription = null,
@@ -3571,9 +3609,10 @@ fun OnboardingLanguageSelection(
                     ) {
                         Text(
                             text = when (activePermissionStep) {
-                                1 -> if (isHausa) "Mataki 1 cikin 3" else "Step 1 of 3"
-                                2 -> if (isHausa) "Mataki 2 cikin 3" else "Step 2 of 3"
-                                else -> if (isHausa) "Mataki 3 cikin 3" else "Step 3 of 3"
+                                1 -> if (isHausa) "Mataki 1 cikin 4: Izinin Wuri" else "Step 1 of 4: Location Setup"
+                                2 -> if (isHausa) "Mataki 2 cikin 4: Sanarwa" else "Step 2 of 4: Notifications"
+                                3 -> if (isHausa) "Mataki 3 cikin 4: Baturi" else "Step 3 of 4: Battery Setup"
+                                else -> if (isHausa) "Mataki 4 cikin 4: Allon Zikiri" else "Step 4 of 4: Screen Overlay"
                             },
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -3584,8 +3623,9 @@ fun OnboardingLanguageSelection(
 
                     Text(
                         text = when (activePermissionStep) {
-                            1 -> if (isHausa) "Kunna Izinin Sanarwa" else "Enable Notifications"
-                            2 -> if (isHausa) "Cire Takunkumin Baturi" else "Allow Background Running"
+                            1 -> if (isHausa) "Bada Izinin Wuri (GPS Location)" else "Enable GPS Location Access"
+                            2 -> if (isHausa) "Kunna Izinin Sanarwa" else "Enable Notifications"
+                            3 -> if (isHausa) "Cire Takunkumin Baturi" else "Allow Background Running"
                             else -> if (isHausa) "Bada Izinin Allon Zikiri (Overlay)" else "Allow Display Over Other Apps"
                         },
                         style = MaterialTheme.typography.titleMedium,
@@ -3603,10 +3643,14 @@ fun OnboardingLanguageSelection(
                     Text(
                         text = when (activePermissionStep) {
                             1 -> if (isHausa)
+                                "Wannan izini yana da matuƙar muhimmanci don Zakiru Muslim ya gano ainihin garin da kake domin fito da lokutan sallah 5 daidai, kiran sallah kan lokaci, da alƙibla."
+                            else
+                                "Location access is essential for Zakiru Muslim to determine your exact coordinates for accurate 5 daily prayer times, athan calls, and precise Qibla direction."
+                            2 -> if (isHausa)
                                 "Wannan izini yana ba Zakiru Muslim damar aiko maka da sanarwa da kararrawar zikirin safe da yamma a ainihin lokacinsu domin kada ka manta."
                             else
                                 "Allows Zakiru Muslim to deliver timely audio alerts, vibrations, and notifications for all your morning and evening supplications."
-                            2 -> if (isHausa)
+                            3 -> if (isHausa)
                                 "Wayoyi kamar Samsung, Tecno, Infinix, Xiaomi, Oppo suna kashe manhajoji a bayan fage. Cire Zakiru Muslim daga takunkumin baturi don zikirin safe da yamma ya riƙa fita kan lokaci ba tare da jinkiri ba."
                             else
                                 "Device battery savers (Samsung, Tecno, Infinix, Xiaomi, Oppo) put apps to sleep. Exempting Zakiru Muslim guarantees your morning and evening focus alarms trigger punctually."
@@ -3622,8 +3666,9 @@ fun OnboardingLanguageSelection(
 
                     // Current status indicator
                     val isStepGranted = when (activePermissionStep) {
-                        1 -> hasNotificationPermission
-                        2 -> hasBatteryExemption
+                        1 -> hasLocationPermission
+                        2 -> hasNotificationPermission
+                        3 -> hasBatteryExemption
                         else -> hasOverlayPermission
                     }
 
@@ -3653,8 +3698,9 @@ fun OnboardingLanguageSelection(
             },
             confirmButton = {
                 val isStepGranted = when (activePermissionStep) {
-                    1 -> hasNotificationPermission
-                    2 -> hasBatteryExemption
+                    1 -> hasLocationPermission
+                    2 -> hasNotificationPermission
+                    3 -> hasBatteryExemption
                     else -> hasOverlayPermission
                 }
 
@@ -3662,9 +3708,10 @@ fun OnboardingLanguageSelection(
                     Button(
                         onClick = {
                             when (activePermissionStep) {
-                                1 -> launchNotificationRequest()
-                                2 -> launchBatteryOptimizationRequest()
-                                3 -> launchOverlayPermissionRequest()
+                                1 -> startLocationDetection()
+                                2 -> launchNotificationRequest()
+                                3 -> launchBatteryOptimizationRequest()
+                                4 -> launchOverlayPermissionRequest()
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -3673,8 +3720,9 @@ fun OnboardingLanguageSelection(
                     ) {
                         Text(
                             text = when (activePermissionStep) {
-                                1 -> if (isHausa) "Bada Izinin Sanarwa" else "Allow Notifications"
-                                2 -> if (isHausa) "Cire Takunkumi Yanzu" else "Allow Background Run"
+                                1 -> if (isHausa) "Bada Izinin Wuri (GPS)" else "Allow Location (GPS)"
+                                2 -> if (isHausa) "Bada Izinin Sanarwa" else "Allow Notifications"
+                                3 -> if (isHausa) "Cire Takunkumi Yanzu" else "Allow Background Run"
                                 else -> if (isHausa) "Bada Izinin Allon Zikiri" else "Grant Overlay Permission"
                             },
                             fontWeight = FontWeight.Bold,
@@ -3690,7 +3738,7 @@ fun OnboardingLanguageSelection(
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
-                            text = if (activePermissionStep == 3) (if (isHausa) "Kammala & Fara App" else "Finish & Start App") else (if (isHausa) "Ci gaba zuwa Na Gaba →" else "Continue to Next →"),
+                            text = if (activePermissionStep == 4) (if (isHausa) "Kammala & Fara App" else "Finish & Start App") else (if (isHausa) "Ci gaba zuwa Na Gaba →" else "Continue to Next →"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(vertical = 4.dp)
@@ -4246,7 +4294,7 @@ fun OnboardingLanguageSelection(
             // =========================================================================
             // STEP 2: PERMISSIONS, SCREEN OVERLAY & BATTERY SETUP
             // =========================================================================
-            val allGranted = hasOverlayPermission && hasBatteryExemption && hasNotificationPermission
+            val allGranted = hasLocationPermission && hasOverlayPermission && hasBatteryExemption && hasNotificationPermission
 
             Column(
                 modifier = Modifier
@@ -4294,7 +4342,7 @@ fun OnboardingLanguageSelection(
                     }
 
                     Text(
-                        text = if (isHausa) "Saitin Izini & Allon Zikiri" else "Permissions & System Setup",
+                        text = if (isHausa) "Saitin Izini & Tsarin Wayar" else "Permissions & System Setup",
                         style = MaterialTheme.typography.headlineSmall,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
@@ -4304,16 +4352,90 @@ fun OnboardingLanguageSelection(
 
                     Text(
                         text = if (isHausa)
-                            "Domin allon zikiri na wajibi (Mandatory Adhkar) ya fito kai tsaye koda kana amfani da wani app ko wayarka tana kulle, da fatan a saita waɗannan izini 3:"
+                            "Domin duk ayyukan Zakiru Muslim (lokutan salloli 5, kiran sallah, da allon zikiri) su riƙa aiki daidai a kan wayarka, da fatan a saita waɗannan muhimman izini 4:"
                         else
-                            "To ensure your mandatory morning and evening focus sessions trigger reliably and display over other apps when scheduled, please configure these 3 permissions:",
+                            "To ensure all features of Zakiru Muslim (exact 5 prayer times, athan alarms, and scheduled focus sessions) operate reliably, please configure these 4 essential permissions:",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF334B42),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
 
-                    // CARD 1: SCREEN OVERLAY (DISPLAY OVER OTHER APPS)
+                    // CARD 1: GPS & LOCATION ACCESS (MANDATORY)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (hasLocationPermission) Color(0xFFE8F5E9) else Color.White,
+                        border = BorderStroke(
+                            width = if (hasLocationPermission) 1.5.dp else 1.dp,
+                            color = if (hasLocationPermission) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = null,
+                                        tint = if (hasLocationPermission) Color(0xFF1B5E20) else Color(0xFFD4AF37)
+                                    )
+                                    Text(
+                                        text = if (isHausa) "1. Izinin Wuri (GPS Location)" else "1. GPS Location Access",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF132D27)
+                                    )
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = if (hasLocationPermission) Color(0xFF1B5E20) else Color(0xFFFFF3E0)
+                                ) {
+                                    Text(
+                                        text = if (hasLocationPermission) (if (isHausa) "An Bada ✓" else "Granted ✓") else (if (isHausa) "Ba a Saita Ba" else "Pending"),
+                                        color = if (hasLocationPermission) Color.White else Color(0xFFE65100),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = if (isHausa)
+                                    "Yana ba Zakiru Muslim damar gano garinku da lissafa ainihin lokutan salloli 5, kiran sallah, da kuma alƙibla daidai."
+                                else
+                                    "Enables Zakiru Muslim to detect your exact city coordinates for 5 precise daily prayer times, timely athan, and accurate Qibla.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4A6058)
+                            )
+
+                            if (!hasLocationPermission) {
+                                Button(
+                                    onClick = { startLocationDetection() },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
+                                ) {
+                                    Text(
+                                        text = if (isHausa) "Bada Izinin Wuri & Gano GPS" else "Grant Location Access (GPS)",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // CARD 2: SCREEN OVERLAY (DISPLAY OVER OTHER APPS)
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = if (hasOverlayPermission) Color(0xFFE8F5E9) else Color.White,
@@ -4342,7 +4464,7 @@ fun OnboardingLanguageSelection(
                                         tint = if (hasOverlayPermission) Color(0xFF1B5E20) else Color(0xFFD4AF37)
                                     )
                                     Text(
-                                        text = if (isHausa) "1. Allon Zikiri (Screen Overlay)" else "1. Display Over Other Apps",
+                                        text = if (isHausa) "2. Allon Zikiri (Screen Overlay)" else "2. Display Over Other Apps",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF132D27)
@@ -4387,7 +4509,7 @@ fun OnboardingLanguageSelection(
                         }
                     }
 
-                    // CARD 2: BATTERY OPTIMIZATION EXEMPTION
+                    // CARD 3: BATTERY OPTIMIZATION EXEMPTION
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = if (hasBatteryExemption) Color(0xFFE8F5E9) else Color.White,
@@ -4416,7 +4538,7 @@ fun OnboardingLanguageSelection(
                                         tint = if (hasBatteryExemption) Color(0xFF1B5E20) else Color(0xFFD4AF37)
                                     )
                                     Text(
-                                        text = if (isHausa) "2. Cire Takunkumin Baturi" else "2. Battery Optimization",
+                                        text = if (isHausa) "3. Cire Takunkumin Baturi" else "3. Battery Optimization",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF132D27)
@@ -4461,7 +4583,7 @@ fun OnboardingLanguageSelection(
                         }
                     }
 
-                    // CARD 3: NOTIFICATIONS & EXACT ALARM
+                    // CARD 4: NOTIFICATIONS & EXACT ALARM
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = if (hasNotificationPermission && canScheduleExact) Color(0xFFE8F5E9) else Color.White,
@@ -4490,7 +4612,7 @@ fun OnboardingLanguageSelection(
                                         tint = if (hasNotificationPermission) Color(0xFF1B5E20) else Color(0xFFD4AF37)
                                     )
                                     Text(
-                                        text = if (isHausa) "3. Sanarwa & Kararrawa" else "3. Notifications & Alarms",
+                                        text = if (isHausa) "4. Sanarwa & Kararrawa" else "4. Notifications & Alarms",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF132D27)
@@ -4537,7 +4659,7 @@ fun OnboardingLanguageSelection(
                                 OutlinedButton(
                                     onClick = {
                                         try {
-                                            val intent = Intent(
+                                             val intent = Intent(
                                                 Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
                                                 Uri.parse("package:${context.packageName}")
                                             ).apply {
