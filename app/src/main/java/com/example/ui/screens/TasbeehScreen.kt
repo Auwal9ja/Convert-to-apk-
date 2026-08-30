@@ -118,8 +118,8 @@ val DEFAULT_TASBEEH_PRESETS = listOf(
     ),
     TasbeehDhikr(
         id = "salawat",
-        arabic = "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ",
-        label = "Allahumma Salli Ala Muhammad",
+        arabic = "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى مُحَمَّدٍ",
+        label = "Allahumma Salli wa Sallim Ala Muhammad",
         targetCount = 100
     ),
     TasbeehDhikr(
