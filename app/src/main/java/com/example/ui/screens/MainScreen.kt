@@ -3296,8 +3296,8 @@ fun OnboardingLanguageSelection(
     var tempSelectedLanguage by remember { mutableStateOf(selectedLanguage) }
 
     // Location state for Step 1
-    var currentCityName by remember { mutableStateOf(PrayerTimeManager.getSavedCityName(context)) }
-    var currentCountryName by remember { mutableStateOf(PrayerTimeManager.getSavedCountryName(context)) }
+    var currentCityName by remember { mutableStateOf(PrayerTimeManager.getCityName(context)) }
+    var currentCountryName by remember { mutableStateOf(PrayerTimeManager.getCountryName(context)) }
     var isDetectingLocation by remember { mutableStateOf(false) }
     var locationSearchQuery by remember { mutableStateOf("") }
     var locationStatusMessage by remember { mutableStateOf<String?>(null) }
@@ -4013,11 +4013,10 @@ fun OnboardingLanguageSelection(
                     )
 
                     // Card: Currently Selected Location
-                    val hasSelectedLocation = !currentCityName.isNullOrBlank()
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = Color.White,
-                        border = BorderStroke(1.5.dp, if (hasSelectedLocation) Color(0xFF1B5E20) else Color(0xFF00796B)),
+                        border = BorderStroke(1.5.dp, Color(0xFF1B5E20)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -4028,7 +4027,6 @@ fun OnboardingLanguageSelection(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Row(
-                                modifier = Modifier.weight(1f),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
@@ -4036,72 +4034,48 @@ fun OnboardingLanguageSelection(
                                     modifier = Modifier
                                         .size(42.dp)
                                         .clip(CircleShape)
-                                        .background(if (hasSelectedLocation) Color(0xFFE8F5E9) else Color(0xFFE0F2F1)),
+                                        .background(Color(0xFFE8F5E9)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (hasSelectedLocation) Icons.Default.Place else Icons.Default.LocationSearching,
+                                        imageVector = Icons.Default.Place,
                                         contentDescription = null,
-                                        tint = if (hasSelectedLocation) Color(0xFF1B5E20) else Color(0xFF00796B),
+                                        tint = Color(0xFF1B5E20),
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
                                 Column {
                                     Text(
-                                        text = if (hasSelectedLocation) {
-                                            if (isHausa) "Wurin Da Aka Saita:" else "Selected Location:"
-                                        } else {
-                                            if (isHausa) "Wurin Da Kake:" else "Your Location:"
-                                        },
+                                        text = if (isHausa) "Wurin Da Aka Saita:" else "Selected Location:",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (hasSelectedLocation) Color(0xFF2E7D32) else Color(0xFF00796B)
+                                        color = Color(0xFF2E7D32)
                                     )
                                     Text(
-                                        text = if (hasSelectedLocation) {
-                                            "$currentCityName, ${currentCountryName ?: ""}"
-                                        } else {
-                                            if (isHausa) "Ba a zaɓi wuri ba tukuna" else "No location selected yet"
-                                        },
+                                        text = "$currentCityName, $currentCountryName",
                                         fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 15.sp,
+                                        fontSize = 16.sp,
                                         color = Color(0xFF132D27)
                                     )
-                                    if (!hasSelectedLocation) {
-                                        Text(
-                                            text = if (isHausa) "Zaɓi birni a ƙasa ko danna GPS" else "Select a city below or tap GPS",
-                                            fontSize = 11.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
                                 }
                             }
 
                             Surface(
                                 shape = RoundedCornerShape(10.dp),
-                                color = if (hasSelectedLocation) Color(0xFF1B5E20) else Color(0xFF00796B).copy(alpha = 0.15f)
+                                color = Color(0xFF1B5E20)
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (hasSelectedLocation) {
-                                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
-                                        Text(
-                                            text = if (isHausa) "Kafaffe" else "Active",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    } else {
-                                        Text(
-                                            text = if (isHausa) "Zaɓi Wuri" else "Select",
-                                            color = Color(0xFF00796B),
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                    Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Text(
+                                        text = if (isHausa) "Kafaffe" else "Active",
+                                        color = Color.White,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }
@@ -4171,7 +4145,7 @@ fun OnboardingLanguageSelection(
                         onValueChange = { locationSearchQuery = it },
                         placeholder = {
                             Text(
-                                text = if (isHausa) "Nemi gari (e.g. Abuja, Lagos, Makkah, Madinah)..." else "Search city (e.g. Abuja, Lagos, Cairo, Makkah)...",
+                                text = if (isHausa) "Nemi gari (e.g. Kano, Abuja, Lagos, Makkah)..." else "Search city (e.g. Kano, Abuja, Lagos, Cairo)...",
                                 fontSize = 12.sp
                             )
                         },
@@ -4218,7 +4192,7 @@ fun OnboardingLanguageSelection(
                         contentPadding = PaddingValues(bottom = 4.dp)
                     ) {
                         items(filteredCities) { city ->
-                            val isSelected = !currentCityName.isNullOrBlank() && currentCityName.equals(city.name, ignoreCase = true)
+                            val isSelected = currentCityName.equals(city.name, ignoreCase = true)
                             Surface(
                                 onClick = {
                                     PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)

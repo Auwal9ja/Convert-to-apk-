@@ -80,22 +80,6 @@ object PrayerTimeManager {
         return Pair(lat, lng)
     }
 
-    fun hasUserSetLocation(context: Context): Boolean {
-        return getPreferences(context).contains("city_name")
-    }
-
-    fun getSavedCityName(context: Context): String? {
-        return if (getPreferences(context).contains("city_name")) {
-            getPreferences(context).getString("city_name", null)
-        } else null
-    }
-
-    fun getSavedCountryName(context: Context): String? {
-        return if (getPreferences(context).contains("country_name")) {
-            getPreferences(context).getString("country_name", null)
-        } else null
-    }
-
     fun getCityName(context: Context): String {
         return getPreferences(context).getString("city_name", DEFAULT_CITY) ?: DEFAULT_CITY
     }
