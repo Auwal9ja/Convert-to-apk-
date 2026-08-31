@@ -1795,7 +1795,7 @@ fun DuaItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = dua.category.uppercase(),
+                    text = AppLocalizer.getCategoryName(dua.category, selectedLanguage).uppercase(),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
@@ -2088,15 +2088,22 @@ fun FeaturedCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
+                    val featuredHeader = when (selectedLanguage) {
+                        "Hausa" -> "ZIKIRIN MUSAMMAN"
+                        "Yoruba" -> "AZKAR PATAKI"
+                        "Igbo" -> "AZKAR PỤRỤ ICHE"
+                        "Arabic" -> "الأذكار المختارة"
+                        else -> "FEATURED ADHKAR"
+                    }
                     Text(
-                        text = "FEATURED ADHKAR",
+                        text = featuredHeader,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                         letterSpacing = 1.sp
                     )
                     Text(
-                        text = "Sayyidul Istighfar",
+                        text = AppLocalizer.getDuaTitle(2, "Sayyidul Istighfar", selectedLanguage),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary,
