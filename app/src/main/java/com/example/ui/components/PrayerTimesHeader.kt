@@ -583,52 +583,52 @@ private fun PrayerColumnItem(
     val displayName = getLocalizedPrayerName(prayer.id, selectedLanguage)
 
     val isNext = prayer.isNext
-    val highlightBg = if (isDarkTheme) Color(0xFF133E34) else Color(0xFFD7EFE7)
-    val activeTextColor = if (isDarkTheme) Color(0xFF6EE7B7) else Color(0xFF00796B)
-    val inactiveTextColor = if (isDarkTheme) Color.White.copy(alpha = 0.9f) else Color(0xFF1E293B)
-    val timeTextColor = if (isDarkTheme) Color.White.copy(alpha = 0.75f) else Color(0xFF64748B)
+    val highlightBg = if (isDarkTheme) Color(0xFF0D3B31) else Color(0xFFD1FAE5)
+    val activeTextColor = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF065F46)
+    val inactiveTextColor = if (isDarkTheme) Color(0xFFFFFFFF) else Color(0xFF0F172A)
+    val timeTextColor = if (isDarkTheme) Color(0xFFF1F5F9) else Color(0xFF1E293B)
 
     Surface(
         onClick = onToggleAlarm,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         color = if (isNext) highlightBg else Color.Transparent,
-        border = if (isNext) BorderStroke(1.dp, if (isDarkTheme) Color(0xFF26735E) else Color(0xFF80CBC4)) else null,
+        border = if (isNext) BorderStroke(1.8.dp, if (isDarkTheme) Color(0xFF34D399) else Color(0xFF059669)) else BorderStroke(0.6.dp, if (isDarkTheme) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.05f)),
         modifier = modifier
-            .padding(horizontal = 1.dp)
+            .padding(horizontal = 1.5.dp)
             .testTag("prayer_item_${prayer.id}")
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(vertical = 6.dp, horizontal = 2.dp)
+            modifier = Modifier.padding(vertical = 7.dp, horizontal = 2.dp)
         ) {
             // Prayer Emoji / Icon
             Text(
                 text = prayer.emoji,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
-            // Prayer Name
+            // Prayer Name (Bold & Crisp)
             Text(
                 text = displayName,
-                fontSize = 11.5.sp,
-                fontWeight = if (isNext) FontWeight.ExtraBold else FontWeight.SemiBold,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
                 color = if (isNext) activeTextColor else inactiveTextColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
-            // Prayer Time (e.g. 4:13 AM)
+            // Prayer Time (Bold & High Contrast)
             Text(
                 text = prayer.formattedTime,
-                fontSize = 10.sp,
-                fontWeight = if (isNext) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.ExtraBold,
                 color = if (isNext) activeTextColor else timeTextColor,
                 maxLines = 1,
                 textAlign = TextAlign.Center
