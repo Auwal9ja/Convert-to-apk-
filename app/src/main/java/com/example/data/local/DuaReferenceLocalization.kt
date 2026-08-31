@@ -44,7 +44,7 @@ object DuaReferenceLocalization {
             25 -> "Ana karantawa don murkushe fushi na farat daya da mayar da kwanciyar hankali.\nMadogara: Al-Bukhari 7/99, Muslim 4/2015."
             26 -> "Ana fada yayin ziyartar mara lafiya don kawo masa sanyin gwiwa da bege.\nMadogara: Al-Bukhari, duba Al-Asqalani, Fathul-Bari 10/118."
             27 -> "Addu'a mai zurfi ta neman rahama da shiga kabari cikin girma.\nMadogara: Muslim 2/663."
-            28 -> "Annabi (tsira da amincin Allah su tabbata a gare shi) ya koyar da wannan don yanke shawara a kan kowane lamari mai muhimmanci.\nMadogara: Al-Bukhari 7/162."
+            28 -> "Annabi (tsira da amincin Allah su tabbata a gare shi) ya koyar da wannan cikakkiyar addu'a don neman zaɓin Allah a kan kowane lamari mai muhimmanci bayan an gabatar da raka'a biyu na nafila, sai a karanta wannan addu'ar sannan a ambaci buƙata.\nMadogara: Sahih al-Bukhari 1162, 6382, 7390."
             29 -> "Karanta wannan lokacin da masifa ta faru yana kawo kwanciyar hankali, lada, da kuma musanyawa mafi alheri.\nMadogara: Muslim 2/632."
             30 -> "Annabi (tsira da amincin Allah su tabbata a gare shi) ya kasance yana karanta wannan addu'ar fiye da sau 100 a kullum.\nMadogara: Al-Bukhari, Muslim 4/2075."
             31 -> "Kyakkyawar addu'ar neman sauki wajen biyan bashi da samun wadatar kudi.\nMadogara: At-Tirmidhi 5/560."
