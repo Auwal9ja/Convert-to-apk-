@@ -13,7 +13,8 @@ class MandatoryAdhkarReceiver : BroadcastReceiver() {
             ?: if (intent.getStringExtra("ADHKAR_TYPE") == "EVENING") MandatoryAdhkarManager.SCHEDULE_ID_EVENING else MandatoryAdhkarManager.SCHEDULE_ID_MORNING
         val scheduleTitle = intent.getStringExtra("SCHEDULE_TITLE")
             ?: if (scheduleId == MandatoryAdhkarManager.SCHEDULE_ID_EVENING) "Evening Zikir" else "Morning Zikir"
-        val category = intent.getStringExtra("CATEGORY") ?: "Morning & Evening"
+        val category = intent.getStringExtra("CATEGORY")
+            ?: if (scheduleId == MandatoryAdhkarManager.SCHEDULE_ID_EVENING) "Evening Adhkar" else "Morning Adhkar"
         val durationMinutes = intent.getIntExtra("DURATION_MINUTES", intent.getIntExtra("READING_DURATION", 3))
         val isTest = intent.getBooleanExtra("IS_TEST", false)
 

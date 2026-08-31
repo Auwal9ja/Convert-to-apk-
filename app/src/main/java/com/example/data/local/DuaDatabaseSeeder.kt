@@ -3,10 +3,10 @@ package com.example.data.local
 object DuaDatabaseSeeder {
     fun getSeedDuas(): List<DuaEntity> {
         return listOf(
-            // Morning & Evening Supplications
+            // Morning Adhkar Supplications
             DuaEntity(
                 id = 1,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Virtue of Dhikr",
                 arabic = "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ، يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا. وَقَالَ ﷺ: مَثَلُ الَّذِي يَذْكُرُ رَبَّهُ وَالَّذِي لَا يَذْكُرُ رَبَّهُ مَثَلُ الْحَيِّ وَالْمَيِّتِ",
                 transliteration = "Fadhkuruni adhkurkum washkuru li wa la takfurun, ya ayyuhalladhina amanu-dhkurullaha dhikran kathiran wa sabbihuhu bukratan wa asila. Wa qala (SAW): Mathalulladhi yadhkuru Rabbahu walladhi la yadhkuru Rabbahu mathalul-hayyi wal-mayyit.",
@@ -18,7 +18,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 2,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Sayyidul Istighfar (Master Forgiveness)",
                 arabic = "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
                 transliteration = "Allahumma anta Rabbi la ilaha illa Anta, khalaqtani wa ana 'abduka, wa ana 'ala 'ahdika wa wa'dika mastata'tu, a'udhu bika min sharri ma sana'tu, abu'u laka bini'matika 'alayya, wa abu'u bidhanbi faghfir li fa'innahu la yaghfiru-dhunuba illa Anta.",
@@ -30,7 +30,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 3,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Protection from Harm (Recite 3 times)",
                 arabic = "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
                 transliteration = "Bismillahil-ladhi la yadurru ma'as-mihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Sami'ul-'Alim.",
@@ -42,7 +42,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 4,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Satisfaction with Islam & Allah (Recite 3 times)",
                 arabic = "رَضِيتُ بِاللَّهِ رَبَّاً، وَبِالْإِسْلَامِ دِيناً، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيَّاً",
                 transliteration = "Raditu billahi Rabban, wa bil-Islami dinan, wa bi-Muhammadin (sallallahu 'alayhi wa sallam) Nabiyya.",
@@ -642,7 +642,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 41,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Morning Supplication",
                 arabic = "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
                 transliteration = "Alhamdu lillahil-ladhi ahyana ba'da ma amatana wa ilayhin-nushur.",
@@ -990,7 +990,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 84,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Ayat Al-Kursi (Verse of the Throne)",
                 arabic = "اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
                 transliteration = "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi-idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bi-shay'im-min 'ilmihi illa bima sha'a, wasi'a kursiyyuhus-samawati wal-arda, wa la ya'uduhu hifzuhuma, wa Huwal-'Aliyyul-'Azim.",
@@ -1002,7 +1002,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 85,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Surah Al-Ikhlas, Al-Falaq & An-Nas (Recite 3 times)",
                 arabic = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ",
                 transliteration = "1. Bismillāhir-Rahmānir-Raheem. Qul Huwallāhu Ahad, Allāhus-Samad, Lam yalid wa lam yoolad, Wa lam yakul-lahoo kufuwan ahad.\n\n2. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbil-falaq, Min sharri mā khalaq, Wa min sharri ghāsiqin idhā waqab, Wa min sharrin-naffāthāti fil-'uqad, Wa min sharri hāsidin idhā hasad.\n\n3. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbin-nās, Malikin-nās, Ilāhin-nās, Min sharril-waswāsil-khannās, Alladhee yuwaswisu fee sudoorin-nās, Minal-jinnati wan-nās.",
@@ -1014,7 +1014,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 86,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Morning Supplication (Asbahna wa Asbahal-Mulku Lillah)",
                 arabic = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
                 transliteration = "Asbahna wa asbahal-mulku lillah, walhamdu lillah, la ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in Qadir. Rabbi as'aluka khayra ma fi hadhal-yawmi wa khayra ma ba'dah, wa a'udhu bika min sharri ma fi hadhal-yawmi wa sharri ma ba'dah, Rabbi a'udhu bika minal-kasali wa su'il-kibar, Rabbi a'udhu bika min 'adhabin fin-nari wa 'adhabin fil-qabr.",
@@ -1026,7 +1026,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 87,
-                category = "Morning & Evening",
+                category = "Evening Adhkar",
                 title = "Evening Supplication (Amsayna wa Amsal-Mulku Lillah)",
                 arabic = "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
                 transliteration = "Amsayna wa amsal-mulku lillah, walhamdu lillah, la ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in Qadir. Rabbi as'aluka khayra ma fi hadhihil-laylati wa khayra ma ba'daha, wa a'udhu bika min sharri ma fi hadhihil-laylati wa sharri ma ba'daha, Rabbi a'udhu bika minal-kasali wa su'il-kibar, Rabbi a'udhu bika min 'adhabin fin-nari wa 'adhabin fil-qabr.",
@@ -1038,7 +1038,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 88,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Morning Invocation (Allahumma Bika Asbahna)",
                 arabic = "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
                 transliteration = "Allahumma bika asbahna, wa bika amsayna, wa bika nahya, wa bika namutu, wa ilaykan-nushur.",
@@ -1048,7 +1048,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 89,
-                category = "Morning & Evening",
+                category = "Evening Adhkar",
                 title = "Evening Invocation (Allahumma Bika Amsayna)",
                 arabic = "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ",
                 transliteration = "Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu, wa ilaykal-masir.",
@@ -1058,17 +1058,17 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 90,
-                category = "Morning & Evening",
+                category = "Evening Adhkar",
                 title = "Evening Protection from Evil (Recite 3 times)",
                 arabic = "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
                 transliteration = "A'udhu bikalimatil-lahit-tammati min sharri ma khalaq.",
                 translation = "I seek refuge in the perfect words of Allah from the evil of what He has created.",
-                translationHausa = "Ina neman tsari da cikakkun kalmomin Allah daga sharrin abin da Ya halitta.",
+                translationHausa = "Ina neman tsari da cikakkun kalmomin Allah daga sharrin abin da Ya halitta (sau 3 da yamma).",
                 reference = "Whoever recites this three times in the evening will not be harmed by anything that night.\nReference: At-Tirmidhi 3/187, Ahmad 2/290."
             ),
             DuaEntity(
                 id = 91,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Sufficient is Allah for Me (Recite 7 times)",
                 arabic = "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
                 transliteration = "Hasbiyallahu la ilaha illa Huwa 'alayhi tawakkaltu wa Huwa Rabbul-'Arshil-'Azim.",
@@ -1078,7 +1078,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 92,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Supplication for Well-being & Protection (Recite 3 times)",
                 arabic = "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ. اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ، وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، لَا إِلَهَ إِلَّا أَنْتَ",
                 transliteration = "Allahumma 'afini fi badani, Allahumma 'afini fi sam'i, Allahumma 'afini fi basari, la ilaha illa Ant. Allahumma inni a'udhu bika minal-kufri wal-faqr, wa a'udhu bika min 'adhabil-qabr, la ilaha illa Ant.",
@@ -1088,7 +1088,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 93,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Praising Allah 100 Times (Subhanallahi wa Bihamdihi)",
                 arabic = "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
                 transliteration = "Subhanallahi wa bihamdihi.",
@@ -1098,7 +1098,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 94,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Invocation for Relief & Guidance (Ya Hayyu Ya Qayyum)",
                 arabic = "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
                 transliteration = "Ya Hayyu Ya Qayyum bi-rahmatika astaghib, aslih li sha'ni kullahu wa la takilni ila nafsi tarfata 'ayn.",
@@ -1108,7 +1108,7 @@ object DuaDatabaseSeeder {
             ),
             DuaEntity(
                 id = 95,
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 title = "Extensive Praise of Allah (Recite 3 times in Morning)",
                 arabic = "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ",
                 transliteration = "Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih.",
@@ -2598,6 +2598,272 @@ object DuaDatabaseSeeder {
                 translationYoruba = "Allāhu, ṣe ibukun fun wa ninu awọn eso wa, ṣe ibukun fun wa ninu ilu wa, ṣe ibukun fun wa ninu iwọn Sa' wa, ki O si ṣe ibukun fun wa ninu iwọn Mudd wa.",
                 translationIgbo = "Chineke, gọzie anyị na mkpụrụ osisi anyị na ihe ubi anyị, gọzie anyị n'obodo anyị na ahịa anyị, gọzie anyị na ihe atụ Sa' anyị, ma gọzie anyị na ihe atụ Mudd anyị.",
                 reference = "Sahih Muslim 1373."
+            ),
+            // Dedicated Morning Adhkar Duas from Hisnul Muslim
+            DuaEntity(
+                id = 219,
+                category = "Morning Adhkar",
+                title = "Supplication for Beneficial Knowledge, Good Sustenance & Accepted Deeds",
+                arabic = "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا",
+                transliteration = "Allahumma inni as'aluka 'ilman nafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan.",
+                translation = "O Allah, I ask You for beneficial knowledge, good and lawful sustenance, and accepted deeds.",
+                translationHausa = "Ya Allah! Ina roƙonKa ilimi mai amfani, da arziki na halal mai daɗi, da aiki karɓaɓɓe. (Da safe bayan sallan Asuba).",
+                translationYoruba = "Allāhu, mo n tọrọ lọwọ Rẹ imọ ti o wulo, ati ohun ti o dara ti o tọ, ati iṣẹ ti a tẹwọgba.",
+                translationIgbo = "Chineke, ana m arịọ Gị maka ihe ọmụma bara uru, na ihe e ji ebi ndụ dị mma ma dị ọcha, na ọrụ a nabatara anabata.",
+                reference = "Sunan Ibn Majah 1/298, Sahih Ibn Majah 1/152. Recited after the morning Fajr prayer."
+            ),
+            DuaEntity(
+                id = 220,
+                category = "Morning Adhkar",
+                title = "Daily Istighfar & Repentance (100 times)",
+                arabic = "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ",
+                transliteration = "Astaghfirullaha wa atubu ilayh.",
+                translation = "I seek Allah's forgiveness and I turn to Him in repentance (recited 100 times daily).",
+                translationHausa = "Ina neman gafarar Allah kuma ina tuba zuwa gare Shi. (Sau ɗari a rana).",
+                translationYoruba = "Mo n tọrọ aforijin lọdọ Allāhu, mo si n ronupiwada si I.",
+                translationIgbo = "Ana m arịọ mgbaghara n'aka Chineke ma na-echigharịkwa n'ebe Ọ nọ.",
+                reference = "Sahih Al-Bukhari with Al-Fath 11/101, Sahih Muslim 4/2075."
+            ),
+            DuaEntity(
+                id = 221,
+                category = "Morning Adhkar",
+                title = "Blessings upon the Prophet (ﷺ) (10 times)",
+                arabic = "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+                transliteration = "Allahumma salli wa sallim 'ala nabiyyina Muhammad.",
+                translation = "O Allah, send prayers and peace upon our Prophet Muhammad (recited 10 times in morning and evening).",
+                translationHausa = "Ya Allah Ka yi daɗi da aminci ga Annabinmu Muhammad. (Sau 10 da safe da yamma).",
+                translationYoruba = "Allāhu, ṣe ikẹ ati ọla fun Anabi wa Muhammad.",
+                translationIgbo = "Chineke, meere Onye Amụma anyị Muhammad ebere ma nye ya udo.",
+                reference = "At-Tabarani, Sahih At-Targhib 1/273. The Prophet (ﷺ) said: 'Whoever sends blessings upon me ten times in the morning and ten times in the evening will obtain my intercession on the Day of Resurrection.'"
+            ),
+            DuaEntity(
+                id = 222,
+                category = "Morning Adhkar",
+                title = "Supplication for the Goodness of the Day",
+                arabic = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذَا الْيَوْمِ: فَتْحَهُ، وَنَصْرَهُ، وَنُورَهُ، وَبَرَكَتَهُ، وَهُدَاهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشَرِّ مَا بَعْدَهُ",
+                transliteration = "Asbahna wa asbahal-mulku lillahi Rabbil-'alamin, Allahumma inni as'aluka khayra hadhal-yawm: fathahu, wa nasrahu, wa nurahu, wa barakatahu, wa hudahu, wa a'udhu bika min sharri ma fihi wa sharri ma ba'dah.",
+                translation = "We have reached the morning and all sovereignty belongs to Allah, Lord of the worlds. O Allah, I ask You for the good of this day: its victory, its help, its light, its blessing, and its guidance; and I seek refuge in You from the evil that is in it and the evil that follows it.",
+                translationHausa = "Mun wayi gari kuma mulki ya wayi gari yana mai tabbata ga Allah Ubangijin halittu baki ɗaya. Ya Allah! Ina roƙonKa alherin wannan yini; buɗinsa, taimakonsa, haskensa, albarkarsa, da shiryarsa; kuma ina neman tsarinKa daga sharrin abin da ke cikinsa da sharrin abin da ke bayansa.",
+                translationYoruba = "A ti bọ si owurọ ati pe ijọba bọ si ti Allāhu Oluwa gbogbo agbaye. Allāhu, mo n tọrọ lọwọ Rẹ oore ọjọ oni: iṣẹgun rẹ, iranlọwọ rẹ, imọlẹ rẹ, ibukun rẹ, ati itọsọna rẹ; mo si n wa aabo lọwọ Rẹ kuro ninu aburu ohun ti n bẹ ninu rẹ ati aburu ohun ti o n bọ lẹhin rẹ.",
+                translationIgbo = "Anyị erutela ụtụtụ ma ọchịchị niile bụ nke Chineke, Onyenwe ụwa niile. Chineke, ana m arịọ Gị maka ihe ọma dị n'ụbọchị taa: mmeri ya, enyemaka ya, ìhè ya, ngọzi ya, na nduzi ya; ana m arịọkwa nchebe Gị pụọ n'ihe ọjọọ dị n'ime ya na ihe ọjọọ na-eso ya.",
+                reference = "Sunan Abi Dawud 5084."
+            ),
+            DuaEntity(
+                id = 223,
+                category = "Morning Adhkar",
+                title = "Supplication to Knower of the Unseen & Protection from Evil",
+                arabic = "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَاوَاتِ وَالأَرْضِ رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+                transliteration = "Allahumma 'alimal-ghaybi wash-shahadah, fatiras-samawati wal-ard, rabba kulli shay'in wa malikah, ash-hadu an la ilaha illa Ant, a'udhu bika min sharri nafsi wa min sharrish-shaytani wa shirkih, wa an aqtarifa 'ala nafsi su'an aw ajurrahu ila muslim.",
+                translation = "O Allah, Knower of the unseen and the witnessed, Originator of the heavens and the earth, Lord and Possessor of all things, I bear witness that there is no deity except You. I seek refuge in You from the evil of myself, from the evil of Satan and his polytheism, and from committing evil against myself or bringing it upon any Muslim.",
+                translationHausa = "Ya Allah! Masanin abin da ke ɓoye da na sarari! Mai ƙagen halittar sammai da ƙassai! Ubangijin kowane abu kuma Mallakinsa! Ina shaidawa babu abin bautawa da gaskiya sai Kai. Ina neman tsarinKa daga sharrin raina, da kuma sharrin shaiɗan da shirkarsa, da in jawo wa kaina wani abu mummunan aiki ko in jawo shi ga wani musulmi.",
+                translationYoruba = "Allāhu, Onimọ ohun ti o pamọ ati ohun ti o han, Ẹlẹda awọn ọrun ati ilẹ, Oluwa ati Ọba ohun gbogbo, Mo jẹri pe ko si ọlọhun miiran bikoṣe Iwọ. Mo n wa aabo lọwọ Rẹ kuro ninu aburu ara mi, ati kuro ninu aburu Eṣu ati ẹbọ rẹ, ati lati da aburu si ara mi tabi fa a si musulumi kan.",
+                translationIgbo = "Chineke, Onye Maara ihe zoro ezo na ihe pụtara ìhè, Onye Kere eluigwe na ala, Onyenwe na Onye Na-achị ihe niile, Ana m agba akaebe na ọ dịghị chi ọzọ ma e wezụga Gị. Ana m arịọ nchebe Gị pụọ n'ihe ọjọọ nke onwe m, na n'ihe ọjọọ nke Ekwensu na ọnyà ya, na site n'imejọ onwe m ma ọ bụ ibubata ya n'elu onye Alakụba.",
+                reference = "Jami' At-Tirmidhi 3392, Sunan Abi Dawud 5067, Sahih At-Tirmidhi 3/142."
+            ),
+            DuaEntity(
+                id = 224,
+                category = "Morning Adhkar",
+                title = "Gratitude for Blessings of the Morning",
+                arabic = "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لاَ شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
+                transliteration = "Allahumma ma asbaha bi min ni'matin aw bi-ahadin min khalqik, faminka wahdaka la sharika lak, falakal-hamdu wa lakash-shukr.",
+                translation = "O Allah, whatever blessing has reached me or any of Your creation this morning, it is from You alone, without partner; to You belongs all praise and to You belongs all thanks. (Whoever recites this in the morning has fulfilled his gratitude for the day).",
+                translationHausa = "Ya Allah! Dukkan abin da ya wayi gari a gare ni na ni'ima ko ga wani daga cikin halittarKa, to daga gare Ka ne Kai kaɗai, babu abokin tarayya a gare Ka; saboda haka yabo ya tabbata a gare Ka kaɗai, kuma godiya ta tabbata a gare Ka kaɗai. (Wanda ya faɗe ta da safe ya cika godiyar ranarsa).",
+                translationYoruba = "Allāhu, ohunkohun ti o ba de ba mi ninu ibukun ni owurọ oni tabi ẹnikẹni ninu awọn ẹda Rẹ, lẹhinna lati ọdọ Rẹ nikan ni o ti wa, Ko si orogun fun Ọ; nitori naa gbogbo ọpẹ ati idupẹ jẹ Tirẹ.",
+                translationIgbo = "Chineke, ihe ọ bụla dị mma ruru m ma ọ bụ rute onye ọ bụla n'ime ihe ndị Ị kere n'ụtụtụ taa, sitere n'aka Gị nanị Gị, Ị nweghị onye ibe; ya mere otuto niile na ekele niile bụ nke Gị.",
+                reference = "Sunan Abi Dawud 5073, Sunan An-Nasa'i in 'Amalul-Yawmi wal-Laylah no. 7."
+            ),
+            DuaEntity(
+                id = 225,
+                category = "Morning Adhkar",
+                title = "Supplication for Well-being & Complete Protection in All Directions",
+                arabic = "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي",
+                transliteration = "Allahumma inni as'alukal-'afwa wal-'afiyah fid-dunya wal-akhirah. Allahumma inni as'alukal-'afwa wal-'afiyah fi dini wa dunyaya wa ahli wa mali. Allahummas-tur 'awrati wa amin raw'ati. Allahummah-fazni min bayni yadayya wa min khalfi wa 'an yamini wa 'an shimali wa min fawqi, wa a'udhu bi'azamatika an ughtala min tahti.",
+                translation = "O Allah, I ask You for forgiveness and well-being in this world and the Hereafter. O Allah, I ask You for forgiveness and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, protect me from my front, my back, my right, my left, and from above me; and I seek refuge in Your Greatness from being swallowed up from beneath me.",
+                translationHausa = "Ya Allah! Ina roƙonKa afuwa da aminci daga dukkan munana a duniya da lahira. Ya Allah! Ina roƙonKa afuwa da aminci a addinina, da duniyata, da iyalina, da dukiyata. Ya Allah Ka suturta al'aurata, Ka kwantar da hankalina. Ya Allah Ka kiyaye ni ta gabana, da ta bayana, da ta damana, da ta haguna, da ta samana, kuma ina neman tsari da girmarKa da a kife ƙasa da ni.",
+                translationYoruba = "Allāhu, mo n tọrọ aforijin ati alaafia lọwọ Rẹ ni aiye ati ọrun. Allāhu, mo n tọrọ aforijin ati alaafia lọwọ Rẹ ninu ẹsin mi, aiye mi, idile mi, ati ọrọ mi. Allāhu, bo asiri mi ki O si fi ọkan mi balẹ. Allāhu, daabobo mi lati iwaju mi, lẹhin mi, ọwọ ọtun mi, ọwọ osi mi, ati lati oke mi; mo si n wa aabo pẹlu titobi Rẹ kuro ninu ki a wọ ilẹ pẹlu mi lati abẹ mi.",
+                translationIgbo = "Chineke, ana m arịọ Gị mgbaghara na ezi ahụike n'ụwa a na n'eluigwe. Chineke, ana m arịọ Gị mgbaghara na ezi ahụike n'okpukpe m, n'ihe omume ụwa m, n'ezinụlọ m na n'akụ na ụba m. Chineke, kpuchie adịghị ike m ma wetuo egwu m. Chineke, chebe m site n'ihu m, n'azụ m, n'aka nri m, n'aka ekpe m, na site n'elu m; ana m arịọkwa nchebe site n'ịdị ukwuu Gị ka ala ghara ilo m site n'okpuru m.",
+                reference = "Sunan Abi Dawud 5074, Sunan Ibn Majah 3871, Sahih Ibn Majah 2/332."
+            ),
+            // Dedicated Evening Adhkar Duas from Hisnul Muslim
+            DuaEntity(
+                id = 226,
+                category = "Evening Adhkar",
+                title = "Virtue of Evening Dhikr",
+                arabic = "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ، يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا وَسَبِّحُوهُ بُكْرَةً وَأَصِيلًا",
+                transliteration = "Fadhkuruni adhkurkum washkuru li wa la takfurun, ya ayyuhalladhina amanu-dhkurullaha dhikran kathiran wa sabbihuhu bukratan wa asila.",
+                translation = "Therefore remember Me, I will remember you; and be grateful to Me, and do not disbelieve in Me. O you who believe! Remember Allah with much remembrance, and glorify Him morning and evening.",
+                translationHausa = "Saboda haka ku ambace Ni, Zan ambace ku; kuma ku gode Mini, kada ku kafirce Mini. Ya ku waɗanda kuka yi imani! Ku ambaci Allah ambato mai yawa, kuma ku yi tasbihi gare Shi da safe da yamma.",
+                translationYoruba = "Tẹsiwaju lati ranti Mi, Emi yoo ranti yin. Ẹ si dupe fun Mi, ẹ ma ṣe ṣaipẹ fun Mi. Ẹyin ti ẹ gbagbọ! Ẹ ranti Allāhu pẹlu iranti ti o pọ̀, ki ẹ si ṣe afọmọ fun Un ni owurọ ati irọlẹ.",
+                translationIgbo = "Cheta m ka m cheta gị. Nwee ekele n'ebe m nọ ma ghara ịgọnarị m. Ndị kweere! Chetanụ Chineke site n'ọtụtụ ncheta, ma na-eto Ya n'ụtụtụ na n'anyasị.",
+                reference = "Surah Al-Baqarah 2:152, Surah Al-Ahzab 33:41-42. Hisnul Muslim."
+            ),
+            DuaEntity(
+                id = 227,
+                category = "Evening Adhkar",
+                title = "Sayyidul Istighfar in the Evening (Master Forgiveness)",
+                arabic = "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
+                transliteration = "Allahumma anta Rabbi la ilaha illa Anta, khalaqtani wa ana 'abduka, wa ana 'ala 'ahdika wa wa'dika mastata'tu, a'udhu bika min sharri ma sana'tu, abu'u laka bini'matika 'alayya, wa abu'u bidhanbi faghfir li fa'innahu la yaghfiru-dhunuba illa Anta.",
+                translation = "O Allah, You are my Lord, there is none worthy of worship but You. You created me and I am your slave. I keep Your covenant, and my pledge to You so far as I am able. I seek refuge in You from the evil of what I have done. I admit to Your grace upon me, and I admit to my sin. So forgive me, for surely none can forgive sins but You. (Whoever recites this in the evening with conviction and dies that night will enter Paradise).",
+                translationHausa = "Ya Allah, Kai ne Ubangijina, babu abin bautawa da gaskiya sai Kai. Ka halitta ni kuma ni bawanKa ne. Ina kan alkawarinKa da wa'adinKa gwargwadon ikona. Ina neman tsari da Kai daga sharrin abin da na aikata. Ina amsa muku ni'imarKa a kaina, kuma ina amsa zunubina. Don haka Ka gafarta mini, domin babu mai gafarta zunubai sai Kai. (Wanda ya faɗe ta da yamma ya rasu a daren zai shiga Aljanna).",
+                translationYoruba = "Allāhu n bẹ, Iwọ ni Ọlọrun mi, ko si ọba miran ti a gbọdọ jọsin fun afi Iwọ. Iwọ lo da mi, emi si ni ẹru Rẹ. Mo duro lori adehun Rẹ ati ileri Rẹ gẹgẹ bi agbara mi ti mọ. Mo tọrọ isadi lọdọ Rẹ lọwọ aburu ohun ti mo ṣe. Mo jẹwọ awọn ikẹ Rẹ lori mi, mo si jẹwọ ẹṣẹ mi. Nitori naa, rọ mi lẹṣẹ ji, nitori ko si ẹni ti n rọ ẹṣẹ ji afi Iwọ.",
+                translationIgbo = "Chineke, Gị bụ Onyenwe m, ọ dịghị onye kwesịrị ofufe ma ọ bụghị Gị. Gị kere m, mụ onwe m bụkwa ohu Gị. Adị m n'elu nkwekọrịta Gị na nkwa Gị dịka ike m siri gaa. Ana m achọ ebe mgbaba n'aka Gị pụọ n'ihe ọjọọ niile m mere. Ana m ekwupụta amara Gị n'ebe m nọ, ana m ekwupụtakwa mmehie m. Ya mere meere m ebere gbaghara m, n'ihi na ọ dịghị onye ọzọ nwere ike ịgbaghara mmehie ma ọ bụghị Gị.",
+                reference = "Sahih Al-Bukhari 7/150. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 228,
+                category = "Evening Adhkar",
+                title = "Evening Protection from Harm (Recite 3 times)",
+                arabic = "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+                transliteration = "Bismillahil-ladhi la yadurru ma'as-mihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Sami'ul-'Alim.",
+                translation = "In the Name of Allah, Who with His Name nothing can cause harm in the earth nor in the heavens, and He is the All-Hearing, the All-Knowing (recited 3 times in the evening).",
+                translationHausa = "Da sunan Allah wanda babu abin da ke cutarwa tare da sunanSa a kasa ko a sama, kuma Shi ne Mai ji, Masani. (Sau 3 da yamma).",
+                translationYoruba = "Pẹlu orukọ Allāhu ti nkan kankan ko le pa lara pẹlu orukọ Rẹ ni ilẹ ati ni oju sanma, Kuma on ni Olugbọ, Onimọ.",
+                translationIgbo = "N'aha Chineke, Onye na-enweghị ihe ọ bụla nwere ike imerụ ahụ n'ụwa ma ọ bụ n'eluigwe site n'aha Ya, ma Ya onwe Ya bụ Onye Na-anụ ihe, Onye Maara ihe niile.",
+                reference = "Recited 3 times in the evening for complete protection throughout the night.\nReference: Sunan Abi Dawud 4/323, Jami' At-Tirmidhi 5/465."
+            ),
+            DuaEntity(
+                id = 229,
+                category = "Evening Adhkar",
+                title = "Satisfaction with Islam & Allah in the Evening (Recite 3 times)",
+                arabic = "رَضِيتُ بِاللَّهِ رَبَّاً، وَبِالْإِسْلَامِ دِيناً، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيَّاً",
+                transliteration = "Raditu billahi Rabban, wa bil-Islami dinan, wa bi-Muhammadin (sallallahu 'alayhi wa sallam) Nabiyya.",
+                translation = "I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad (peace and blessings of Allah be upon him) as my Prophet (recited 3 times in the evening).",
+                translationHausa = "Na yarda da Allah a matsayin Ubangiji, da Musulunci a matsayin addini, da Muhammad (tsira da amincin Allah su tabbata a gare shi) a matsayin Annabi. (Sau 3 da yamma).",
+                translationYoruba = "Mo gba Allāhu gbọ gẹgẹ bi Ọlọrun mi, ati Ẹsin Islam gẹgẹ bi ẹsin mi, ati Muhammad (ki ikẹ ati ọla Allāhu ma ba a) gẹgẹ bi Ojisẹ nla.",
+                translationIgbo = "Enwere m obi ụtọ na m nwere Chineke dị ka Onyenwe m, na Islam dị ka okpukpe m, na Muhammad dị ka Onye Amụma m.",
+                reference = "Sunan Abi Dawud 4/318, Jami' At-Tirmidhi 5/465."
+            ),
+            DuaEntity(
+                id = 230,
+                category = "Evening Adhkar",
+                title = "Ayat Al-Kursi in the Evening",
+                arabic = "اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+                transliteration = "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi-idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bi-shay'im-min 'ilmihi illa bima sha'a, wasi'a kursiyyuhus-samawati wal-arda, wa la ya'uduhu hifzuhuma, wa Huwal-'Aliyyul-'Azim.",
+                translation = "Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth... And He is the Most High, the Most Great. (Whoever recites it in the evening will be protected until morning).",
+                translationHausa = "Allah! Babu abin bautawa da gaskiya sai Shi, Mai Rai, Tsayayye mai kula da kowa da komai. Gyangyaɗi ba ya kama Shi, haka ma barci... kuma Shi ne Maɗaukaki, Mai Girma. (Wanda ya karanta ta da yamma zai samu kariya har zuwa safiya).",
+                translationYoruba = "Allāhu! Ko si ọlọhun miiran lẹhin Rẹ, Alaye, Olugbe gbogbo nkan duro... Oun si ni Oga-jùlọ, Ọba Titobi.",
+                translationIgbo = "Chineke! Ọ dịghị chi ọzọ ma e wezụga Ya, Onye Dị Ndụ, Onye Na-elekọta ihe niile... Ma Ya bụ Onye Kachasị Elu, Onye Kachasị Ukwuu.",
+                reference = "Al-Hakim 1/562, Sahih At-Targhib 1/273. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 231,
+                category = "Evening Adhkar",
+                title = "Surah Al-Ikhlas, Al-Falaq & An-Nas in the Evening (Recite 3 times)",
+                arabic = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ",
+                transliteration = "1. Bismillāhir-Rahmānir-Raheem. Qul Huwallāhu Ahad, Allāhus-Samad, Lam yalid wa lam yoolad, Wa lam yakul-lahoo kufuwan ahad.\n\n2. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbil-falaq, Min sharri mā khalaq, Wa min sharri ghāsiqin idhā waqab, Wa min sharrin-naffāthāti fil-'uqad, Wa min sharri hāsidin idhā hasad.\n\n3. Bismillāhir-Rahmānir-Raheem. Qul a'oodhu bi-Rabbin-nās, Malikin-nās, Ilāhin-nās, Min sharril-waswāsil-khannās, Alladhee yuwaswisu fee sudoorin-nās, Minal-jinnati wan-nās.",
+                translation = "Recite Surah Al-Ikhlas, Surah Al-Falaq, and Surah An-Nas 3 times in the evening. They will suffice and protect you against everything.",
+                translationHausa = "Karanta Suratul Ikhlas, Suratul Falaq, da Suratun Nas sau 3 da yamma. Za su isar maka kuma su tsare ka daga dukkan sharri.",
+                translationYoruba = "Ka Suratul Ikhlas, Suratul Falaq, ati Suratun Nas ni igba mẹta ni irọlẹ. Wọn yoo to fun ọ lati dabobo ọ kuro ninu gbogbo aburu.",
+                translationIgbo = "Gụọ Surah Al-Ikhlas, Surah Al-Falaq, na Surah An-Nas ugboro atọ n'anyasị. Ha ga-ezuru gị ma chebe gị pụọ n'ihe ọjọọ niile.",
+                reference = "Sunan Abi Dawud 4/322, Jami' At-Tirmidhi 5/567."
+            ),
+            DuaEntity(
+                id = 232,
+                category = "Evening Adhkar",
+                title = "Supplication for the Goodness of the Night",
+                arabic = "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ اللَّيْلَةِ: فَتْحَهَا، وَنَصْرَهَا، وَنُورَهَا، وَبَرَكَتَهَا، وَهُدَاهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهَا وَشَرِّ مَا بَعْدَهَا",
+                transliteration = "Amsayna wa amsal-mulku lillahi Rabbil-'alamin, Allahumma inni as'aluka khayra hadhihil-laylah: fathaha, wa nasraha, wa nuraha, wa barakataha, wa hudaha, wa a'udhu bika min sharri ma fiha wa sharri ma ba'daha.",
+                translation = "We have reached the evening and all sovereignty belongs to Allah, Lord of the worlds. O Allah, I ask You for the good of this night: its victory, its help, its light, its blessing, and its guidance; and I seek refuge in You from the evil that is in it and the evil that follows it.",
+                translationHausa = "Mun shiga maraice, kuma mulki ya shiga yana mai tabbata ga Allah Ubangijin halittu baki ɗaya. Ya Allah! Ina roƙonKa alherin wannan dare; buɗinsa, taimakonsa, haskensa, albarkarsa, da shiryarsa; kuma ina neman tsarinKa daga sharrin abin da ke cikinsa da sharrin abin da ke bayansa.",
+                translationYoruba = "A ti bọ si irọlẹ ati pe ijọba bọ si ti Allāhu Oluwa gbogbo agbaye. Allāhu, mo n tọrọ lọwọ Rẹ oore alẹ oni: iṣẹgun rẹ, iranlọwọ rẹ, imọlẹ rẹ, ibukun rẹ, ati itọsọna rẹ; mo si n wa aabo lọwọ Rẹ kuro ninu aburu ohun ti n bẹ ninu rẹ ati aburu ohun ti o n bọ lẹhin rẹ.",
+                translationIgbo = "Anyị erutela anyasị ma ọchịchị niile bụ nke Chineke, Onyenwe ụwa niile. Chineke, ana m arịọ Gị maka ihe ọma dị n'abalị a: mmeri ya, enyemaka ya, ìhè ya, ngọzi ya, na nduzi ya; ana m arịọkwa nchebe Gị pụọ n'ihe ọjọọ dị n'ime ya na ihe ọjọọ na-eso ya.",
+                reference = "Sunan Abi Dawud 5084. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 233,
+                category = "Evening Adhkar",
+                title = "Supplication to Knower of the Unseen in the Evening",
+                arabic = "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَاوَاتِ وَالأَرْضِ رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+                transliteration = "Allahumma 'alimal-ghaybi wash-shahadah, fatiras-samawati wal-ard, rabba kulli shay'in wa malikah, ash-hadu an la ilaha illa Ant, a'udhu bika min sharri nafsi wa min sharrish-shaytani wa shirkih, wa an aqtarifa 'ala nafsi su'an aw ajurrahu ila muslim.",
+                translation = "O Allah, Knower of the unseen and the witnessed, Originator of the heavens and the earth, Lord and Possessor of all things, I bear witness that there is no deity except You. I seek refuge in You from the evil of myself, from the evil of Satan and his polytheism, and from committing evil against myself or bringing it upon any Muslim.",
+                translationHausa = "Ya Allah! Masanin abin da ke ɓoye da na sarari! Mai ƙagen halittar sammai da ƙassai! Ubangijin kowane abu kuma Mallakinsa! Ina shaidawa babu abin bautawa da gaskiya sai Kai. Ina neman tsarinKa daga sharrin raina, da kuma sharrin shaiɗan da shirkarsa, da in jawo wa kaina wani abu mummunan aiki ko in jawo shi ga wani musulmi.",
+                translationYoruba = "Allāhu, Onimọ ohun ti o pamọ ati ohun ti o han, Ẹlẹda awọn ọrun ati ilẹ, Oluwa ati Ọba ohun gbogbo, Mo jẹri pe ko si ọlọhun miiran bikoṣe Iwọ. Mo n wa aabo lọwọ Rẹ kuro ninu aburu ara mi, ati kuro ninu aburu Eṣu ati ẹbọ rẹ, ati lati da aburu si ara mi tabi fa a si musulumi kan.",
+                translationIgbo = "Chineke, Onye Maara ihe zoro ezo na ihe pụtara ìhè, Onye Kere eluigwe na ala, Onyenwe na Onye Na-achị ihe niile, Ana m agba akaebe na ọ dịghị chi ọzọ ma e wezụga Gị. Ana m arịọ nchebe Gị pụọ n'ihe ọjọọ nke onwe m, na n'ihe ọjọọ nke Ekwensu na ọnyà ya, na site n'imejọ onwe m ma ọ bụ ibubata ya n'elu onye Alakụba.",
+                reference = "Jami' At-Tirmidhi 3392, Sunan Abi Dawud 5067. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 234,
+                category = "Evening Adhkar",
+                title = "Gratitude for Blessings of the Evening",
+                arabic = "اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لاَ شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
+                transliteration = "Allahumma ma amsa bi min ni'matin aw bi-ahadin min khalqik, faminka wahdaka la sharika lak, falakal-hamdu wa lakash-shukr.",
+                translation = "O Allah, whatever blessing has reached me or any of Your creation this evening, it is from You alone, without partner; to You belongs all praise and to You belongs all thanks. (Whoever recites this in the evening has fulfilled his gratitude for the night).",
+                translationHausa = "Ya Allah! Dukkan abin da ya yammata a gare ni na ni'ima ko ga wani daga cikin halittarKa, to daga gare Ka ne Kai kaɗai, babu abokin tarayya a gare Ka; saboda haka yabo ya tabbata a gare Ka kaɗai, kuma godiya ta tabbata a gare Ka kaɗai. (Wanda ya faɗe ta da yamma ya cika godiyar darensa).",
+                translationYoruba = "Allāhu, ohunkohun ti o ba de ba mi ninu ibukun ni irọlẹ oni tabi ẹnikẹni ninu awọn ẹda Rẹ, lẹhinna lati ọdọ Rẹ nikan ni o ti wa, Ko si orogun fun Ọ; nitori naa gbogbo ọpẹ ati idupẹ jẹ Tirẹ.",
+                translationIgbo = "Chineke, ihe ọ bụla dị mma ruru m ma ọ bụ rute onye ọ bụla n'ime ihe ndị Ị kere n'anyasị taa, sitere n'aka Gị nanị Gị, Ị nweghị onye ibe; ya mere otuto niile na ekele niile bụ nke Gị.",
+                reference = "Sunan Abi Dawud 5073, Sunan An-Nasa'i in 'Amalul-Yawmi wal-Laylah no. 7. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 235,
+                category = "Evening Adhkar",
+                title = "Supplication for Well-being & Protection in All Directions (Evening)",
+                arabic = "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي",
+                transliteration = "Allahumma inni as'alukal-'afwa wal-'afiyah fid-dunya wal-akhirah. Allahumma inni as'alukal-'afwa wal-'afiyah fi dini wa dunyaya wa ahli wa mali. Allahummas-tur 'awrati wa amin raw'ati. Allahummah-fazni min bayni yadayya wa min khalfi wa 'an yamini wa 'an shimali wa min fawqi, wa a'udhu bi'azamatika an ughtala min tahti.",
+                translation = "O Allah, I ask You for forgiveness and well-being in this world and the Hereafter. O Allah, I ask You for forgiveness and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, protect me from my front, my back, my right, my left, and from above me; and I seek refuge in Your Greatness from being swallowed up from beneath me.",
+                translationHausa = "Ya Allah! Ina roƙonKa afuwa da aminci daga dukkan munana a duniya da lahira. Ya Allah! Ina roƙonKa afuwa da aminci a addinina, da duniyata, da iyalina, da dukiyata. Ya Allah Ka suturta al'aurata, Ka kwantar da hankalina. Ya Allah Ka kiyaye ni ta gabana, da ta bayana, da ta damana, da ta haguna, da ta samana, kuma ina neman tsari da girmarKa da a kife ƙasa da ni.",
+                translationYoruba = "Allāhu, mo n tọrọ aforijin ati alaafia lọwọ Rẹ ni aiye ati ọrun. Allāhu, mo n tọrọ aforijin ati alaafia lọwọ Rẹ ninu ẹsin mi, aiye mi, idile mi, ati ọrọ mi. Allāhu, bo asiri mi ki O si fi ọkan mi balẹ. Allāhu, daabobo mi lati iwaju mi, lẹhin mi, ọwọ ọtun mi, ọwọ osi mi, ati lati oke mi; mo si n wa aabo pẹlu titobi Rẹ kuro ninu ki a wọ ilẹ pẹlu mi lati abẹ mi.",
+                translationIgbo = "Chineke, ana m arịọ Gị mgbaghara na ezi ahụike n'ụwa a na n'eluigwe. Chineke, ana m arịọ Gị mgbaghara na ezi ahụike n'okpukpe m, n'ihe omume ụwa m, n'ezinụlọ m na n'akụ na ụba m. Chineke, kpuchie adịghị ike m ma wetuo egwu m. Chineke, chebe m site n'ihu m, n'azụ m, n'aka nri m, n'aka ekpe m, na site n'elu m; ana m arịọkwa nchebe site n'ịdị ukwuu Gị ka ala ghara ilo m site n'okpuru m.",
+                reference = "Sunan Abi Dawud 5074, Sunan Ibn Majah 3871. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 236,
+                category = "Evening Adhkar",
+                title = "Sufficient is Allah for Me in the Evening (Recite 7 times)",
+                arabic = "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+                transliteration = "Hasbiyallahu la ilaha illa Huwa 'alayhi tawakkaltu wa Huwa Rabbul-'Arshil-'Azim.",
+                translation = "Allah is sufficient for me. There is no deity except Him. On Him I rely, and He is the Lord of the Mighty Throne (recited 7 times in the evening).",
+                translationHausa = "Allah Ya wadatar mini, babu abin bautawa da gaskiya sai Shi, gare Shi na dogara kuma Shi ne Ubangijin Arshi mai girma. (Sau 7 da yamma).",
+                translationYoruba = "Allāhu ti to fun mi. Ko si ọlọhun miiran bikoṣe Oun. Lọdọ Rẹ ni mo gbẹkẹle, Oun si ni Oluwa Itẹ Titobi.",
+                translationIgbo = "Chineke ezutewo m. Ọ dịghị chi ọzọ ma e wezụga Ya. N'aka Ya ka m tụkwasịrị obi m, ma Ya bụ Onyenwe Ocheeze Dị Ebube.",
+                reference = "Whoever recites this seven times in the evening, Allah will suffice him against all worldly concerns and grief.\nReference: Sunan Abi Dawud 4/321."
+            ),
+            DuaEntity(
+                id = 237,
+                category = "Evening Adhkar",
+                title = "Supplication for Physical & Spiritual Well-being (Recite 3 times)",
+                arabic = "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ. اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ، وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، لَا إِلَهَ إِلَّا أَنْتَ",
+                transliteration = "Allahumma 'afini fi badani, Allahumma 'afini fi sam'i, Allahumma 'afini fi basari, la ilaha illa Ant. Allahumma inni a'udhu bika minal-kufri wal-faqr, wa a'udhu bika min 'adhabil-qabr, la ilaha illa Ant.",
+                translation = "O Allah, grant me health in my body. O Allah, grant me health in my hearing. O Allah, grant me health in my sight. There is no deity except You. O Allah, I seek refuge in You from disbelief and poverty, and from the punishment of the grave. There is no deity except You (recited 3 times in the evening).",
+                translationHausa = "Ya Allah, Ka ba wa jikina lafiya. Ya Allah, Ka ba wa ji na lafiya. Ya Allah, Ka ba wa gani na lafiya. Babu abin bautawa da gaskiya sai Kai. Ya Allah, ina neman tsari da Kai daga kafirci da talauci, kuma ina neman tsari da Kai daga azabar kabari. Babu abin bautawa da gaskiya sai Kai. (Sau 3 da yamma).",
+                translationYoruba = "Allāhu, fun mi ni ilera ninu ara mi. Allāhu, fun mi ni ilera ninu igbọran mi. Allāhu, fun mi ni ilera ninu iran mi. Ko si ọlọhun miiran bikoṣe Iwọ. Allāhu, mo n wa aabo lọwọ Rẹ kuro ninu aigbagbọ ati osi, ati kuro ninu iya inu saare. Ko si ọlọhun miiran bikoṣe Iwọ.",
+                translationIgbo = "Chineke, nye m ezi ahụike n'ahụ m. Chineke, nye m ezi ahụike na ntị m. Chineke, nye m ezi ahụike n'anya m. Ọ dịghị chi ọzọ ma e wezụga Gị. Chineke, ana m arịọ nchebe Gị pụọ n'ekweghị ekwe na ịda ogbenye, na n'ahụhụ dị n'ili. Ọ dịghị chi ọzọ ma e wezụga Gị.",
+                reference = "Sunan Abi Dawud 5090, Musnad Ahmad 5/42. Recited 3 times in the evening."
+            ),
+            DuaEntity(
+                id = 238,
+                category = "Evening Adhkar",
+                title = "Praising Allah in the Evening (Subhanallahi wa Bihamdihi 100 times)",
+                arabic = "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+                transliteration = "Subhanallahi wa bihamdihi.",
+                translation = "Glory is to Allah and praise is to Him (recited 100 times in the evening).",
+                translationHausa = "Tsarki ya tabbata ga Allah tare da godiyarSa (sau 100 da yamma).",
+                translationYoruba = "Mimo ni fun Allāhu ati gbogbo ọpẹ jẹ Tirẹ (igba 100 ni irọlẹ).",
+                translationIgbo = "Otuto dịrị Chineke na ekele dịrị Ya (ugboro 100 n'anyasị).",
+                reference = "Whoever recites this one hundred times in the evening, all his sins will be forgiven even if they were like the foam of the sea.\nReference: Sahih Muslim 4/2071."
+            ),
+            DuaEntity(
+                id = 239,
+                category = "Evening Adhkar",
+                title = "Evening Invocation for Relief & Guidance (Ya Hayyu Ya Qayyum)",
+                arabic = "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
+                transliteration = "Ya Hayyu Ya Qayyum bi-rahmatika astagheeth, aslih li sha'ni kullahu wa la takilni ila nafsi tarfata 'ayn.",
+                translation = "O Ever-Living One, O Sustainer, by Your mercy I seek help. Rectify for me all of my affairs and do not leave me to myself even for the blink of an eye.",
+                translationHausa = "Ya Mai Rai Ya Tsayayye, da rahamarKa nake neman agaji, Ka gyara mini al'amurana baki ɗaya kuma kada Ka ragamar da ni zuwa ga kaina ko da ƙiftawar ido guda ne.",
+                translationYoruba = "Iwọ Alaye, Olugbe gbogbo nkan duro, pẹlu aanu Rẹ ni mo n wa iranlọwọ. Tun gbogbo ọrọ mi ṣe fun mi, ma si fi mi silẹ fun ara mi paapaa fun iṣẹju kan.",
+                translationIgbo = "Onye Dị Ndụ, Onye Na-elekọta ihe niile, site n'ebere Gị ka m na-achọ enyemaka. Mezie ihe niile gbasara m ma ahapụla m n'aka onwe m ọbụna n'otu ntabi anya.",
+                reference = "Mustadrak Al-Hakim 1/545, Sahih At-Targhib 1/273. Recited in the evening."
+            ),
+            DuaEntity(
+                id = 240,
+                category = "Evening Adhkar",
+                title = "Blessings upon the Prophet (ﷺ) in the Evening (10 times)",
+                arabic = "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+                transliteration = "Allahumma salli wa sallim 'ala nabiyyina Muhammad.",
+                translation = "O Allah, send prayers and peace upon our Prophet Muhammad (recited 10 times in the evening).",
+                translationHausa = "Ya Allah Ka yi daɗi da aminci ga Annabinmu Muhammad. (Sau 10 da yamma).",
+                translationYoruba = "Allāhu, ṣe ikẹ ati ọla fun Anabi wa Muhammad (igba 10 ni irọlẹ).",
+                translationIgbo = "Chineke, meere Onye Amụma anyị Muhammad ebere ma nye ya udo (ugboro 10 n'anyasị).",
+                reference = "At-Tabarani, Sahih At-Targhib 1/273. Recited 10 times in the evening."
             )
         )
     }

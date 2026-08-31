@@ -135,7 +135,7 @@ object MandatoryAdhkarManager {
             MandatorySchedule(
                 id = SCHEDULE_ID_MORNING,
                 title = "Morning Zikir",
-                category = "Morning & Evening",
+                category = "Morning Adhkar",
                 hour = morningHour,
                 minute = morningMin,
                 durationMinutes = morningDur,
@@ -161,7 +161,7 @@ object MandatoryAdhkarManager {
             MandatorySchedule(
                 id = SCHEDULE_ID_EVENING,
                 title = "Evening Zikir",
-                category = "Morning & Evening",
+                category = "Evening Adhkar",
                 hour = eveningHour,
                 minute = eveningMin,
                 durationMinutes = eveningDur,
@@ -868,7 +868,7 @@ object MandatoryAdhkarManager {
         val schedule = schedules.find { it.id == scheduleId } ?: schedules.firstOrNull() ?: MandatorySchedule(
             id = SCHEDULE_ID_MORNING,
             title = "Morning Zikir",
-            category = "Morning & Evening",
+            category = "Morning Adhkar",
             hour = 6,
             minute = 0,
             durationMinutes = 3,

@@ -1184,6 +1184,8 @@ fun LibraryTab(
             }
             items(categories) { category ->
                 val emoji = when (category) {
+                    "Morning Adhkar" -> "🌅"
+                    "Evening Adhkar" -> "🌆"
                     "Morning & Evening" -> "☀️"
                     "Sleeping & Waking Up" -> "🌙"
                     "Prayers & Mosque" -> "🕌"
@@ -2437,7 +2439,8 @@ fun HomeTab(
                         Spacer(modifier = Modifier.height(6.dp))
                         val quickPills = when (selectedLanguage) {
                             "Hausa" -> listOf(
-                                "☀️ Safe & Yamma" to "Morning & Evening",
+                                "🌅 Safe" to "Morning Adhkar",
+                                "🌆 Yamma" to "Evening Adhkar",
                                 "🤲 Istighfari" to "Repentance & Seeking Forgiveness",
                                 "📿 Bayan Sallah" to "Post-Salah Adhkar",
                                 "🛡️ Kariya" to "Protection & Evil Eye",
@@ -2449,7 +2452,8 @@ fun HomeTab(
                                 "🌧️ Ruwa & Iska" to "Rain & Wind"
                             )
                             "Arabic" -> listOf(
-                                "☀️ الصباح والمساء" to "Morning & Evening",
+                                "🌅 الصباح" to "Morning Adhkar",
+                                "🌆 المساء" to "Evening Adhkar",
                                 "🤲 الاستغفار" to "Repentance & Seeking Forgiveness",
                                 "📿 بعد الصلاة" to "Post-Salah Adhkar",
                                 "🛡️ الرقية والحماية" to "Protection & Evil Eye",
@@ -2460,7 +2464,8 @@ fun HomeTab(
                                 "🍽️ الطعام" to "Eating & Drinking"
                             )
                             "Yoruba" -> listOf(
-                                "☀️ Owurọ̀ & Alẹ́" to "Morning & Evening",
+                                "🌅 Owurọ̀" to "Morning Adhkar",
+                                "🌆 Irọlẹ́" to "Evening Adhkar",
                                 "🤲 Ironupiwada" to "Repentance & Seeking Forgiveness",
                                 "📿 Lẹ́yìn Sọláàti" to "Post-Salah Adhkar",
                                 "🛡️ Ààbò" to "Protection & Evil Eye",
@@ -2470,7 +2475,8 @@ fun HomeTab(
                                 "💍 Igbeyawo" to "Marriage & Family"
                             )
                             "Igbo" -> listOf(
-                                "☀️ Ụtụtụ & Anyasị" to "Morning & Evening",
+                                "🌅 Ụtụtụ" to "Morning Adhkar",
+                                "🌆 Anyasị" to "Evening Adhkar",
                                 "🤲 Nchegharị" to "Repentance & Seeking Forgiveness",
                                 "📿 Mgbe Ekpere" to "Post-Salah Adhkar",
                                 "🛡️ Nchebe" to "Protection & Evil Eye",
@@ -2480,7 +2486,8 @@ fun HomeTab(
                                 "💍 Ezinụlọ" to "Marriage & Family"
                             )
                             else -> listOf(
-                                "☀️ Morning & Evening" to "Morning & Evening",
+                                "🌅 Morning" to "Morning Adhkar",
+                                "🌆 Evening" to "Evening Adhkar",
                                 "🤲 Istighfar" to "Repentance & Seeking Forgiveness",
                                 "📿 Post-Salah" to "Post-Salah Adhkar",
                                 "🛡️ Protection" to "Protection & Evil Eye",
@@ -2793,11 +2800,18 @@ fun HomeTab(
 
             val categoriesList = listOf(
                 CategoryGridItem(
-                    title = AppLocalizer.getCategoryName("Morning & Evening", selectedLanguage),
-                    dbCategory = "Morning & Evening",
-                    emoji = "☀️",
+                    title = AppLocalizer.getCategoryName("Morning Adhkar", selectedLanguage),
+                    dbCategory = "Morning Adhkar",
+                    emoji = "🌅",
                     gradient = listOf(Color(0xFFFFA000), Color(0xFFFF6F00), Color(0xFFD84315)),
-                    duaCount = allDuas.count { it.category.equals("Morning & Evening", ignoreCase = true) }
+                    duaCount = allDuas.count { it.category.equals("Morning Adhkar", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Evening Adhkar", selectedLanguage),
+                    dbCategory = "Evening Adhkar",
+                    emoji = "🌆",
+                    gradient = listOf(Color(0xFFE65100), Color(0xFFAD1457), Color(0xFF4A148C)),
+                    duaCount = allDuas.count { it.category.equals("Evening Adhkar", ignoreCase = true) }
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Sleeping & Waking Up", selectedLanguage),
@@ -5409,7 +5423,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                 com.example.receiver.MandatorySchedule(
                                     id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                                     title = "Morning Zikir",
-                                    category = "Morning & Evening",
+                                    category = "Morning Adhkar",
                                     hour = morningHour,
                                     minute = morningMin,
                                     durationMinutes = morningDuration,
@@ -5439,7 +5453,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                             com.example.receiver.MandatorySchedule(
                                                 id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                                                 title = "Morning Zikir",
-                                                category = "Morning & Evening",
+                                                category = "Morning Adhkar",
                                                 hour = h,
                                                 minute = m,
                                                 durationMinutes = morningDuration,
@@ -5493,7 +5507,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                                 com.example.receiver.MandatorySchedule(
                                                     id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                                                     title = "Morning Zikir",
-                                                    category = "Morning & Evening",
+                                                    category = "Morning Adhkar",
                                                     hour = morningHour,
                                                     minute = morningMin,
                                                     durationMinutes = mins,
@@ -5549,7 +5563,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                 com.example.receiver.MandatorySchedule(
                                     id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                                     title = "Evening Zikir",
-                                    category = "Morning & Evening",
+                                    category = "Evening Adhkar",
                                     hour = eveningHour,
                                     minute = eveningMin,
                                     durationMinutes = eveningDuration,
@@ -5579,7 +5593,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                             com.example.receiver.MandatorySchedule(
                                                 id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                                                 title = "Evening Zikir",
-                                                category = "Morning & Evening",
+                                                category = "Evening Adhkar",
                                                 hour = h,
                                                 minute = m,
                                                 durationMinutes = eveningDuration,
@@ -5633,7 +5647,7 @@ fun MandatoryAdhkarSettingsSection(context: Context) {
                                                 com.example.receiver.MandatorySchedule(
                                                     id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                                                     title = "Evening Zikir",
-                                                    category = "Morning & Evening",
+                                                    category = "Evening Adhkar",
                                                     hour = eveningHour,
                                                     minute = eveningMin,
                                                     durationMinutes = mins,

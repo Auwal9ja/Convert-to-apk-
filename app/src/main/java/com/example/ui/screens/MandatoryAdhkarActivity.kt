@@ -113,7 +113,8 @@ class MandatoryAdhkarActivity : ComponentActivity() {
             ?: if (intent.getStringExtra("ADHKAR_TYPE") == "EVENING") MandatoryAdhkarManager.SCHEDULE_ID_EVENING else MandatoryAdhkarManager.SCHEDULE_ID_MORNING
         scheduleTitle = intent.getStringExtra("SCHEDULE_TITLE")
             ?: if (scheduleId == MandatoryAdhkarManager.SCHEDULE_ID_EVENING) "Evening Zikir" else "Morning Zikir"
-        val category = intent.getStringExtra("CATEGORY") ?: "Morning & Evening"
+        val category = intent.getStringExtra("CATEGORY")
+            ?: if (scheduleId == MandatoryAdhkarManager.SCHEDULE_ID_EVENING) "Evening Adhkar" else "Morning Adhkar"
         val durationMinutes = intent.getIntExtra("DURATION_MINUTES", intent.getIntExtra("READING_DURATION", 3))
 
         Log.d(TAG, "session start: MandatoryAdhkarActivity launched for scheduleId=$scheduleId, title=$scheduleTitle, duration=${durationMinutes}m")

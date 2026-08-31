@@ -1202,7 +1202,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                             title = "Morning Zikir",
-                            category = "Morning & Evening",
+                            category = "Morning Adhkar",
                             hour = morningHour,
                             minute = morningMinute,
                             durationMinutes = morningDuration,
@@ -1224,7 +1224,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                             title = "Morning Zikir",
-                            category = "Morning & Evening",
+                            category = "Morning Adhkar",
                             hour = h,
                             minute = m,
                             durationMinutes = morningDuration,
@@ -1244,7 +1244,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_MORNING,
                             title = "Morning Zikir",
-                            category = "Morning & Evening",
+                            category = "Morning Adhkar",
                             hour = morningHour,
                             minute = morningMinute,
                             durationMinutes = it,
@@ -1271,7 +1271,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                             title = "Evening Zikir",
-                            category = "Morning & Evening",
+                            category = "Evening Adhkar",
                             hour = eveningHour,
                             minute = eveningMinute,
                             durationMinutes = eveningDuration,
@@ -1293,7 +1293,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                             title = "Evening Zikir",
-                            category = "Morning & Evening",
+                            category = "Evening Adhkar",
                             hour = h,
                             minute = m,
                             durationMinutes = eveningDuration,
@@ -1313,7 +1313,7 @@ private fun FullMandatoryAdhkarSection(context: Context, selectedLanguage: Strin
                         com.example.receiver.MandatorySchedule(
                             id = MandatoryAdhkarManager.SCHEDULE_ID_EVENING,
                             title = "Evening Zikir",
-                            category = "Morning & Evening",
+                            category = "Evening Adhkar",
                             hour = eveningHour,
                             minute = eveningMinute,
                             durationMinutes = it,

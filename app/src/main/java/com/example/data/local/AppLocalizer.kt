@@ -7,6 +7,8 @@ object AppLocalizer {
     fun getCategoryName(category: String, language: String): String {
         return when (language) {
             "Hausa" -> when (category) {
+                "Morning Adhkar" -> "Azkar na Safe"
+                "Evening Adhkar" -> "Azkar na Yamma"
                 "Morning & Evening" -> "Tazkiya ta Safe & Yamma"
                 "Sleeping & Waking Up" -> "Azkar na Barci & Tashi"
                 "Prayers & Mosque" -> "Sallah & Masallaci"
@@ -32,6 +34,8 @@ object AppLocalizer {
                 else -> category
             }
             "Yoruba" -> when (category) {
+                "Morning Adhkar" -> "Àwọn Azkar Owurọ̀"
+                "Evening Adhkar" -> "Àwọn Azkar Irọlẹ́"
                 "Morning & Evening" -> "Àsìkò Owurọ̀ & Alẹ́"
                 "Sleeping & Waking Up" -> "Isún & Jíjìde"
                 "Prayers & Mosque" -> "Sọláàti & Mọ́sáláṣí"
@@ -57,6 +61,8 @@ object AppLocalizer {
                 else -> category
             }
             "Igbo" -> when (category) {
+                "Morning Adhkar" -> "Azkar Ụtụtụ"
+                "Evening Adhkar" -> "Azkar Anyasị"
                 "Morning & Evening" -> "Azkar Ụtụtụ & Anyasị"
                 "Sleeping & Waking Up" -> "Ụra & Mbilite"
                 "Prayers & Mosque" -> "Ekpere & Ụlọ Ekpere"
@@ -82,6 +88,8 @@ object AppLocalizer {
                 else -> category
             }
             "Spanish" -> when (category) {
+                "Morning Adhkar" -> "Adhkar de la Mañana"
+                "Evening Adhkar" -> "Adhkar de la Tarde"
                 "Morning & Evening" -> "Mañana y Tarde"
                 "Sleeping & Waking Up" -> "Dormir y Despertar"
                 "Prayers & Mosque" -> "Oraciones y Mezquita"
@@ -107,6 +115,8 @@ object AppLocalizer {
                 else -> category
             }
             "French" -> when (category) {
+                "Morning Adhkar" -> "Adhkar du Matin"
+                "Evening Adhkar" -> "Adhkar du Soir"
                 "Morning & Evening" -> "Matin et Soir"
                 "Sleeping & Waking Up" -> "Sommeil et Réveil"
                 "Prayers & Mosque" -> "Prières et Mosquée"
@@ -132,6 +142,8 @@ object AppLocalizer {
                 else -> category
             }
             "Arabic" -> when (category) {
+                "Morning Adhkar" -> "أذكار الصباح"
+                "Evening Adhkar" -> "أذكار المساء"
                 "Morning & Evening" -> "أذكار الصباح والمساء"
                 "Sleeping & Waking Up" -> "أذكار النوم والاستيقاظ"
                 "Prayers & Mosque" -> "أذكار الصلاة والمسجد"
@@ -157,6 +169,8 @@ object AppLocalizer {
                 else -> category
             }
             "Urdu" -> when (category) {
+                "Morning Adhkar" -> "صبح کے اذکار"
+                "Evening Adhkar" -> "شام کے اذکار"
                 "Morning & Evening" -> "صبح و شام کے اذکار"
                 "Sleeping & Waking Up" -> "سونے اور جاگنے کے اذکار"
                 "Prayers & Mosque" -> "نماز اور مسجد کے اذکار"
@@ -182,6 +196,8 @@ object AppLocalizer {
                 else -> category
             }
             "Chinese" -> when (category) {
+                "Morning Adhkar" -> "晨间赞念"
+                "Evening Adhkar" -> "晚间赞念"
                 "Morning & Evening" -> "早晚赞念"
                 "Sleeping & Waking Up" -> "睡眠与醒来"
                 "Prayers & Mosque" -> "礼拜与清真寺"
