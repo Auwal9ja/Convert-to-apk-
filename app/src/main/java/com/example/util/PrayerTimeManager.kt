@@ -63,11 +63,15 @@ object PrayerTimeManager {
     private val _scheduleUpdateFlow = MutableStateFlow(System.currentTimeMillis())
     val scheduleUpdateFlow = _scheduleUpdateFlow.asStateFlow()
 
-    // Default location: Kano, Nigeria
+    // Default location fallback if not yet chosen
     const val DEFAULT_CITY = "Kano"
     const val DEFAULT_COUNTRY = "Nigeria"
     const val DEFAULT_LAT = 12.0022
     const val DEFAULT_LNG = 8.5920
+
+    fun isLocationSet(context: Context): Boolean {
+        return getPreferences(context).contains("city_name")
+    }
 
     fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
