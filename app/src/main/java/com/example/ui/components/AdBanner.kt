@@ -75,7 +75,11 @@ object InterstitialAdHelper {
     private var isLoading = false
     private var actionCount = 0
 
-    fun loadAd(context: Context, adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID) {
+    fun loadAd(
+        context: Context,
+        adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
+        fallbackToSample: Boolean = true
+    ) {
         if (mInterstitialAd != null || isLoading) return
         isLoading = true
         val adRequest = AdRequest.Builder().build()
@@ -85,13 +89,18 @@ object InterstitialAdHelper {
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d("AdMob", "Interstitial ad failed to load: ${adError.message}")
+                    Log.d("AdMob", "Interstitial ad ($adUnitId) failed to load: ${adError.message} (code: ${adError.code})")
                     mInterstitialAd = null
                     isLoading = false
+                    // If live ad unit failed to load (e.g. newly created unit propagation or no fill), fallback to sample ad unit so testing works
+                    if (fallbackToSample && adUnitId != AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID) {
+                        Log.d("AdMob", "Falling back to Sample Interstitial Unit for testing")
+                        loadAd(context, AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID, fallbackToSample = false)
+                    }
                 }
 
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d("AdMob", "Interstitial ad loaded successfully")
+                    Log.d("AdMob", "Interstitial ad ($adUnitId) loaded successfully")
                     mInterstitialAd = interstitialAd
                     isLoading = false
                 }
@@ -130,7 +139,11 @@ object InterstitialAdHelper {
         }
     }
 
-    fun loadAndShowOnAppLaunch(activity: Activity) {
+    fun loadAndShowOnAppLaunch(
+        activity: Activity,
+        adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
+        fallbackToSample: Boolean = true
+    ) {
         if (mInterstitialAd != null) {
             showAd(activity)
             return
@@ -139,17 +152,21 @@ object InterstitialAdHelper {
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             activity,
-            AdConstants.INTERSTITIAL_AD_UNIT_ID,
+            adUnitId,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d("AdMob", "App launch Interstitial ad failed to load: ${adError.message}")
+                    Log.d("AdMob", "App launch Interstitial ($adUnitId) failed: ${adError.message} (code: ${adError.code})")
                     mInterstitialAd = null
                     isLoading = false
+                    if (fallbackToSample && adUnitId != AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID) {
+                        Log.d("AdMob", "Retrying App launch with Sample Interstitial unit")
+                        loadAndShowOnAppLaunch(activity, AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID, fallbackToSample = false)
+                    }
                 }
 
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d("AdMob", "App launch Interstitial ad loaded successfully, showing immediately")
+                    Log.d("AdMob", "App launch Interstitial ad ($adUnitId) loaded successfully, showing now")
                     mInterstitialAd = interstitialAd
                     isLoading = false
                     showAd(activity)
