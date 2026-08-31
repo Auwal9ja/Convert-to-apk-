@@ -25,16 +25,16 @@ void main() async {
     debugPrint("OneSignal init error: $e");
   }
 
-  runApp(const IslamicApp());
+  runApp(const ZakiruApp());
 }
 
-class IslamicApp extends StatelessWidget {
-  const IslamicApp({super.key});
+class ZakiruApp extends StatelessWidget {
+  const ZakiruApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Islamic & Prayer App',
+      title: 'Zakiru',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

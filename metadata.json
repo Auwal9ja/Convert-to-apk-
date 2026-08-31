@@ -1,6 +1,6 @@
 {
-  "name": "Zakiru Muslim",
-  "description": "An elegant, lightweight, offline-first Zakiru Muslim app with Arabic text, translations, search, favorites, audio TTS recitation, and daily reminders.",
+  "name": "Zakiru",
+  "description": "An elegant, lightweight, offline-first Zakiru app with Arabic text, translations, search, favorites, audio TTS recitation, and daily reminders.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
