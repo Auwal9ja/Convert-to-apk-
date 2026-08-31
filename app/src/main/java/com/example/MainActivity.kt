@@ -121,6 +121,20 @@ class MainActivity : ComponentActivity() {
 
   private fun handleIntentExtras(intent: Intent?, vm: DuaViewModel) {
     if (intent == null) return
+
+    // Immediately stop and silence Athan audio if app was opened via Prayer Notification or click
+    if (intent.getBooleanExtra(com.example.receiver.PrayerAlarmReceiver.EXTRA_STOP_ATHAN, false) ||
+        intent.hasExtra(com.example.receiver.PrayerAlarmReceiver.EXTRA_PRAYER_ID) ||
+        com.example.audio.AthanPlayer.isPlaying()
+    ) {
+      com.example.audio.AthanPlayer.stop()
+      val notifId = intent.getIntExtra(com.example.receiver.PrayerAlarmReceiver.EXTRA_NOTIFICATION_ID, 0)
+      if (notifId != 0) {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? android.app.NotificationManager
+        notificationManager?.cancel(notifId)
+      }
+    }
+
     val targetDuaId = intent.getIntExtra("target_dua_id", -1).takeIf { it != -1 }
       ?: intent.getIntExtra("dua_id", -1).takeIf { it != -1 }
     val targetCategory = intent.getStringExtra("target_category")

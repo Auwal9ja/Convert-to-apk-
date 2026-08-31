@@ -129,7 +129,7 @@ class ReminderReceiver : BroadcastReceiver() {
         )
 
         val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
-        val selectedLanguage = sharedPref.getString("selected_language", "English") ?: "English"
+        val selectedLanguage = com.example.data.local.AppLocalizer.getAppSelectedLanguage(context)
 
         val title = if (type == "MORNING") {
             when (selectedLanguage) {

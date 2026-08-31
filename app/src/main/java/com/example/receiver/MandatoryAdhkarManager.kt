@@ -760,8 +760,7 @@ object MandatoryAdhkarManager {
         createNotificationChannel(context)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
-        val selectedLanguage = sharedPref.getString("selected_language", "English") ?: "English"
+        val selectedLanguage = com.example.data.local.AppLocalizer.getAppSelectedLanguage(context)
 
         val localizedTitle = when (scheduleId) {
             SCHEDULE_ID_MORNING -> when (selectedLanguage) {

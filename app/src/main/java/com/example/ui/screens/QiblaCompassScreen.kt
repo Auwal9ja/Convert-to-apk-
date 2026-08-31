@@ -168,10 +168,13 @@ fun QiblaCompassScreen(
 ) {
     val context = LocalContext.current
 
-    // User Location State (Default Kano, Nigeria if GPS not yet retrieved)
-    var currentLat by remember { mutableDoubleStateOf(12.0022) }
-    var currentLng by remember { mutableDoubleStateOf(8.5920) }
-    var locationName by remember { mutableStateOf("Kano, Nigeria") }
+    // User Location State (Loaded from PrayerTimeManager or GPS)
+    val savedCoords = remember { com.example.util.PrayerTimeManager.getSelectedLocation(context) }
+    var currentLat by remember { mutableDoubleStateOf(savedCoords.first) }
+    var currentLng by remember { mutableDoubleStateOf(savedCoords.second) }
+    var locationName by remember { 
+        mutableStateOf("${com.example.util.PrayerTimeManager.getCityName(context)}, ${com.example.util.PrayerTimeManager.getCountryName(context)}") 
+    }
     var isGpsActive by remember { mutableStateOf(false) }
     var showCityDialog by remember { mutableStateOf(false) }
 

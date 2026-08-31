@@ -1,5 +1,7 @@
 package com.example.data.local
 
+import android.content.Context
+
 object AppLocalizer {
 
     fun getCategoryName(category: String, language: String): String {
@@ -3617,5 +3619,174 @@ object AppLocalizer {
         217 -> "偿还债务或完成公平交易后之祈愿"
         218 -> "祈求在果品、集市与量器（萨仪与姆德）中降赐吉庆"
         else -> null
+    }
+
+    fun getAppSelectedLanguage(context: Context): String {
+        val prefs1 = context.getSharedPreferences("hisnul_muslim_prefs", Context.MODE_PRIVATE)
+        if (prefs1.contains("selected_language")) {
+            return prefs1.getString("selected_language", "English") ?: "English"
+        }
+        val prefs2 = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        return prefs2.getString("selected_language", "English") ?: "English"
+    }
+
+    fun getPrayerLocalizedName(prayerId: String, language: String): String {
+        return when (prayerId.uppercase()) {
+            "FAJR" -> when (language) {
+                "Hausa" -> "Asuba"
+                "Yoruba" -> "Fajr (Àfẹ̀mọ́jú)"
+                "Igbo" -> "Fajr (Ụtụtụ)"
+                "Arabic" -> "الفجر"
+                "French" -> "Fajr (Aube)"
+                "Spanish" -> "Fajr (Amanecer)"
+                "Urdu" -> "فجر"
+                "Chinese" -> "晨礼 (Fajr)"
+                else -> "Fajr"
+            }
+            "SUNRISE" -> when (language) {
+                "Hausa" -> "Hantsi (Fitowar Rana)"
+                "Yoruba" -> "Sunrise (Ìyọjú Oòrùn)"
+                "Igbo" -> "Sunrise (Ọwụwa Anyanwụ)"
+                "Arabic" -> "الشروق"
+                "French" -> "Lever du soleil"
+                "Spanish" -> "Amanecer"
+                "Urdu" -> "طلوع آفتاب"
+                "Chinese" -> "日出 (Sunrise)"
+                else -> "Sunrise"
+            }
+            "DHUHR" -> when (language) {
+                "Hausa" -> "Azahar"
+                "Yoruba" -> "Dhuhr (Ọ̀sán)"
+                "Igbo" -> "Dhuhr (Ehihie)"
+                "Arabic" -> "الظهر"
+                "French" -> "Dhuhr (Midi)"
+                "Spanish" -> "Dhuhr (Mediodía)"
+                "Urdu" -> "ظہر"
+                "Chinese" -> "晌礼 (Dhuhr)"
+                else -> "Dhuhr"
+            }
+            "ASR" -> when (language) {
+                "Hausa" -> "La'asar"
+                "Yoruba" -> "Asr (Ìrọ̀lẹ́)"
+                "Igbo" -> "Asr (Mgbede Mbụ)"
+                "Arabic" -> "العصر"
+                "French" -> "Asr (Après-midi)"
+                "Spanish" -> "Asr (Tarde)"
+                "Urdu" -> "عصر"
+                "Chinese" -> "晡礼 (Asr)"
+                else -> "Asr"
+            }
+            "MAGHRIB" -> when (language) {
+                "Hausa" -> "Magariba"
+                "Yoruba" -> "Maghrib (Wọ̀rọ̀)"
+                "Igbo" -> "Maghrib (Mgbede Ọdịda Anyanwụ)"
+                "Arabic" -> "المغرب"
+                "French" -> "Maghrib (Coucher du soleil)"
+                "Spanish" -> "Maghrib (Ocaso)"
+                "Urdu" -> "مغرب"
+                "Chinese" -> "昏礼 (Maghrib)"
+                else -> "Maghrib"
+            }
+            "ISHA" -> when (language) {
+                "Hausa" -> "Isha'i"
+                "Yoruba" -> "Isha (Alẹ́)"
+                "Igbo" -> "Isha (Abalị)"
+                "Arabic" -> "العشاء"
+                "French" -> "Isha (Nuit)"
+                "Spanish" -> "Isha (Noche)"
+                "Urdu" -> "عشاء"
+                "Chinese" -> "宵礼 (Isha)"
+                else -> "Isha"
+            }
+            else -> prayerId
+        }
+    }
+
+    fun getPrayerArabicName(prayerId: String): String {
+        return when (prayerId.uppercase()) {
+            "FAJR" -> "صلاة الفجر"
+            "SUNRISE" -> "شروق الشمس"
+            "DHUHR" -> "صلاة الظهر"
+            "ASR" -> "صلاة العصر"
+            "MAGHRIB" -> "صلاة المغرب"
+            "ISHA" -> "صلاة العشاء"
+            else -> "الصلاة"
+        }
+    }
+
+    fun getPrayerNotificationTitle(prayerId: String, language: String): String {
+        val prayerName = getPrayerLocalizedName(prayerId, language)
+        val prayerNameAr = getPrayerArabicName(prayerId)
+        return when (language) {
+            "Hausa" -> "🕌 Lokacin Sallar $prayerName Ya Yi"
+            "Yoruba" -> "🕌 Àkókò Àdúrà $prayerName Ti Tó"
+            "Igbo" -> "🕌 Oge Ekpere $prayerName Eruola"
+            "Arabic" -> "🕌 حان الآن وقت $prayerNameAr"
+            "French" -> "🕌 C'est l'heure de la prière de $prayerName"
+            "Spanish" -> "🕌 Es la hora de la oración de $prayerName"
+            "Urdu" -> "🕌 نماز $prayerName کا وقت ہو گیا ہے"
+            "Chinese" -> "🕌 $prayerName 祈祷时间已到"
+            else -> "🕌 Time for $prayerName Prayer"
+        }
+    }
+
+    fun getPrayerNotificationMessage(prayerId: String, language: String): String {
+        val prayerName = getPrayerLocalizedName(prayerId, language)
+        val prayerNameAr = getPrayerArabicName(prayerId)
+        return when (language) {
+            "Hausa" -> "حي على الصلاة - An kira sallar $prayerName. Tashi ka gabatar da sallarka domin samun dacewa da rahamar Allah."
+            "Yoruba" -> "حي على الصلاة - A ti pe àsìkò àdúrà $prayerName. Ẹ wá sí orí àdúrà láti rí àánú Ọlọ́hun."
+            "Igbo" -> "حي على الصلاة - Oge ekpere $prayerName eruola. Biko bịa kpee ekpere maka ebere Chineke."
+            "Arabic" -> "حي على الصلاة، حي على الفلاح - أقيمت $prayerNameAr. أقبلوا على الصلاة يرحمكم الله."
+            "French" -> "حي على الصلاة - L'heure de la prière de $prayerName est arrivée. Hâtez-vous vers la prière et la félicité."
+            "Spanish" -> "حي على الصلاة - Ha llegado la hora de la oración de $prayerName. Acude a la oración y al éxito."
+            "Urdu" -> "حي على الصلاة - نماز $prayerName کا وقت شروع ہو چکا ہے۔ نماز کی طرف آئیے اور فلاح پائیے۔"
+            "Chinese" -> "حي على الصلاة - $prayerName 祈祷时间已到，快来礼拜，争取幸福与主恩。"
+            else -> "حي على الصلاة - The time for $prayerName prayer has arrived. Hurry to prayer and success."
+        }
+    }
+
+    fun getPrayerNotificationBigText(prayerId: String, language: String): String {
+        val message = getPrayerNotificationMessage(prayerId, language)
+        val prayerNameAr = getPrayerArabicName(prayerId)
+        return when (language) {
+            "Hausa" -> "$message\n\n$prayerNameAr\n\"Lallai sallah ta kasance wajibi ne a kan muminai a kayyadaddun lokuta.\" (Surah An-Nisa: 103)\n\n🔇 Danna sanarwar ko maɓallin ƙasa don kashe sautin Athan nan take."
+            "Yoruba" -> "$message\n\n$prayerNameAr\n\"Dájúdájú àdúrà jẹ́ ọ̀ranyàn lórí àwọn onígbàgbọ́ ní àwọn àkókò tí a kọ sílẹ̀.\" (Surah An-Nisa: 103)\n\n🔇 Tẹ ìkìlọ̀ yí láti dákẹ́ ohùn Athan lẹ́sẹ̀kẹsẹ̀."
+            "Igbo" -> "$message\n\n$prayerNameAr\n\"N'ezie, ekpere bụ ọrụ dịịrị ndị kwere ekwe n'oge a kara aka.\" (Surah An-Nisa: 103)\n\n🔇 Kpatụ ọkwa a ka imechie ụda Athan ozugbo."
+            "Arabic" -> "$message\n\n$prayerNameAr\n\"إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا\" (النساء: 103)\n\n🔇 اضغط على الإشعار لإيقاف وكتم صوت الأذان فوراً."
+            "French" -> "$message\n\n$prayerNameAr\n« La prière demeure, pour les croyants, une prescription à des temps déterminés. » (Sourate An-Nisa: 103)\n\n🔇 Touchez la notification pour arrêter le son de l'Adhan immédiatement."
+            "Spanish" -> "$message\n\n$prayerNameAr\n\"Ciertamente la oración ha sido prescrita a los creyentes en horarios fijados.\" (Surat An-Nisa: 103)\n\n🔇 Toque la notificación para silenciar el Adhán de inmediato."
+            "Urdu" -> "$message\n\n$prayerNameAr\n\"بے شک نماز مومنوں پر مقررہ اوقات میں فرض کی گئی ہے۔\" (سورۃ النساء: 103)\n\n🔇 اذان کی آواز کو فوری خاموش کرنے کے لیے نوٹیفکیشن پر کلک کریں۔"
+            "Chinese" -> "$message\n\n$prayerNameAr\n“拜功对于信士确是定时的义务。”（妇女章：103）\n\n🔇 点击此通知可立即静音并停止宣礼声。"
+            else -> "$message\n\n$prayerNameAr\n\"Indeed, prayer has been decreed upon the believers a decree of specified times.\" (Surah An-Nisa: 103)\n\n🔇 Tap notification to immediately stop and silence the Athan audio."
+        }
+    }
+
+    fun getStopAthanButtonLabel(language: String): String {
+        return when (language) {
+            "Hausa" -> "🔇 Kashe Sauti (Stop)"
+            "Yoruba" -> "🔇 Dákẹ́ (Stop)"
+            "Igbo" -> "🔇 Mechie Ụda (Stop)"
+            "Arabic" -> "🔇 كتم الأذان"
+            "French" -> "🔇 Arrêter l'Adhan"
+            "Spanish" -> "🔇 Silenciar Adhán"
+            "Urdu" -> "🔇 اذان بند کریں"
+            "Chinese" -> "🔇 静音/停止宣礼"
+            else -> "🔇 Silence Athan"
+        }
+    }
+
+    fun getOpenAppButtonLabel(language: String): String {
+        return when (language) {
+            "Hausa" -> "📖 Buɗe Zakiru"
+            "Yoruba" -> "📖 Ṣí App"
+            "Igbo" -> "📖 Mepee App"
+            "Arabic" -> "📖 فتح التطبيق"
+            "French" -> "📖 Ouvrir l'application"
+            "Spanish" -> "📖 Abrir aplicación"
+            "Urdu" -> "📖 ایپ کھولیں"
+            "Chinese" -> "📖 打开应用"
+            else -> "📖 Open App"
+        }
     }
 }
