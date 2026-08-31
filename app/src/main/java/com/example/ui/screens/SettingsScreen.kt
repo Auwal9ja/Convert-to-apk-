@@ -296,9 +296,6 @@ fun SettingsScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-        },
-        bottomBar = {
-            BannerAd()
         }
     ) { innerPadding ->
         LazyColumn(

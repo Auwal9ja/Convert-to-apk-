@@ -130,6 +130,34 @@ object InterstitialAdHelper {
         }
     }
 
+    fun loadAndShowOnAppLaunch(activity: Activity) {
+        if (mInterstitialAd != null) {
+            showAd(activity)
+            return
+        }
+        isLoading = true
+        val adRequest = AdRequest.Builder().build()
+        InterstitialAd.load(
+            activity,
+            AdConstants.INTERSTITIAL_AD_UNIT_ID,
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d("AdMob", "App launch Interstitial ad failed to load: ${adError.message}")
+                    mInterstitialAd = null
+                    isLoading = false
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d("AdMob", "App launch Interstitial ad loaded successfully, showing immediately")
+                    mInterstitialAd = interstitialAd
+                    isLoading = false
+                    showAd(activity)
+                }
+            }
+        )
+    }
+
     fun triggerAdOnAction(activity: Activity, threshold: Int = 3, onAdClosed: (() -> Unit)? = null) {
         actionCount++
         if (actionCount >= threshold) {

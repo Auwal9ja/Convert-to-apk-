@@ -525,12 +525,10 @@ fun MainScreen(
             )
         },
         bottomBar = {
-            Column {
-                BannerAd()
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp
-                ) {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
+            ) {
                     NavigationBarItem(
                         selected = selectedTab == 0,
                         onClick = { navigateToTab(0) },
@@ -572,7 +570,6 @@ fun MainScreen(
                         modifier = Modifier.testTag("nav_tasbeeh")
                     )
                 }
-            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
