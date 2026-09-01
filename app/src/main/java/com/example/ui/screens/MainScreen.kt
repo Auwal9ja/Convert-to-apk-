@@ -1208,6 +1208,8 @@ fun LibraryTab(
                     "Repentance & Seeking Forgiveness" -> "🧎"
                     "Ruqyah" -> "🌿"
                     "40 Rabbana Duas" -> "📖"
+                    "Asma'ul Husna" -> "🌟"
+                    "Addu'o'i na Ijaba" -> "⚡"
                     else -> "✨"
                 }
                 FilterChip(
@@ -2966,6 +2968,20 @@ fun HomeTab(
                     emoji = "📖",
                     gradient = listOf(Color(0xFFD4AF37), Color(0xFFA0781A), Color(0xFF422F07)),
                     duaCount = allDuas.count { it.category.equals("40 Rabbana Duas", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Asma'ul Husna", selectedLanguage),
+                    dbCategory = "Asma'ul Husna",
+                    emoji = "🌟",
+                    gradient = listOf(Color(0xFFD4AF37), Color(0xFF00796B), Color(0xFF004D40)),
+                    duaCount = allDuas.count { it.category.equals("Asma'ul Husna", ignoreCase = true) }
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Addu'o'i na Ijaba", selectedLanguage),
+                    dbCategory = "Addu'o'i na Ijaba",
+                    emoji = "⚡",
+                    gradient = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1), Color(0xFF004D40)),
+                    duaCount = allDuas.count { it.category.equals("Addu'o'i na Ijaba", ignoreCase = true) }
                 )
             )
 

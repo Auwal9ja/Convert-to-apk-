@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/asmaul_and_ijaba_data.dart';
 
 class AzkarScreen extends StatefulWidget {
   const AzkarScreen({super.key});
@@ -369,15 +370,15 @@ class _AzkarScreenState extends State<AzkarScreen> {
   List<String> _getCategoriesForLanguage(String lang) {
     switch (lang) {
       case "Hausa":
-        return ["Duka", "Zikirin Safe", "Zikirin Yamma", "Barci & Tashi", "Cin Abinci"];
+        return ["Duka", "Zikirin Safe", "Zikirin Yamma", "Barci & Tashi", "Cin Abinci", "Asma'ul Husna", "Addu'o'i na Ijaba"];
       case "Yoruba":
-        return ["Gbogbo rẹ", "Azkar Owurọ̀", "Azkar Irọlẹ́", "Isún & Jíjìde", "Oúnjẹ & Imutí"];
+        return ["Gbogbo rẹ", "Azkar Owurọ̀", "Azkar Irọlẹ́", "Isún & Jíjìde", "Oúnjẹ & Imutí", "Asma'ul Husna", "Àwọn Àdúà Ìtẹ́wọ́gbà"];
       case "Igbo":
-        return ["Niile", "Azkar Ụtụtụ", "Azkar Anyasị", "Ụra & Mbilite", "Iri Nri & Inụ Ihe"];
+        return ["Niile", "Azkar Ụtụtụ", "Azkar Anyasị", "Ụra & Mbilite", "Iri Nri & Inụ Ihe", "Asma'ul Husna", "Ekpere A Na-aza Ngwa Ngwa"];
       case "Arabic":
-        return ["الكل", "أذكار الصباح", "أذكار المساء", "النوم والاستيقاظ", "طعام وشراب"];
+        return ["الكل", "أذكار الصباح", "أذكار المساء", "النوم والاستيقاظ", "طعام وشراب", "أسماء الله الحسنى", "أدعية الإجابة والاسم الأعظم"];
       default:
-        return ["All", "Morning Adhkar", "Evening Adhkar", "Sleeping & Waking Up", "Food & Eating"];
+        return ["All", "Morning Adhkar", "Evening Adhkar", "Sleeping & Waking Up", "Food & Eating", "Asma'ul Husna", "Addu'o'i na Ijaba"];
     }
   }
 
@@ -466,8 +467,9 @@ class _AzkarScreenState extends State<AzkarScreen> {
   Widget build(BuildContext context) {
     final categories = _getCategoriesForLanguage(_selectedLanguage);
     final allCategoryLabel = _getAllCategoryLabel(_selectedLanguage);
+    final allCombinedAzkar = [..._azkarList, ...extraAzkarData];
 
-    final filteredAzkar = _azkarList.filter((item) {
+    final filteredAzkar = allCombinedAzkar.filter((item) {
       // Category filter
       if (_selectedCategory != "All" &&
           _selectedCategory != "Duka" &&
@@ -577,6 +579,8 @@ class _AzkarScreenState extends State<AzkarScreen> {
                 if (cat.contains("Yamma") || cat.contains("Evening") || cat.contains("Irọlẹ́") || cat.contains("Anyasị") || cat.contains("المساء")) emoji = "🌆";
                 if (cat.contains("Barci") || cat.contains("Sleeping") || cat.contains("Isún") || cat.contains("Ụra") || cat.contains("النوم")) emoji = "🌙";
                 if (cat.contains("Cin") || cat.contains("Food") || cat.contains("Oúnjẹ") || cat.contains("Nri") || cat.contains("طعام")) emoji = "🍽️";
+                if (cat.contains("Asma") || cat.contains("Husna") || cat.contains("أسماء")) emoji = "🌟";
+                if (cat.contains("Ijaba") || cat.contains("Ìtẹ́wọ́gbà") || cat.contains("Ekpere A Na-aza") || cat.contains("الإجابة") || cat.contains("Answered")) emoji = "⚡";
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),

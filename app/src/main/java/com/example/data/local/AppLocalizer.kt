@@ -31,6 +31,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "Tuba & Neman Gafara"
                 "Ruqyah" -> "Ruqiya & Neman Waraka"
                 "40 Rabbana Duas" -> "Addu'o'in Rabbana 40 na Alƙur'ani"
+                "Asma'ul Husna" -> "Asma'ul Husna (Sunayen Allah 99)"
+                "Addu'o'i na Ijaba" -> "Addu'o'i na Samun Karɓa (Ijaba)"
                 else -> category
             }
             "Yoruba" -> when (category) {
@@ -58,6 +60,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "Ironupiwada & Tọrọ Idariji"
                 "Ruqyah" -> "Rúkíyà (Ìwòsàn Ẹ̀mí)"
                 "40 Rabbana Duas" -> "Àwọn Àdúà Rabbana 40"
+                "Asma'ul Husna" -> "Asma'ul Husna (Àwọn Orúkọ Allāhu)"
+                "Addu'o'i na Ijaba" -> "Àwọn Àdúà Ìtẹ́wọ́gbà (Ijaba)"
                 else -> category
             }
             "Igbo" -> when (category) {
@@ -85,6 +89,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "Nchegharị & Ịrịọ Mgbaghara"
                 "Ruqyah" -> "Ruqyah (Ọgwụgwọ Ime Mmụọ)"
                 "40 Rabbana Duas" -> "Ekpere Rabbana 40"
+                "Asma'ul Husna" -> "Asma'ul Husna (Aha 99 nke Chineke)"
+                "Addu'o'i na Ijaba" -> "Ekpere A Na-aza Ngwa Ngwa"
                 else -> category
             }
             "Spanish" -> when (category) {
@@ -112,6 +118,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "Arrepentimiento y Perdón"
                 "Ruqyah" -> "Ruqyah (Curación Espiritual)"
                 "40 Rabbana Duas" -> "40 Súplicas de Rabbana"
+                "Asma'ul Husna" -> "Los 99 Nombres de Allah"
+                "Addu'o'i na Ijaba" -> "Súplicas de Respuesta Rápida (Ijaba)"
                 else -> category
             }
             "French" -> when (category) {
@@ -139,6 +147,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "Repentir et Demande de Pardon"
                 "Ruqyah" -> "Ruqyah (Guérison Spirituelle)"
                 "40 Rabbana Duas" -> "40 Invocations Rabbana"
+                "Asma'ul Husna" -> "Les 99 Noms d'Allah (Asma'ul Husna)"
+                "Addu'o'i na Ijaba" -> "Invocations Exaucées (Ijaba)"
                 else -> category
             }
             "Arabic" -> when (category) {
@@ -166,6 +176,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "التوبة والاستغفار"
                 "Ruqyah" -> "الرقية الشرعية"
                 "40 Rabbana Duas" -> "٤٠ دعاء ربنا من القرآن"
+                "Asma'ul Husna" -> "أسماء الله الحسنى (٩٩ اسماً)"
+                "Addu'o'i na Ijaba" -> "أدعية الإجابة والاسم الأعظم"
                 else -> category
             }
             "Urdu" -> when (category) {
@@ -193,6 +205,8 @@ object AppLocalizer {
                 "Repentance & Seeking Forgiveness" -> "توبہ اور استغفار"
                 "Ruqyah" -> "رقیہ شرعیہ"
                 "40 Rabbana Duas" -> "قرآن کے 40 ربنا دعائیں"
+                "Asma'ul Husna" -> "اسمائے حسنیٰ (اللہ کے 99 نام)"
+                "Addu'o'i na Ijaba" -> "قبولیت کی دعائیں اور اسم اعظم"
                 else -> category
             }
             "Chinese" -> when (category) {
@@ -218,8 +232,10 @@ object AppLocalizer {
                 "Hajj & Umrah" -> "朝觐与副朝赞词"
                 "Marriage & Family" -> "婚姻与家庭"
                 "Repentance & Seeking Forgiveness" -> "悔罪与求恕"
-                "Ruqyah" -> "古兰经疗愈 (Ruqyah)"
-                "40 Rabbana Duas" -> "40段古兰经Rabbana祈祷文"
+                "Ruqyah" -> "祛邪治病经文"
+                "40 Rabbana Duas" -> "古兰经40段主啊祈祷词"
+                "Asma'ul Husna" -> "真主的九十九个尊名"
+                "Addu'o'i na Ijaba" -> "必蒙应答之祈祷"
                 else -> category
             }
             else -> category
