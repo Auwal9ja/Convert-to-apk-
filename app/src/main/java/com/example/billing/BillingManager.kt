@@ -23,31 +23,28 @@ object BillingConstants {
     const val KEY_ACTIVE_PRODUCT_ID = "active_product_id"
     const val KEY_PURCHASE_TOKEN = "purchase_token"
 
-    // Subscriptions
+    // Subscriptions: Weekly, Monthly, Yearly
+    const val SUB_WEEKLY = "noor_zikir_remove_ads_weekly"
     const val SUB_MONTHLY = "noor_zikir_remove_ads_monthly"
     const val SUB_YEARLY = "noor_zikir_remove_ads_yearly"
+
+    // Alternative IDs
+    const val SUB_WEEKLY_ALT = "remove_ads_weekly"
     const val SUB_MONTHLY_ALT = "remove_ads_monthly"
     const val SUB_YEARLY_ALT = "remove_ads_yearly"
 
-    // One-Time Lifetime In-App Purchase
-    const val INAPP_LIFETIME = "noor_zikir_remove_ads_lifetime"
-    const val INAPP_LIFETIME_ALT = "remove_ads_lifetime"
-
     val SUBSCRIPTION_IDS = listOf(
+        SUB_WEEKLY,
         SUB_MONTHLY,
         SUB_YEARLY,
+        SUB_WEEKLY_ALT,
         SUB_MONTHLY_ALT,
         SUB_YEARLY_ALT
-    )
-
-    val INAPP_IDS = listOf(
-        INAPP_LIFETIME,
-        INAPP_LIFETIME_ALT
     )
 }
 
 /**
- * UI-friendly representation of a purchase or subscription tier.
+ * UI-friendly representation of a subscription tier.
  */
 data class PremiumPlan(
     val productId: String,
@@ -61,7 +58,7 @@ data class PremiumPlan(
 )
 
 /**
- * Singleton Google Play Billing Manager handling subscriptions, purchases, and state sync.
+ * Singleton Google Play Billing Manager handling subscriptions (Weekly, Monthly, Yearly) and state sync.
  */
 class BillingManager private constructor(context: Context) : PurchasesUpdatedListener, BillingClientStateListener {
 
@@ -150,7 +147,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
     }
 
     /**
-     * Query all subscriptions and in-app products to populate available plans in the UI.
+     * Query weekly, monthly, and yearly subscriptions from Google Play.
      */
     fun queryAvailableProducts() {
         if (!billingClient.isReady) {
@@ -166,16 +163,8 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
                     .build()
             }
 
-            val inAppProductsList = BillingConstants.INAPP_IDS.map { id ->
-                QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(id)
-                    .setProductType(BillingClient.ProductType.INAPP)
-                    .build()
-            }
-
             val plans = mutableListOf<PremiumPlan>()
 
-            // 1. Query Subscriptions
             try {
                 val subParams = QueryProductDetailsParams.newBuilder()
                     .setProductList(subProductsList)
@@ -191,9 +180,25 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
                         val formattedPrice = pricingPhase?.formattedPrice ?: "Subscription"
 
                         val isYearly = details.productId.contains("yearly", ignoreCase = true)
-                        val title = if (isYearly) "Yearly Subscription" else "Monthly Subscription"
-                        val subtitle = if (isYearly) "Save 40% • Full year ad-free access" else "Billed monthly • Cancel anytime"
-                        val badge = if (isYearly) "Best Value (Save 40%)" else "Popular"
+                        val isWeekly = details.productId.contains("weekly", ignoreCase = true)
+
+                        val title = when {
+                            isYearly -> "Yearly Subscription"
+                            isWeekly -> "Weekly Subscription"
+                            else -> "Monthly Subscription"
+                        }
+
+                        val subtitle = when {
+                            isYearly -> "Save 45% • 1 Year ad-free access"
+                            isWeekly -> "Billed weekly • Flexible short-term"
+                            else -> "Billed monthly • Cancel anytime"
+                        }
+
+                        val badge = when {
+                            isYearly -> "Best Value (Save 45%)"
+                            isWeekly -> "Trial"
+                            else -> "Popular"
+                        }
 
                         plans.add(
                             PremiumPlan(
@@ -213,44 +218,25 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
                 Log.e(TAG, "Failed querying subscription product details: ${e.message}")
             }
 
-            // 2. Query Lifetime One-Time Products
-            try {
-                val inAppParams = QueryProductDetailsParams.newBuilder()
-                    .setProductList(inAppProductsList)
-                    .build()
-
-                val inAppResult = billingClient.queryProductDetails(inAppParams)
-                if (inAppResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val productDetailsList = inAppResult.productDetailsList ?: emptyList()
-                    for (details in productDetailsList) {
-                        val formattedPrice = details.oneTimePurchaseOfferDetails?.formattedPrice ?: "Lifetime"
-                        plans.add(
-                            PremiumPlan(
-                                productId = details.productId,
-                                isSubscription = false,
-                                title = "Lifetime Ad-Free Access",
-                                subtitle = "Pay once, ad-free forever on all devices",
-                                formattedPrice = formattedPrice,
-                                badge = "Forever Ad-Free",
-                                productDetails = details,
-                                offerToken = null
-                            )
-                        )
-                    }
+            // Sort plans in order: Weekly, Monthly, Yearly
+            val sortedPlans = plans.sortedBy { plan ->
+                when {
+                    plan.productId.contains("weekly", ignoreCase = true) -> 1
+                    plan.productId.contains("monthly", ignoreCase = true) -> 2
+                    plan.productId.contains("yearly", ignoreCase = true) -> 3
+                    else -> 4
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed querying in-app product details: ${e.message}")
             }
 
             withContext(Dispatchers.Main) {
-                _availablePlans.value = plans
-                Log.d(TAG, "Loaded ${plans.size} available premium plans from Play Store.")
+                _availablePlans.value = sortedPlans
+                Log.d(TAG, "Loaded ${sortedPlans.size} available subscription plans from Play Store.")
             }
         }
     }
 
     /**
-     * Query existing active subscriptions and one-time purchases.
+     * Query existing active subscriptions.
      */
     fun queryExistingPurchases() {
         if (!billingClient.isReady) {
@@ -262,7 +248,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
             var activeProductId: String? = null
             var activeToken: String? = null
 
-            // 1. Query Active Subscriptions
+            // Query Active Subscriptions
             val subParams = QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
@@ -270,23 +256,6 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
             val subResult = billingClient.queryPurchasesAsync(subParams)
             if (subResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 for (purchase in subResult.purchasesList) {
-                    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                        hasActivePurchase = true
-                        activeProductId = purchase.products.firstOrNull()
-                        activeToken = purchase.purchaseToken
-                        handlePurchaseAcknowledgement(purchase)
-                    }
-                }
-            }
-
-            // 2. Query Active Lifetime In-App Purchases
-            val inAppParams = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build()
-
-            val inAppResult = billingClient.queryPurchasesAsync(inAppParams)
-            if (inAppResult.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                for (purchase in inAppResult.purchasesList) {
                     if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         hasActivePurchase = true
                         activeProductId = purchase.products.firstOrNull()
@@ -319,7 +288,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 Log.d(TAG, "Item already owned by user.")
                 queryExistingPurchases()
-                _billingStatusMessage.value = "You already own this subscription. Ads are removed!"
+                _billingStatusMessage.value = "You already have an active subscription. Ads are removed!"
             }
             else -> {
                 Log.e(TAG, "Purchase failed: code=${billingResult.responseCode}, ${billingResult.debugMessage}")
@@ -336,9 +305,9 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
 
             billingClient.acknowledgePurchase(acknowledgeParams) { result ->
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.d(TAG, "Purchase acknowledged successfully: ${purchase.orderId}")
+                    Log.d(TAG, "Subscription acknowledged successfully: ${purchase.orderId}")
                 } else {
-                    Log.e(TAG, "Failed acknowledging purchase: ${result.debugMessage}")
+                    Log.e(TAG, "Failed acknowledging subscription: ${result.debugMessage}")
                 }
             }
         }
@@ -370,7 +339,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
     }
 
     /**
-     * Launch Google Play purchase flow for a selected plan.
+     * Launch Google Play purchase flow for a selected subscription plan.
      */
     fun launchPurchaseFlow(activity: Activity, plan: PremiumPlan): BillingResult {
         if (!billingClient.isReady) {
@@ -398,7 +367,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
     }
 
     /**
-     * Restore previous purchases for users reinstalling or switching devices.
+     * Restore previous active subscriptions for users reinstalling or switching devices.
      */
     fun restorePurchases(onResult: (Boolean, String) -> Unit) {
         if (!billingClient.isReady) {
@@ -414,14 +383,7 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
                 .build()
             val subResult = billingClient.queryPurchasesAsync(subParams)
 
-            val inAppParams = QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.INAPP)
-                .build()
-            val inAppResult = billingClient.queryPurchasesAsync(inAppParams)
-
-            val allPurchases = (subResult.purchasesList) + (inAppResult.purchasesList)
-
-            for (purchase in allPurchases) {
+            for (purchase in subResult.purchasesList) {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                     foundActive = true
                     handlePurchaseAcknowledgement(purchase)

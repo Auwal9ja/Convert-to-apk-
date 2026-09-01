@@ -7,18 +7,18 @@ class BillingConstants {
   static const String keyIsAdsRemoved = 'is_ads_removed';
   static const String keyPurchaseToken = 'purchase_token';
 
-  // Subscriptions & Lifetime IAP IDs
+  // Subscriptions: Weekly, Monthly, Yearly
+  static const String subWeekly = 'noor_zikir_remove_ads_weekly';
   static const String subMonthly = 'noor_zikir_remove_ads_monthly';
   static const String subYearly = 'noor_zikir_remove_ads_yearly';
-  static const String inAppLifetime = 'noor_zikir_remove_ads_lifetime';
 
   static const Set<String> productIds = {
+    subWeekly,
     subMonthly,
     subYearly,
-    inAppLifetime,
+    'remove_ads_weekly',
     'remove_ads_monthly',
     'remove_ads_yearly',
-    'remove_ads_lifetime',
   };
 }
 
@@ -70,7 +70,7 @@ class BillingService extends ChangeNotifier {
     try {
       final response = await _iap.queryProductDetails(BillingConstants.productIds);
       if (response.notFoundIDs.isNotEmpty) {
-        debugPrint('Some product IDs not found: ${response.notFoundIDs}');
+        debugPrint('Some subscription IDs not found on Play Store: ${response.notFoundIDs}');
       }
       _products = response.productDetails;
       notifyListeners();
@@ -79,27 +79,23 @@ class BillingService extends ChangeNotifier {
     }
   }
 
-  Future<void> buyProduct(ProductDetails product) async {
+  Future<void> buySubscription(ProductDetails product) async {
     final purchaseParam = PurchaseParam(productDetails: product);
-    if (product.id.contains('yearly') || product.id.contains('monthly')) {
-      await _iap.buyNonConsumable(purchaseParam: purchaseParam);
-    } else {
-      await _iap.buyNonConsumable(purchaseParam: purchaseParam);
-    }
+    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
   Future<void> restorePurchases() async {
     try {
       await _iap.restorePurchases();
     } catch (e) {
-      debugPrint('Error restoring purchases: $e');
+      debugPrint('Error restoring subscriptions: $e');
     }
   }
 
   Future<void> _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) async {
     for (final purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        // Pending
+        // Pending purchase transaction
       } else if (purchaseDetails.status == PurchaseStatus.error) {
         _statusMessage = purchaseDetails.error?.message;
         notifyListeners();

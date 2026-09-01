@@ -310,37 +310,37 @@ fun SubscriptionDialog(
 
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        // SUBSCRIPTION / PURCHASE TIERS
+                        // SUBSCRIPTION TIERS (Weekly, Monthly, Yearly)
                         Text(
                             text = when (selectedLanguage) {
                                 "Hausa" -> "Zaɓi Tsarin da Kake So:"
                                 "Yoruba" -> "Yan Eto ti O Fẹ:"
                                 "Igbo" -> "Họrọ Atụmatụ Ị Chọrọ:"
-                                else -> "Select Your Plan:"
+                                else -> "Select Your Subscription Plan:"
                             },
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
 
                         if (availablePlans.isEmpty()) {
-                            // Fallback / Loading Mock representation while connecting to Play Store
+                            // Fallback preview while connecting to Google Play Store
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 DummyPlanCard(
                                     title = when (selectedLanguage) {
-                                        "Hausa" -> "Biyan Shekara (Yearly)"
-                                        "Yoruba" -> "Ìforúkọsílẹ̀ Ọdọọdún"
-                                        "Igbo" -> "Ndebanye aha Kwa Afọ"
-                                        else -> "Yearly Subscription"
+                                        "Hausa" -> "Biyan Mako (Weekly)"
+                                        "Yoruba" -> "Ìforúkọsílẹ̀ Ọ̀sẹ̀"
+                                        "Igbo" -> "Ndebanye aha Kwa Izu"
+                                        else -> "Weekly Subscription"
                                     },
                                     subtitle = when (selectedLanguage) {
-                                        "Hausa" -> "Mafi arha • Biyan shekara guda cif"
-                                        "Yoruba" -> "Ẹto ti o dara julọ fun gbogbo ọdun"
-                                        "Igbo" -> "Nchekwa kacha mma maka afọ zuru oke"
-                                        else -> "Best value • Full year ad-free access"
+                                        "Hausa" -> "Biyan kuɗi kowane mako • Gwaji mai sauƙi"
+                                        "Yoruba" -> "Biya ni gbogbo ọsẹ • Idanwo irọrun"
+                                        "Igbo" -> "Kwụọ ụgwọ kwa izu • Ule dị mfe"
+                                        else -> "Billed weekly • Flexible short-term plan"
                                     },
-                                    badge = "★ BEST VALUE (SAVE 40%)",
+                                    badge = "Flexible",
                                     price = if (isConnecting) "Connecting..." else "Available on Play Store",
-                                    isSelected = true,
+                                    isSelected = selectedPlanId?.contains("weekly") == true,
                                     onClick = {
                                         billingManager.startBillingConnection()
                                     }
@@ -359,9 +359,9 @@ fun SubscriptionDialog(
                                         "Igbo" -> "Kwụọ ụgwọ kwa ọnwa • Kagbuo oge ọ bụla"
                                         else -> "Billed monthly • Cancel anytime in Google Play"
                                     },
-                                    badge = "Flexible",
+                                    badge = "Popular",
                                     price = if (isConnecting) "Connecting..." else "Available on Play Store",
-                                    isSelected = false,
+                                    isSelected = selectedPlanId?.contains("monthly") == true,
                                     onClick = {
                                         billingManager.startBillingConnection()
                                     }
@@ -369,27 +369,27 @@ fun SubscriptionDialog(
 
                                 DummyPlanCard(
                                     title = when (selectedLanguage) {
-                                        "Hausa" -> "Biyan Sau Ɗaya Har Abada (Lifetime)"
-                                        "Yoruba" -> "Sanwo Lẹẹkan Ṣoṣo Lailai"
-                                        "Igbo" -> "Kwụọ Ụgwọ Otu Ugboro Ruo Mgbe Ebighị Ebi"
-                                        else -> "Lifetime Ad-Free Access"
+                                        "Hausa" -> "Biyan Shekara (Yearly)"
+                                        "Yoruba" -> "Ìforúkọsílẹ̀ Ọdọọdún"
+                                        "Igbo" -> "Ndebanye aha Kwa Afọ"
+                                        else -> "Yearly Subscription"
                                     },
                                     subtitle = when (selectedLanguage) {
-                                        "Hausa" -> "Biya sau ɗaya kawai, babu talla har abada"
-                                        "Yoruba" -> "Sanwo lẹẹkan ṣoṣo, kò sí ìpolówó títí láé"
-                                        "Igbo" -> "Kwụọ ụgwọ otu ugboro, enweghị mgbasa ozi ruo mgbe ebighị ebi"
-                                        else -> "One-time payment • Ad-free forever on all your devices"
+                                        "Hausa" -> "Mafi arha • Biyan shekara guda cif (Rage 45%)"
+                                        "Yoruba" -> "Ẹto ti o dara julọ fun gbogbo ọdun"
+                                        "Igbo" -> "Nchekwa kacha mma maka afọ zuru oke"
+                                        else -> "Best value • Full year ad-free access (Save 45%)"
                                     },
-                                    badge = "Forever Ad-Free",
+                                    badge = "★ BEST VALUE (SAVE 45%)",
                                     price = if (isConnecting) "Connecting..." else "Available on Play Store",
-                                    isSelected = false,
+                                    isSelected = selectedPlanId == null || selectedPlanId?.contains("yearly") == true,
                                     onClick = {
                                         billingManager.startBillingConnection()
                                     }
                                 )
                             }
                         } else {
-                            // REAL GOOGLE PLAY STORE PRODUCTS
+                            // REAL GOOGLE PLAY STORE SUBSCRIPTION PRODUCTS
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 availablePlans.forEach { plan ->
                                     val isSelected = plan.productId == selectedPlanId
