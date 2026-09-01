@@ -470,7 +470,7 @@ class _AzkarScreenState extends State<AzkarScreen> {
     final allCategoryLabel = _getAllCategoryLabel(_selectedLanguage);
     final allCombinedAzkar = [..._azkarList, ...extraAzkarData];
 
-    final filteredAzkar = allCombinedAzkar.filter((item) {
+    final filteredAzkar = allCombinedAzkar.where((item) {
       // Category filter
       if (_selectedCategory != "All" &&
           _selectedCategory != "Duka" &&
