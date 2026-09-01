@@ -77,6 +77,8 @@ import com.example.ui.components.PrayerTimesHeaderCard
 import com.example.util.PrayerTimeManager
 import com.example.ui.components.SettingsInAppUpdateTile
 import com.example.ui.audio.DuaSpeaker
+import com.example.billing.BillingManager
+import com.example.ui.components.SubscriptionDialog
 import com.example.ui.components.BannerAd
 import com.example.ui.components.InterstitialAdHelper
 import com.example.ui.components.AutoScrollSideBar
@@ -153,6 +155,10 @@ fun MainScreen(
 
     var isFontSizeDialogVisible by remember { mutableStateOf(false) }
     var isSettingsDialogVisible by remember { mutableStateOf(false) }
+    var showSubscriptionDialog by remember { mutableStateOf(false) }
+
+    val billingManager = remember { BillingManager.getInstance(context) }
+    val isAdsRemoved by billingManager.isAdsRemoved.collectAsStateWithLifecycle()
 
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
@@ -195,6 +201,9 @@ fun MainScreen(
     // Comprehensive Back Button Handling: Prevents accidental app exit and navigates back hierarchically
     BackHandler(enabled = !isFirstLaunch) {
         when {
+            showSubscriptionDialog -> {
+                showSubscriptionDialog = false
+            }
             isSettingsDialogVisible -> {
                 isSettingsDialogVisible = false
             }
@@ -497,6 +506,37 @@ fun MainScreen(
                         }
                     }
 
+                    // Noor Premium / Remove Ads Button
+                    Surface(
+                        onClick = { showSubscriptionDialog = true },
+                        shape = RoundedCornerShape(18.dp),
+                        color = if (isAdsRemoved) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f) else Color(0xFFD4AF37).copy(alpha = 0.2f),
+                        border = BorderStroke(
+                            1.2.dp,
+                            if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFD4AF37)
+                        ),
+                        modifier = Modifier.testTag("app_noor_premium_button")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isAdsRemoved) Icons.Default.Verified else Icons.Default.WorkspacePremium,
+                                contentDescription = "Noor Premium",
+                                tint = if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFD4AF37),
+                                modifier = Modifier.size(17.dp)
+                            )
+                            Text(
+                                text = if (isAdsRemoved) "VIP" else (if (selectedLanguage == "Hausa") "Cire Talla" else "VIP"),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFB8860B)
+                            )
+                        }
+                    }
+
                     IconButton(
                         onClick = { onToggleTheme(!isDarkTheme) },
                         modifier = Modifier.testTag("theme_toggle")
@@ -644,6 +684,13 @@ fun MainScreen(
                 )
             }
         }
+    }
+
+    if (showSubscriptionDialog) {
+        SubscriptionDialog(
+            selectedLanguage = selectedLanguage,
+            onDismissRequest = { showSubscriptionDialog = false }
+        )
     }
 
     if (isFontSizeDialogVisible) {

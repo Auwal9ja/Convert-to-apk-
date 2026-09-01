@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.billing.BillingManager
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -48,6 +52,14 @@ fun BannerAd(
     modifier: Modifier = Modifier,
     adUnitId: String = AdConstants.SAMPLE_BANNER_AD_UNIT_ID
 ) {
+    val context = LocalContext.current
+    val isAdsRemoved by BillingManager.getInstance(context).isAdsRemoved.collectAsStateWithLifecycle()
+
+    if (isAdsRemoved) {
+        // Ads removed via Subscription or Lifetime In-App Purchase
+        return
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -56,8 +68,8 @@ fun BannerAd(
     ) {
         AndroidView(
             modifier = Modifier.fillMaxWidth(),
-            factory = { context ->
-                AdView(context).apply {
+            factory = { ctx ->
+                AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     this.adUnitId = adUnitId
                     loadAd(AdRequest.Builder().build())
@@ -80,6 +92,10 @@ object InterstitialAdHelper {
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
         fallbackToSample: Boolean = true
     ) {
+        if (BillingManager.isAdsRemovedQuick(context)) {
+            mInterstitialAd = null
+            return
+        }
         if (mInterstitialAd != null || isLoading) return
         isLoading = true
         val adRequest = AdRequest.Builder().build()
@@ -109,6 +125,10 @@ object InterstitialAdHelper {
     }
 
     fun showAd(activity: Activity, onAdClosed: (() -> Unit)? = null) {
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            onAdClosed?.invoke()
+            return
+        }
         val ad = mInterstitialAd
         if (ad != null) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -144,6 +164,9 @@ object InterstitialAdHelper {
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
         fallbackToSample: Boolean = true
     ) {
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            return
+        }
         if (mInterstitialAd != null) {
             showAd(activity)
             return
@@ -176,6 +199,10 @@ object InterstitialAdHelper {
     }
 
     fun triggerAdOnAction(activity: Activity, threshold: Int = 3, onAdClosed: (() -> Unit)? = null) {
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            onAdClosed?.invoke()
+            return
+        }
         actionCount++
         if (actionCount >= threshold) {
             actionCount = 0
@@ -198,6 +225,11 @@ object RewardedAdHelper {
         rewardedAdUnitId: String = AdConstants.REWARDED_AD_UNIT_ID,
         rewardedInterstitialAdUnitId: String = AdConstants.REWARDED_INTERSTITIAL_AD_UNIT_ID
     ) {
+        if (BillingManager.isAdsRemovedQuick(context)) {
+            rewardedAd = null
+            rewardedInterstitialAd = null
+            return
+        }
         val adRequest = AdRequest.Builder().build()
 
         // Load standard Rewarded Ad
@@ -238,6 +270,10 @@ object RewardedAdHelper {
     }
 
     fun showAd(activity: Activity, onRewardEarned: (() -> Unit)? = null) {
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            onRewardEarned?.invoke()
+            return
+        }
         if (rewardedAd != null) {
             rewardedAd?.show(activity, OnUserEarnedRewardListener { rewardItem ->
                 Log.d("AdMob", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")

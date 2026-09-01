@@ -45,6 +45,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.billing.BillingManager
+import com.example.ui.components.SubscriptionDialog
 import com.example.data.local.AppLocalizer
 import com.example.audio.AthanPlayer
 import android.speech.tts.TextToSpeech
@@ -218,14 +221,25 @@ fun SettingsScreen(
 ) {
     var showFeedbackDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showSubscriptionDialog by remember { mutableStateOf(false) }
+    val billingManager = remember { BillingManager.getInstance(context) }
+    val isAdsRemoved by billingManager.isAdsRemoved.collectAsStateWithLifecycle()
 
     // Intercept phone back button to close dialogs or navigate back cleanly to previous screen
     BackHandler(enabled = true) {
         when {
+            showSubscriptionDialog -> showSubscriptionDialog = false
             showFeedbackDialog -> showFeedbackDialog = false
             showAboutDialog -> showAboutDialog = false
             else -> onNavigateBack()
         }
+    }
+
+    if (showSubscriptionDialog) {
+        SubscriptionDialog(
+            selectedLanguage = selectedLanguage,
+            onDismissRequest = { showSubscriptionDialog = false }
+        )
     }
 
     if (showFeedbackDialog) {
@@ -306,6 +320,126 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
+            // 0. NOOR PREMIUM / REMOVE ADS CARD
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { showSubscriptionDialog = true }
+                        .testTag("settings_premium_ad_free_card"),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isAdsRemoved) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else Color.Transparent
+                    ),
+                    border = BorderStroke(
+                        1.5.dp,
+                        if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFD4AF37)
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (isAdsRemoved) {
+                                    Brush.linearGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                        )
+                                    )
+                                } else {
+                                    Brush.linearGradient(
+                                        listOf(
+                                            Color(0xFF0F5132),
+                                            Color(0xFF198754),
+                                            Color(0xFF856404)
+                                        )
+                                    )
+                                }
+                            )
+                            .padding(18.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (isAdsRemoved) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                        else Color(0xFFD4AF37).copy(alpha = 0.25f)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (isAdsRemoved) Icons.Default.Verified else Icons.Default.WorkspacePremium,
+                                    contentDescription = null,
+                                    tint = if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFFFD700),
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = if (isAdsRemoved) {
+                                            if (selectedLanguage == "Hausa") "Noor Premium (Active)" else "Noor Premium (Active)"
+                                        } else {
+                                            if (selectedLanguage == "Hausa") "Cire Tallace-tallace (Remove Ads)" else "Remove All Ads (Noor Premium)"
+                                        },
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isAdsRemoved) MaterialTheme.colorScheme.onSurface else Color.White
+                                    )
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (isAdsRemoved) MaterialTheme.colorScheme.primary else Color(0xFFD4AF37)
+                                    ) {
+                                        Text(
+                                            text = if (isAdsRemoved) "ACTIVE" else "VIP",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = if (isAdsRemoved) MaterialTheme.colorScheme.onPrimary else Color.Black,
+                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Text(
+                                    text = if (isAdsRemoved) {
+                                        if (selectedLanguage == "Hausa") "Dukkan tallace-tallace an cire su • Danna don duba cikakken bayani"
+                                        else "100% Ad-Free active • Tap to view subscription details"
+                                    } else {
+                                        if (selectedLanguage == "Hausa") "Yi amfani da manhajar ba tare da wani talla ba kowane lokaci"
+                                        else "Enjoy uninterrupted ad-free Islamic Azkar & Duas forever"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isAdsRemoved) MaterialTheme.colorScheme.onSurfaceVariant else Color.White.copy(alpha = 0.9f),
+                                    lineHeight = 16.sp
+                                )
+                            }
+
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = if (isAdsRemoved) MaterialTheme.colorScheme.onSurfaceVariant else Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
             // 1. LANGUAGE SECTION
             item {
                 SettingsSectionCard(

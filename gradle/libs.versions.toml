@@ -44,6 +44,7 @@ googleid = "1.1.1"
 playServicesAds = "23.6.0"
 onesignal = "5.1.28"
 playAppUpdate = "2.1.0"
+playBilling = "7.1.1"
 
 
 [libraries]
@@ -105,6 +106,7 @@ play-services-ads = { group = "com.google.android.gms", name = "play-services-ad
 onesignal = { group = "com.onesignal", name = "OneSignal", version.ref = "onesignal" }
 play-app-update = { group = "com.google.android.play", name = "app-update", version.ref = "playAppUpdate" }
 play-app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "playAppUpdate" }
+play-billing = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "playBilling" }
 
 
 [plugins]
