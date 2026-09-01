@@ -128,8 +128,11 @@ class DuaViewModel(
         _selectedLanguage.value = language
         sharedPrefs.edit().putString("selected_language", language).apply()
         try {
-            // Also synchronize with app_preferences so background receivers read the updated language immediately
-            val appPrefs = sharedPrefs // if different, we can get via context, but sharedPrefs is hisnul_muslim_prefs
+            val appCtx = com.example.HisnulMuslimApp.instance
+            appCtx.getSharedPreferences("app_preferences", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("selected_language", language)
+                .apply()
             com.example.receiver.OneSignalHelper.setUserLanguageTag(language)
         } catch (_: Exception) {}
     }
