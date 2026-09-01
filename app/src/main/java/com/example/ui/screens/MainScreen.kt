@@ -85,7 +85,7 @@ import com.example.ui.components.AutoScrollSideBar
 import java.util.Calendar
 
 // Play Store redirection link for downloading more apps from developer
-const val MORE_APPS_PLAYSTORE_URL = "https://play.google.com/store/apps"
+const val MORE_APPS_PLAYSTORE_URL = "https://play.google.com/store/apps/developer?id=Asas+De+Global+Ltd"
 const val COMPANY_WEBSITE_URL = "https://www.najahtech.com"
 
 fun openMoreAppsStore(context: Context, playStoreUrl: String = MORE_APPS_PLAYSTORE_URL) {

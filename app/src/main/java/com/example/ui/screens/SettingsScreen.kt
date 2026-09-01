@@ -1088,7 +1088,7 @@ fun SettingsScreen(
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = if (selectedLanguage == "Hausa") "Duba sauran manhajojin Najah Tech" else "Explore more Islamic apps by Najah Tech",
+                                        text = if (selectedLanguage == "Hausa") "Duba sauran manhajojin Asas De Global Ltd" else "Explore more Islamic apps by Asas De Global Ltd",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
