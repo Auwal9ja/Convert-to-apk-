@@ -238,7 +238,12 @@ object AppLocalizer {
                 "Addu'o'i na Ijaba" -> "必蒙应答之祈祷"
                 else -> category
             }
-            else -> category
+            else -> when (category) {
+                "Addu'o'i na Ijaba" -> "Answered Prayers (Ijaba)"
+                "Asma'ul Husna" -> "99 Names of Allah (Asma'ul Husna)"
+                "40 Rabbana Duas" -> "40 Rabbana Duas (Quran)"
+                else -> category
+            }
         }
     }
 
@@ -1660,15 +1665,32 @@ object AppLocalizer {
     }
 
     fun getDuaTitle(id: Int, defaultTitle: String, language: String): String {
+        if (id == 244) {
+            return when (language) {
+                "Hausa" -> "Amfanin Sanin Asma'ul Husna (Sunayen Allah 99)"
+                "Yoruba" -> "Àǹfààní Kíkẹ́kọ̀ọ́ Àwọn Orúkọ Allāhu (Asma'ul Husna)"
+                "Igbo" -> "Uru Ịmụta Aha 99 nke Chineke (Asma'ul Husna)"
+                "Arabic" -> "فضل وأسرار أسماء الله الحسنى"
+                "French" -> "Mérites et Bienfaits des 99 Noms d'Allah"
+                "Spanish" -> "Virtudes y Beneficios de los 99 Nombres de Allah"
+                "Urdu" -> "اسمائے حسنیٰ کے فضائل اور برکات"
+                "Chinese" -> "真主九十九个尊名的尊贵与功德"
+                else -> "Virtue & Power of the 99 Names of Allah (Asma'ul Husna)"
+            }
+        }
+        if (id in 245..343) {
+            val asmaTitle = AsmaulHusnaData.getAsmaTitle(id, language)
+            if (asmaTitle != null) return asmaTitle
+        }
         return when (language) {
             "Hausa" -> getHausaTitle(id) ?: defaultTitle
-            "Yoruba" -> getYorubaTitle(id) ?: defaultTitle
-            "Igbo" -> getIgboTitle(id) ?: defaultTitle
-            "Arabic" -> getArabicTitle(id) ?: defaultTitle
-            "French" -> getFrenchTitle(id) ?: defaultTitle
-            "Spanish" -> getSpanishTitle(id) ?: defaultTitle
-            "Urdu" -> getUrduTitle(id) ?: defaultTitle
-            "Chinese" -> getChineseTitle(id) ?: defaultTitle
+            "Yoruba" -> getYorubaTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "Igbo" -> getIgboTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "Arabic" -> getArabicTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "French" -> getFrenchTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "Spanish" -> getSpanishTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "Urdu" -> getUrduTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
+            "Chinese" -> getChineseTitle(id) ?: getEnglishTitle(id) ?: defaultTitle
             else -> getEnglishTitle(id) ?: defaultTitle
         }
     }
@@ -1890,6 +1912,47 @@ object AppLocalizer {
         216 -> "Prophetic Prayer for Mercy & Lenience in Selling and Buying"
         217 -> "Upon Repaying Debt or Completing a Fair Trade"
         218 -> "Blessing in Fruits, Market Produce and Measures (Sa' & Mudd)"
+        219 -> "Dua for Beneficial Knowledge, Pure Sustenance & Accepted Deeds"
+        220 -> "Daily Istighfar & Repentance (100 Times)"
+        221 -> "Blessings upon the Prophet (ﷺ) (10 Times)"
+        222 -> "Supplication for the Goodness & Light of This Day"
+        223 -> "Supplication to Knower of the Unseen & Protection from Evil"
+        224 -> "Gratitude for Blessings of the Morning"
+        225 -> "Supplication for Well-being & Complete Protection in All Directions"
+        226 -> "Virtue of Evening Dhikr & Adhkar"
+        227 -> "Ayat Al-Kursi in the Evening"
+        228 -> "Surah Al-Ikhlas, Al-Falaq & An-Nas (3 Times in Evening)"
+        229 -> "Evening Supplication (Amsayna wa Amsal-Mulku Lillah)"
+        230 -> "Evening Invocation (Allahumma Bika Amsayna)"
+        231 -> "Sayyidul Istighfar in the Evening (Master Forgiveness)"
+        232 -> "Evening Protection from Harm (Bismillahilladhi La Yadurru)"
+        233 -> "Evening Protection from Evil (A'udhu bi Kalimatillahit-Tammati)"
+        234 -> "Satisfaction with Islam & Allah in the Evening"
+        235 -> "Supplication for Physical & Spiritual Well-being (Evening)"
+        236 -> "Supplication for Well-being & Protection in All Directions (Evening)"
+        237 -> "Supplication to Knower of the Unseen in the Evening"
+        238 -> "Supplication for the Goodness of the Night"
+        239 -> "Gratitude for Blessings of the Evening"
+        240 -> "Sufficient is Allah for Me in the Evening (Hasbiyallahu 7 Times)"
+        241 -> "Praising Allah in the Evening (Subhanallahi wa Bihamdihi 100 Times)"
+        242 -> "Declaring Allah's Oneness (La Ilaha Illallah 100 Times)"
+        243 -> "Blessings upon the Prophet (ﷺ) in the Evening (10 Times)"
+        244 -> "Virtue & Power of the 99 Names of Allah (Asma'ul Husna)"
+        345 -> "Ismul A'zam: The Greatest Name of Allah for Instantly Answered Prayers"
+        346 -> "Second Ismul A'zam: Seeking Needs through Allah's Majesty"
+        347 -> "Dua of Prophet Yunus (AS) in the Whale: Overcoming All Difficulties"
+        348 -> "Dua for Severe Distress (Dua'ul Karb) for Relief & Peace"
+        349 -> "Dua upon Waking Up at Night: Guaranteed Acceptance of Prayers"
+        350 -> "Urgent Plea for Divine Help (Ya Hayyu Ya Qayyum)"
+        351 -> "Sayyidul Istighfar: Master Supplication for Complete Forgiveness"
+        352 -> "Dua for Debt Relief and Freedom from Anxiety (Dua Abu Umamah)"
+        353 -> "Dua for Making Difficult Affairs Easy & Removing Hardships"
+        354 -> "Dua for Steadfastness in Faith & Purifying the Heart"
+        355 -> "Dua of Prophet Ayyub (AS) for Complete Healing from Illness"
+        356 -> "Dua of Prophet Zakariyya (AS) for Righteous Offspring & Children"
+        357 -> "Hasbunallahu wa Ni'mal Wakeel: Sufficient is Allah in Times of Fear"
+        358 -> "Dua for Beneficial Knowledge, Pure Sustenance & Accepted Deeds"
+        359 -> "Dua for Divine Protection and Victory Over Enemies & Schemes"
         else -> null
     }
 
@@ -2110,6 +2173,47 @@ object AppLocalizer {
         216 -> "Addu'ar Rahama da Sassauci a Ciniki (Sayarwa da Saye)"
         217 -> "Addu'ar Biyan Bashi ko Kammala Ciniki da Godiya"
         218 -> "Addu'ar Neman Albarka a Kayan Kasuwa da Ma'aunin Awo (Sa'i da Mudu)"
+        219 -> "Addu'ar Neman Ilimi Mai Amfani, Arziki na Halal da Aiki Karɓaɓɓe"
+        220 -> "Istigfari da Tuba sau 100 a Kullum"
+        221 -> "Salati ga Annabi (ﷺ) sau 10"
+        222 -> "Addu'ar Neman Alherin Wannan Yini"
+        223 -> "Addu'a ga Masanin Gaibi da Tsari daga Sharrin Rai da Shaidan"
+        224 -> "Godiya ga Allah a Kan Ni'imomin Safe"
+        225 -> "Addu'ar Neman Lafiya, Afuwa da Kariya ta Kowanne Bangare"
+        226 -> "Falalar Zikiri na Maraice"
+        227 -> "Ayat Kursiyyu da Yamma"
+        228 -> "Surorin Kariya (Ikhlas, Falaq, Nas) sau 3 da Yamma"
+        229 -> "Addu'ar Maraice (Amsayna wa Amsal-Mulku Lillah)"
+        230 -> "Addu'ar Shigowar Yamma (Allahumma Bika Amsayna)"
+        231 -> "Sayyidul Istighfar da Yamma (Jagoran Neman Gafara)"
+        232 -> "Kariya Daga Cutarwa da Yamma (Bismillahilladhi...)"
+        233 -> "Kariya daga Sharrin Halittu da Yamma"
+        234 -> "Yarda da Allah da Addinin Musulunci da Yamma"
+        235 -> "Neman Lafiyar Jiki, Ji, da Gani da Tsari daga Talauci"
+        236 -> "Neman Lafiya da Kariya ta Dukkan Bangarori da Yamma"
+        237 -> "Addu'a ga Masanin Gaibi da Yamma"
+        238 -> "Addu'ar Neman Alherin Daren Yau"
+        239 -> "Cika Godiyar Dare da Maraice"
+        240 -> "Dogaro da Allah (Hasbiyallahu) sau 7 da Yamma"
+        241 -> "Tasbihin Maraice (Subhanallahi wa Bihamdihi) sau 100"
+        242 -> "Kadaita Allah (La Ilaha Illallah...) sau 100 da Yamma"
+        243 -> "Salati ga Annabi (ﷺ) sau 10 da Yamma"
+        244 -> "Amfanin Sanin Asma'ul Husna (Sunayen Allah 99)"
+        345 -> "Ismul A'zam: Babban Sunan Allah da Ake Amsa Addu'a Nan Take"
+        346 -> "Ismul A'zam na Biyu: Neman Biyan Buƙata da Girman Allah"
+        347 -> "Addu'ar Annabi Yunus (AS) a Cikin Kifi: Warware Kowace Irin Matsala"
+        348 -> "Addu'ar Kunci da Tsanani (Dua'ul Karb) Mai Yaye Damuwa"
+        349 -> "Addu'ar Wanda Ya Farka Cikin Dare: Tabbacin Amsa Addu'a"
+        350 -> "Addu'ar Neman Agaji Cikin Gaggawa (Ya Hayyu Ya Qayyum)"
+        351 -> "Sayyidul Istighfar: Shugaban Neman Gafara Mai Bude Kofofin Alheri"
+        352 -> "Addu'ar Biyan Bashi da Yayewar Baƙin Ciki (Dua Abu Umamah)"
+        353 -> "Addu'ar Sauƙaƙa Al'amura Masu Tsanani da Wuya"
+        354 -> "Addu'ar Tsarkake Zuciya da Tsayawa Kan Gaskiya"
+        355 -> "Addu'ar Neman Cikakkiyar Waraka da Lafiya (Annabi Ayyub AS)"
+        356 -> "Addu'ar Neman Zuriya Tagari da Samun Ƴaƴa Masu Albarka (Annabi Zakariyya AS)"
+        357 -> "Hasbunallahu wa Ni'mal Wakeel: Isarwar Allah Yayin Tsoro da Makiya"
+        358 -> "Addu'ar Neman Ilmi Mai Amfani, Arziki Mai Albarka da Karɓar Aiki"
+        359 -> "Addu'ar Neman Kariya da Samun Nasara a Kan Maƙiya"
         else -> null
     }
 
@@ -2770,6 +2874,47 @@ object AppLocalizer {
         216 -> "دعاء النبي ﷺ بالرحمة والسماحة في البيع والشراء والاقتضاء"
         217 -> "دعاء قضاء الدين وإتمام البيع وشكر المقرض"
         218 -> "دعاء البركة في الثمار والبلدة والصاع والمد"
+        219 -> "دعاء طلب العلم النافع والرزق الطيب والعمل المتقبل"
+        220 -> "الاستغفار والتوبة مائة مرة يوميا"
+        221 -> "الصلاة على النبي ﷺ عشر مرات"
+        222 -> "دعاء سؤال خير هذا اليوم ونوره وبركته"
+        223 -> "دعاء عالم الغيب والشهادة والتعوذ من شر النفس والشيطان"
+        224 -> "شكر نعمة الصباح"
+        225 -> "دعاء العافية التامة والحفظ من جميع الجهات"
+        226 -> "فضل أذكار المساء"
+        227 -> "آية الكرسي في المساء"
+        228 -> "المعوذات والإخلاص ثلاث مرات في المساء"
+        229 -> "دعاء أمسينا وأمسى الملك لله"
+        230 -> "دعاء اللهم بك أمسينا"
+        231 -> "سيد الاستغفار في المساء"
+        232 -> "بسم الله الذي لا يضر مع اسمه شيء في المساء"
+        233 -> "أعوذ بكلمات الله التامات في المساء"
+        234 -> "الرضا بالله ربا وبالإسلام دينا في المساء"
+        235 -> "دعاء العافية في السمع والبصر والبدن والتعوذ من الكفر والفقر"
+        236 -> "دعاء الحفظ والأمان التام في المساء"
+        237 -> "دعاء عالم الغيب والشهادة في المساء"
+        238 -> "دعاء سؤال خير الليلة وبركتها"
+        239 -> "شكر نعمة المساء"
+        240 -> "حسبي الله لا إله إلا هو سبع مرات في المساء"
+        241 -> "سبحان الله وبحمده مائة مرة في المساء"
+        242 -> "التهليل مائة مرة في المساء"
+        243 -> "الصلاة على النبي ﷺ عشر مرات في المساء"
+        244 -> "فضل وأسرار أسماء الله الحسنى"
+        345 -> "اسم الله الأعظم: الدعاء المستجاب فورا"
+        346 -> "اسم الله الأعظم الثاني: سؤال الحاجات بعظمة الله"
+        347 -> "دعاء نبي الله يونس (ع) في بطن الحوت: كشف الكرب والغم"
+        348 -> "دعاء الكرب والشدائد لإزالة الهم والغم"
+        349 -> "دعاء الاستيقاظ في الليل: إجابة الدعاء وقبول الصلاة"
+        350 -> "دعاء الاستغاثة العاجلة: يا حي يا قيوم برحمتك أستغيث"
+        351 -> "سيد الاستغفار: أعظم دعاء لطلب المغفرة"
+        352 -> "دعاء قضاء الدين وتفريج الهموم (دعاء أبي أمامة)"
+        353 -> "دعاء تيسير الأمور الصعبة وتسهيل الشدائد"
+        354 -> "دعاء تثبيت القلب على الدين والحق"
+        355 -> "دعاء نبي الله أيوب (ع) لطلب الشفاء العاجل من المرض"
+        356 -> "دعاء نبي الله زكريا (ع) لطلب الذرية الصالحة والبركة"
+        357 -> "حسبنا الله ونعم الوكيل: كفاية الله عند الخوف والمحن"
+        358 -> "دعاء طلب العلم النافع والرزق الطيب والعمل المتقبل"
+        359 -> "دعاء النصر على الأعداء والحماية من المكر والشر"
         else -> null
     }
 

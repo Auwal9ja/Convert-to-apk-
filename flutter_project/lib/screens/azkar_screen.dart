@@ -378,7 +378,7 @@ class _AzkarScreenState extends State<AzkarScreen> {
       case "Arabic":
         return ["الكل", "أذكار الصباح", "أذكار المساء", "النوم والاستيقاظ", "طعام وشراب", "أسماء الله الحسنى", "أدعية الإجابة والاسم الأعظم"];
       default:
-        return ["All", "Morning Adhkar", "Evening Adhkar", "Sleeping & Waking Up", "Food & Eating", "Asma'ul Husna", "Addu'o'i na Ijaba"];
+        return ["All", "Morning Adhkar", "Evening Adhkar", "Sleeping & Waking Up", "Food & Eating", "Asma'ul Husna", "Answered Prayers (Ijaba)"];
     }
   }
 
@@ -386,7 +386,8 @@ class _AzkarScreenState extends State<AzkarScreen> {
     if (lang == "Hausa" && item["categoryHa"] != null) return item["categoryHa"]!;
     if (lang == "Yoruba" && item["categoryYo"] != null) return item["categoryYo"]!;
     if (lang == "Igbo" && item["categoryIg"] != null) return item["categoryIg"]!;
-    return item["category"] ?? "";
+    if (lang == "English" && item["categoryEn"] != null) return item["categoryEn"]!;
+    return item["categoryEn"] ?? item["category"] ?? "";
   }
 
   String _getTitleText(Map<String, dynamic> item, String lang) {
@@ -476,11 +477,13 @@ class _AzkarScreenState extends State<AzkarScreen> {
           _selectedCategory != "Gbogbo rẹ" &&
           _selectedCategory != "Niile" &&
           _selectedCategory != "الكل") {
-        final catEn = item["category"];
+        final catEn = item["categoryEn"] ?? item["category"];
         final catHa = item["categoryHa"];
         final catYo = item["categoryYo"];
         final catIg = item["categoryIg"];
+        final catRaw = item["category"];
         if (_selectedCategory != catEn &&
+            _selectedCategory != catRaw &&
             _selectedCategory != catHa &&
             _selectedCategory != catYo &&
             _selectedCategory != catIg) {

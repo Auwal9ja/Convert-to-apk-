@@ -14,26 +14,7 @@ object AsmaulHusnaData {
         val bestDuaIg: String
     )
 
-    fun getAsmaulHusnaDuas(): List<DuaEntity> {
-        val list = mutableListOf<DuaEntity>()
-
-        // 1. Introduction and Comprehensive Benefits of Knowing Asma'ul Husna
-        list.add(
-            DuaEntity(
-                id = 244,
-                category = "Asma'ul Husna",
-                title = "Amfanin Sanin Asma'ul Husna (Virtue & Power of the 99 Names of Allah)",
-                arabic = "وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا\n\nقَالَ رَسُولُ اللَّهِ ﷺ: «إِنَّ لِلَّهِ تِسْعَةً وَتِسْعِينَ اسْمًا مِائَةً إِلَّا وَاحِدًا، مَنْ أَحْصَاهَا دَخَلَ الْجَنَّةَ»",
-                transliteration = "Wa lillahil-Asma'ul-Husna fad'oohu biha.\nQala Rasulullahi (SAW): Inna lillahi tis'atan wa tis'ina isman mi'atan illa wahida, man ahsaha dakhalal-Jannah.",
-                translation = "And to Allah belong the most beautiful names, so invoke Him by them (Surah Al-A'raf 7:180).\n\nThe Messenger of Allah (ﷺ) said: 'Indeed, Allah has ninety-nine names, one hundred minus one; whoever memorizes, understands, and acts upon them will enter Paradise.' (Sahih Al-Bukhari 2736, Sahih Muslim 2677).\n\nImmense Benefits of Knowing Allah's 99 Names:\n1. Direct Path to Paradise: Memorizing, reflecting, and living by them guarantees entrance to Jannah.\n2. Instant Response to Du'a: Calling upon Allah by His specific Names matching your exact need (e.g. Ya Razzaq for wealth, Ya Shafi for health, Ya Ghaffar for forgiveness, Ya Jabbar for broken hearts) ensures your prayers are accepted.\n3. Inner Peace & Healing: Knowing the perfection of Allah removes all despair, anxiety, and fear from the heart.\n4. True Tawhid & Knowledge of our Creator.",
-                translationHausa = "Kuma Allah Yana da sunaye mafiya kyau (Asma'ul Husna), saboda haka ku roƙe Shi da su (Surah Al-A'raf: 180).\n\nManzon Allah (ﷺ) ya ce: 'Lallai Allah Yana da sunaye casa'in da tara (99), ɗari ba ɗaya ba. Duk wanda ya kiyaye su (ya haddace su, ya fahimci ma'anarsu, ya yi imani da su, kuma ya bauta wa Allah da yin addu'a da su) zai shiga Aljanna.' (Sahih Al-Bukhari 2736, Sahih Muslim 2677).\n\nAmfanin Sanin Sunayen Allah Kyawawa:\n1. Hanyar Shiga Aljanna: Wanda ya san su, ya haddace su, kuma ya yi aiki da su zai shiga Aljanna.\n2. Samun Amsar Addu'a: Idan kana neman arziki ka ce 'Ya Razzaq', neman gafara ka ce 'Ya Ghaffar', neman lafiya ka ce 'Ya Shafi', gyaran karyayyen al'amari ka ce 'Ya Jabbar' - Allah Yana amsa addu'ar bawan da ya kira Shi da sunanSa da ya dace da buƙatar.\n3. Samun Natsuwa da Yaye Tsoro da Damuwa a Zuciya.\n4. Zurfafa Son Allah da Bautata Masa da Ikhlasi.",
-                translationYoruba = "Gbogbo orúkọ rere jẹ́ ti Allāhu, nítorí náà ẹ pe E pẹ̀lú wọn (Surah Al-A'raf: 180).\nÀnábì (SAW) sọ pé: 'Dájúdájú Allāhu ní orúkọ mọ́kàndínlọ́gọ́rùn-ún (99), ẹnikẹ́ni tí ó bá kẹ́kọ̀ọ́ wọn tí ó sì pa wọ́n mọ́ yóò wọ Alujanna.'",
-                translationIgbo = "Aha niile kachasị mma bụ nke Chineke, ya mere kpọkuo Ya site na ha (Surah Al-A'raf: 180).\nOnye Amụma (SAW) kwuru sị: 'N'ezie Chineke nwere aha iri itoolu na itoolu (99), onye ọ bụla mụtara ha ma na-eme ihe ha pụtara ga-aba na Paradaịs.'",
-                reference = "Surah Al-A'raf 7:180, Sahih Al-Bukhari 2736, Sahih Muslim 2677"
-            )
-        )
-
-        val names = listOf(
+    val names = listOf(
             AsmaDetail(
                 1, "الرَّحْمَنُ", "Ar-Rahman",
                 "The Most Gracious", "Mai Rahama ga Dukkan Halittu",
@@ -828,6 +809,25 @@ object AsmaulHusnaData {
             )
         )
 
+    fun getAsmaulHusnaDuas(): List<DuaEntity> {
+        val list = mutableListOf<DuaEntity>()
+
+        // 1. Introduction and Comprehensive Benefits of Knowing Asma'ul Husna
+        list.add(
+            DuaEntity(
+                id = 244,
+                category = "Asma'ul Husna",
+                title = "Amfanin Sanin Asma'ul Husna (Virtue & Power of the 99 Names of Allah)",
+                arabic = "وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا\n\nقَالَ رَسُولُ اللَّهِ ﷺ: «إِنَّ لِلَّهِ تِسْعَةً وَتِسْعِينَ اسْمًا مِائَةً إِلَّا وَاحِدًا، مَنْ أَحْصَاهَا دَخَلَ الْجَنَّةَ»",
+                transliteration = "Wa lillahil-Asma'ul-Husna fad'oohu biha.\nQala Rasulullahi (SAW): Inna lillahi tis'atan wa tis'ina isman mi'atan illa wahida, man ahsaha dakhalal-Jannah.",
+                translation = "And to Allah belong the most beautiful names, so invoke Him by them (Surah Al-A'raf 7:180).\n\nThe Messenger of Allah (ﷺ) said: 'Indeed, Allah has ninety-nine names, one hundred minus one; whoever memorizes, understands, and acts upon them will enter Paradise.' (Sahih Al-Bukhari 2736, Sahih Muslim 2677).\n\nImmense Benefits of Knowing Allah's 99 Names:\n1. Direct Path to Paradise: Memorizing, reflecting, and living by them guarantees entrance to Jannah.\n2. Instant Response to Du'a: Calling upon Allah by His specific Names matching your exact need (e.g. Ya Razzaq for wealth, Ya Shafi for health, Ya Ghaffar for forgiveness, Ya Jabbar for broken hearts) ensures your prayers are accepted.\n3. Inner Peace & Healing: Knowing the perfection of Allah removes all despair, anxiety, and fear from the heart.\n4. True Tawhid & Knowledge of our Creator.",
+                translationHausa = "Kuma Allah Yana da sunaye mafiya kyau (Asma'ul Husna), saboda haka ku roƙe Shi da su (Surah Al-A'raf: 180).\n\nManzon Allah (ﷺ) ya ce: 'Lallai Allah Yana da sunaye casa'in da tara (99), ɗari ba ɗaya ba. Duk wanda ya kiyaye su (ya haddace su, ya fahimci ma'anarsu, ya yi imani da su, kuma ya bauta wa Allah da yin addu'a da su) zai shiga Aljanna.' (Sahih Al-Bukhari 2736, Sahih Muslim 2677).\n\nAmfanin Sanin Sunayen Allah Kyawawa:\n1. Hanyar Shiga Aljanna: Wanda ya san su, ya haddace su, kuma ya yi aiki da su zai shiga Aljanna.\n2. Samun Amsar Addu'a: Idan kana neman arziki ka ce 'Ya Razzaq', neman gafara ka ce 'Ya Ghaffar', neman lafiya ka ce 'Ya Shafi', gyaran karyayyen al'amari ka ce 'Ya Jabbar' - Allah Yana amsa addu'ar bawan da ya kira Shi da sunanSa da ya dace da buƙatar.\n3. Samun Natsuwa da Yaye Tsoro da Damuwa a Zuciya.\n4. Zurfafa Son Allah da Bautata Masa da Ikhlasi.",
+                translationYoruba = "Gbogbo orúkọ rere jẹ́ ti Allāhu, nítorí náà ẹ pe E pẹ̀lú wọn (Surah Al-A'raf: 180).\nÀnábì (SAW) sọ pé: 'Dájúdájú Allāhu ní orúkọ mọ́kàndínlọ́gọ́rùn-ún (99), ẹnikẹ́ni tí ó bá kẹ́kọ̀ọ́ wọn tí ó sì pa wọ́n mọ́ yóò wọ Alujanna.'",
+                translationIgbo = "Aha niile kachasị mma bụ nke Chineke, ya mere kpọkuo Ya site na ha (Surah Al-A'raf: 180).\nOnye Amụma (SAW) kwuru sị: 'N'ezie Chineke nwere aha iri itoolu na itoolu (99), onye ọ bụla mụtara ha ma na-eme ihe ha pụtara ga-aba na Paradaịs.'",
+                reference = "Surah Al-A'raf 7:180, Sahih Al-Bukhari 2736, Sahih Muslim 2677"
+            )
+        )
+
         var currentId = 245
         for (item in names) {
             val titleClean = "${item.number}. ${item.transliteration} (${item.arabic})"
@@ -850,5 +850,23 @@ object AsmaulHusnaData {
         }
 
         return list
+    }
+
+    fun getAsmaTitle(id: Int, language: String): String? {
+        if (id !in 245..343) return null
+        val index = id - 245
+        if (index !in names.indices) return null
+        val item = names[index]
+        return when (language) {
+            "Hausa" -> "${item.number}. ${item.transliteration} - ${item.meaningHa}"
+            "Arabic" -> "${item.number}. ${item.arabic} (${item.transliteration})"
+            "Yoruba" -> "${item.number}. ${item.transliteration} (${item.meaningEn})"
+            "Igbo" -> "${item.number}. ${item.transliteration} (${item.meaningEn})"
+            "French" -> "${item.number}. ${item.transliteration} - ${item.meaningEn}"
+            "Spanish" -> "${item.number}. ${item.transliteration} - ${item.meaningEn}"
+            "Urdu" -> "${item.number}. ${item.transliteration} (${item.arabic})"
+            "Chinese" -> "${item.number}. ${item.transliteration} (${item.arabic})"
+            else -> "${item.number}. ${item.transliteration} - ${item.meaningEn}"
+        }
     }
 }
