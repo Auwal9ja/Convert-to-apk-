@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/prayer_service.dart';
+import '../services/billing_service.dart';
+import '../components/subscription_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -62,6 +64,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // 0. Premium / Remove Ads Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0F5132), Color(0xFF198754)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4AF37).withOpacity(0.25),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 28),
+                ),
+                title: Text(
+                  isHausa ? 'Cire Tallace-tallace (Noor Premium)' : 'Noor Premium (Remove Ads)',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                subtitle: Text(
+                  isHausa ? 'Weekly, Monthly da Yearly Subscriptions' : 'Weekly, Monthly & Yearly Subscriptions',
+                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
+                onTap: () {
+                  SubscriptionDialog.show(context, selectedLanguage: _selectedLanguage);
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
           // 1. Language Setting
           Text(
             isHausa ? 'HARSHE / LANGUAGE' : 'LANGUAGE SELECTION',

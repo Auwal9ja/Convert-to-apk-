@@ -3,6 +3,8 @@ import 'package:adhan/adhan.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/prayer_service.dart';
+import '../services/billing_service.dart';
+import '../components/subscription_dialog.dart';
 import 'quran_screen.dart';
 import 'qibla_screen.dart';
 import 'azkar_screen.dart';
@@ -193,15 +195,48 @@ class _MainScreenState extends State<MainScreen> {
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.my_location, color: Colors.white, size: 20),
-                            onPressed: () async {
-                              final pos = await PrayerService.getCurrentLocation();
-                              if (pos != null) {
-                                await PrayerService.saveLocation("GPS Location", "", pos.latitude, pos.longitude);
-                                _loadPreferencesAndPrayers();
-                              }
-                            },
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  SubscriptionDialog.show(context, selectedLanguage: _selectedLanguage);
+                                },
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFD4AF37).withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: const Color(0xFFFFD700), width: 1.2),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        _selectedLanguage == 'Hausa' ? 'Cire Talla' : 'VIP',
+                                        style: const TextStyle(
+                                          color: Color(0xFFFFD700),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                icon: const Icon(Icons.my_location, color: Colors.white, size: 20),
+                                onPressed: () async {
+                                  final pos = await PrayerService.getCurrentLocation();
+                                  if (pos != null) {
+                                    await PrayerService.saveLocation("GPS Location", "", pos.latitude, pos.longitude);
+                                    _loadPreferencesAndPrayers();
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),

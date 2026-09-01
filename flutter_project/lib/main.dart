@@ -4,10 +4,18 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/main_screen.dart';
 import 'services/prayer_service.dart';
+import 'services/billing_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Initialize In-App Purchases & Subscriptions
+  try {
+    await BillingService().initialize();
+  } catch (e) {
+    debugPrint("BillingService init error: $e");
+  }
 
   // Initialize Mobile Ads SDK
   try {
