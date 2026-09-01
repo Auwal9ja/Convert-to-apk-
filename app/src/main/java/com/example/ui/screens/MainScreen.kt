@@ -3379,15 +3379,6 @@ fun OnboardingLanguageSelection(
     var currentStep by remember { mutableIntStateOf(0) } // 0: Language, 1: Location Setup, 2: Permissions/Overlay/Battery
     var tempSelectedLanguage by remember { mutableStateOf(selectedLanguage) }
 
-    // Location state for Step 1
-    val initialHasLocation = remember { PrayerTimeManager.isLocationSet(context) }
-    var isLocationSelected by remember { mutableStateOf(initialHasLocation) }
-    var currentCityName by remember { mutableStateOf(if (initialHasLocation) PrayerTimeManager.getCityName(context) else "") }
-    var currentCountryName by remember { mutableStateOf(if (initialHasLocation) PrayerTimeManager.getCountryName(context) else "") }
-    var isDetectingLocation by remember { mutableStateOf(false) }
-    var locationSearchQuery by remember { mutableStateOf("") }
-    var locationStatusMessage by remember { mutableStateOf<String?>(null) }
-
     // Live permission states
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -3505,17 +3496,7 @@ fun OnboardingLanguageSelection(
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         hasLocationPermission = granted
         if (granted) {
-            isDetectingLocation = true
-            PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
-                isDetectingLocation = false
-                currentCityName = city
-                currentCountryName = country
-                isLocationSelected = true
-                locationStatusMessage = if (tempSelectedLanguage == "Hausa") "An gano wurinku cikin nasara: $city, $country ✓" else "Location detected successfully: $city, $country ✓"
-            }
-        } else {
-            isDetectingLocation = false
-            locationStatusMessage = if (tempSelectedLanguage == "Hausa") "Ba a bada izinin GPS ba. Za ka iya zaɓar gari daga lissafin ƙasa." else "GPS permission not granted. You can select a city from the list below."
+            PrayerTimeManager.tryDetectGpsLocation(context) { _, _, _, _ -> }
         }
         if (activePermissionStep == 1) {
             proceedNextPermissionStep(1)
@@ -3527,14 +3508,7 @@ fun OnboardingLanguageSelection(
         val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (hasFine || hasCoarse) {
             hasLocationPermission = true
-            isDetectingLocation = true
-            PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
-                isDetectingLocation = false
-                currentCityName = city
-                currentCountryName = country
-                isLocationSelected = true
-                locationStatusMessage = if (tempSelectedLanguage == "Hausa") "An gano wurinku: $city, $country ✓" else "Detected location: $city, $country ✓"
-            }
+            PrayerTimeManager.tryDetectGpsLocation(context) { _, _, _, _ -> }
             if (activePermissionStep == 1) {
                 proceedNextPermissionStep(1)
             }
@@ -3996,7 +3970,7 @@ fun OnboardingLanguageSelection(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Next Step Button -> Goes to Location Setup Step (Step 1)
+                // Next Step Button -> Goes directly to Permissions Setup Step (Step 1)
                 Button(
                     onClick = { currentStep = 1 },
                     colors = ButtonDefaults.buttonColors(
@@ -4015,7 +3989,7 @@ fun OnboardingLanguageSelection(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = if (tempSelectedLanguage == "Hausa") "CI GABA ZUWA SAITIN WURI" else "CONTINUE TO LOCATION SETUP",
+                            text = if (tempSelectedLanguage == "Hausa") "CI GABA ZUWA SAITIN IZINI" else "CONTINUE TO PERMISSIONS SETUP",
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
                             letterSpacing = 0.5.sp
@@ -4024,441 +3998,9 @@ fun OnboardingLanguageSelection(
                     }
                 }
             }
-        } else if (currentStep == 1) {
-            // =========================================================================
-            // STEP 1: LOCATION SETUP (SAITIN WURI / CURRENT LOCATION)
-            // =========================================================================
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Header Icon
-                    Box(
-                        modifier = Modifier
-                            .size(68.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(
-                                        Color(0xFFE8F5E9),
-                                        Color(0xFFD4AF37).copy(alpha = 0.25f)
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Location",
-                            tint = Color(0xFF1B5E20),
-                            modifier = Modifier.size(38.dp)
-                        )
-                    }
-
-                    // Step indicator
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFD4AF37).copy(alpha = 0.2f),
-                        border = BorderStroke(0.8.dp, Color(0xFFD4AF37))
-                    ) {
-                        Text(
-                            text = if (isHausa) "Mataki 2 cikin 3: Saitin Wuri" else "Step 2 of 3: Location Setup",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20),
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
-                        )
-                    }
-
-                    Text(
-                        text = if (isHausa) "Saitin Wurin Da Kake" else "Configure Your Location",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1B5E20),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Text(
-                        text = if (isHausa)
-                            "Gano ko zaɓi ainihin garin da kake domin samun ingantattun lokutan salloli 5, kiran sallah (Athan), da alƙibla daidai."
-                        else
-                            "Set your current location to receive accurate 5 daily prayer times, Athan alerts, and Qibla compass calculations.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF334B42),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 6.dp)
-                    )
-
-                    // Card: Currently Selected Location
-                    if (isLocationSelected && currentCityName.isNotBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color.White,
-                            border = BorderStroke(1.5.dp, Color(0xFF1B5E20)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(42.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFFE8F5E9)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Place,
-                                            contentDescription = null,
-                                            tint = Color(0xFF1B5E20),
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                    Column {
-                                        Text(
-                                            text = if (isHausa) "Wurin Da Aka Zaɓa:" else "Selected Location:",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = Color(0xFF2E7D32)
-                                        )
-                                        Text(
-                                            text = "$currentCityName, $currentCountryName",
-                                            fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 15.sp,
-                                            color = Color(0xFF132D27)
-                                        )
-                                    }
-                                }
-
-                                Surface(
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFF1B5E20)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
-                                        Text(
-                                            text = if (isHausa) "Kafaffe" else "Active",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFFFBFDFA),
-                            border = BorderStroke(1.2.dp, Color(0xFFD2E3DE)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(42.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFFE0F2F1)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.LocationSearching,
-                                            contentDescription = null,
-                                            tint = Color(0xFF00796B),
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                    Column {
-                                        Text(
-                                            text = if (isHausa) "Wurin Da Kake:" else "Your Location:",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = Color(0xFF00796B)
-                                        )
-                                        Text(
-                                            text = if (isHausa) "Ba a saita ba tukuna" else "Not configured yet",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            color = Color(0xFF2E3E39)
-                                        )
-                                        Text(
-                                            text = if (isHausa) "Danna GPS ko zaɓi gari a ƙasa" else "Tap GPS or select a city below",
-                                            fontSize = 11.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-
-                                Surface(
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFFFFF3E0),
-                                    border = BorderStroke(1.dp, Color(0xFFFFB74D))
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFE65100), modifier = Modifier.size(13.dp))
-                                        Text(
-                                            text = if (isHausa) "Ba a Saita Ba" else "Not Set",
-                                            color = Color(0xFFE65100),
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // GPS Auto-Detect Button
-                    Button(
-                        onClick = { startLocationDetection() },
-                        enabled = !isDetectingLocation,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .testTag("btn_onboarding_gps_detect"),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
-                    ) {
-                        if (isDetectingLocation) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = if (isHausa) "Ana binciken GPS na ainihi..." else "Detecting live GPS location...",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-                        } else {
-                            Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = if (isHausa) "Gano Wuri da GPS Ta Atomatik" else "Auto-Detect Location via GPS",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-
-                    // Status Message Banner if any
-                    if (locationStatusMessage != null) {
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = Color(0xFFE8F5E9),
-                            border = BorderStroke(1.dp, Color(0xFF2E7D32)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFF1B5E20), modifier = Modifier.size(16.dp))
-                                Text(
-                                    text = locationStatusMessage ?: "",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF1B5E20)
-                                )
-                            }
-                        }
-                    }
-
-                    // Search box for filtering cities
-                    OutlinedTextField(
-                        value = locationSearchQuery,
-                        onValueChange = { locationSearchQuery = it },
-                        placeholder = {
-                            Text(
-                                text = if (isHausa) "Nemi gari (misali Abuja, Lagos, Makkah, Alkahira)..." else "Search city (e.g. Abuja, Lagos, Makkah, Cairo)...",
-                                fontSize = 12.sp
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color(0xFF1B5E20))
-                        },
-                        trailingIcon = {
-                            if (locationSearchQuery.isNotEmpty()) {
-                                IconButton(onClick = { locationSearchQuery = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear", modifier = Modifier.size(18.dp))
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF1B5E20),
-                            unfocusedBorderColor = Color(0xFFD2E3DE),
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                    )
-
-                    // Filtered list of preset cities
-                    val filteredCities = remember(locationSearchQuery) {
-                        if (locationSearchQuery.isBlank()) {
-                            PRESET_CITIES
-                        } else {
-                            PRESET_CITIES.filter {
-                                it.name.contains(locationSearchQuery, ignoreCase = true) ||
-                                        it.country.contains(locationSearchQuery, ignoreCase = true)
-                            }
-                        }
-                    }
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                        contentPadding = PaddingValues(bottom = 4.dp)
-                    ) {
-                        items(filteredCities) { city ->
-                            val isSelected = isLocationSelected && currentCityName.equals(city.name, ignoreCase = true)
-                            Surface(
-                                onClick = {
-                                    PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)
-                                    currentCityName = city.name
-                                    currentCountryName = city.country
-                                    isLocationSelected = true
-                                    locationStatusMessage = if (isHausa) "An zaɓi: ${city.name}, ${city.country} ✓" else "Selected: ${city.name}, ${city.country} ✓"
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) Color(0xFFE8F5E9) else Color.White,
-                                border = BorderStroke(
-                                    width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = city.name,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            fontSize = 14.sp,
-                                            color = if (isSelected) Color(0xFF1B5E20) else Color(0xFF132D27)
-                                        )
-                                        Text(
-                                            text = city.country,
-                                            fontSize = 11.sp,
-                                            color = if (isSelected) Color(0xFF2E7D32) else Color.Gray
-                                        )
-                                    }
-                                    if (isSelected) {
-                                        Icon(
-                                            Icons.Default.CheckCircle,
-                                            contentDescription = "Selected",
-                                            tint = Color(0xFF1B5E20),
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Action Buttons for Step 1
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Button(
-                        onClick = { currentStep = 2 },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1B5E20),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .testTag("btn_onboarding_location_next"),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = if (isHausa) "CI GABA ZUWA SAITIN IZINI" else "CONTINUE TO PERMISSIONS SETUP",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp,
-                                letterSpacing = 0.5.sp
-                            )
-                            Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
-                        }
-                    }
-
-                    TextButton(
-                        onClick = { currentStep = 0 },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = if (isHausa) "← Koma Zaɓin Harshe" else "← Back to Language Selection",
-                            color = Color(0xFF1B5E20),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
         } else {
             // =========================================================================
-            // STEP 2: PERMISSIONS, SCREEN OVERLAY & BATTERY SETUP
+            // STEP 1: PERMISSIONS, SCREEN OVERLAY & BATTERY SETUP
             // =========================================================================
             val allGranted = hasLocationPermission && hasOverlayPermission && hasBatteryExemption && hasNotificationPermission
 
@@ -4499,7 +4041,7 @@ fun OnboardingLanguageSelection(
                         border = BorderStroke(0.8.dp, Color(0xFFD4AF37))
                     ) {
                         Text(
-                            text = if (isHausa) "Mataki 3 cikin 3: Saitin Izini" else "Step 3 of 3: Permissions Setup",
+                            text = if (isHausa) "Mataki 2 cikin 2: Saitin Izini" else "Step 2 of 2: Permissions Setup",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1B5E20),
@@ -4879,11 +4421,11 @@ fun OnboardingLanguageSelection(
                     }
 
                     TextButton(
-                        onClick = { currentStep = 1 },
+                        onClick = { currentStep = 0 },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = if (isHausa) "← Koma Saitin Wuri" else "← Back to Location Setup",
+                            text = if (isHausa) "← Koma Zaɓin Harshe" else "← Back to Language Selection",
                             color = Color(0xFF1B5E20),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
