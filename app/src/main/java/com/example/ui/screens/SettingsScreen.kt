@@ -1910,7 +1910,7 @@ fun AboutAppDialog(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "ذاكر المسلم • Version 1.0.0",
+                        text = "ذاكر المسلم • Version 1.2",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary

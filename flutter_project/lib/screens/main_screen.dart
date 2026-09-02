@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/prayer_service.dart';
 import '../services/billing_service.dart';
+import '../services/ad_service.dart';
 import '../components/subscription_dialog.dart';
 import 'quran_screen.dart';
 import 'qibla_screen.dart';
@@ -78,11 +79,16 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
+          final prevIndex = _currentIndex;
           setState(() {
             _currentIndex = index;
           });
           if (index == 0) {
             _loadPreferencesAndPrayers();
+          }
+          // After initial 1 min & 1 min cooldown & within max 2 ads
+          if (prevIndex != index && FlutterAdService().canShowAd) {
+            FlutterAdService().showInterstitialAd();
           }
         },
         destinations: [

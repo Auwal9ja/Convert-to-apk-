@@ -2,6 +2,9 @@ package com.example.ui.components
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -87,12 +90,50 @@ object InterstitialAdHelper {
     private var isLoading = false
     private var actionCount = 0
 
+    // Frequency and session limits requested to protect user experience:
+    // 1. Initial delay of at least 1 minute after app launch/setup
+    // 2. Minimum 1 minute interval between consecutive ads
+    // 3. Maximum 2 ads shown per app session
+    private val appStartTimeMs: Long = SystemClock.elapsedRealtime()
+    private const val INITIAL_DELAY_MS: Long = 60_000L // 1 minute after app start
+    private const val MIN_INTERVAL_BETWEEN_ADS_MS: Long = 60_000L // 1 minute cooldown between ads
+    private const val MAX_ADS_PER_SESSION: Int = 2 // Max 2 ads per app opening
+
+    private var adsShownThisSession = 0
+    private var lastAdShownTimeMs = 0L
+
+    /**
+     * Checks whether an interstitial ad is permitted to be shown according to frequency rules:
+     * 1. Total ads this session < 2
+     * 2. At least 1 minute has elapsed since app launch/setup
+     * 3. At least 1 minute has elapsed since the previous ad
+     */
+    fun canShowAd(): Boolean {
+        if (adsShownThisSession >= MAX_ADS_PER_SESSION) {
+            Log.d("AdMob", "Ad blocked: Max ads per session ($MAX_ADS_PER_SESSION) reached ($adsShownThisSession shown).")
+            return false
+        }
+        val now = SystemClock.elapsedRealtime()
+        val timeSinceAppStart = now - appStartTimeMs
+        if (timeSinceAppStart < INITIAL_DELAY_MS) {
+            val remainingSec = (INITIAL_DELAY_MS - timeSinceAppStart) / 1000
+            Log.d("AdMob", "Ad blocked: Initial delay active ($remainingSec seconds remaining).")
+            return false
+        }
+        if (lastAdShownTimeMs > 0 && (now - lastAdShownTimeMs) < MIN_INTERVAL_BETWEEN_ADS_MS) {
+            val remainingSec = (MIN_INTERVAL_BETWEEN_ADS_MS - (now - lastAdShownTimeMs)) / 1000
+            Log.d("AdMob", "Ad blocked: Cooldown active ($remainingSec seconds remaining).")
+            return false
+        }
+        return true
+    }
+
     fun loadAd(
         context: Context,
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
         fallbackToSample: Boolean = true
     ) {
-        if (BillingManager.isAdsRemovedQuick(context)) {
+        if (BillingManager.isAdsRemovedQuick(context) || adsShownThisSession >= MAX_ADS_PER_SESSION) {
             mInterstitialAd = null
             return
         }
@@ -129,77 +170,90 @@ object InterstitialAdHelper {
             onAdClosed?.invoke()
             return
         }
+
+        if (!canShowAd()) {
+            onAdClosed?.invoke()
+            return
+        }
+
         val ad = mInterstitialAd
         if (ad != null) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     Log.d("AdMob", "Interstitial ad dismissed")
                     mInterstitialAd = null
-                    loadAd(activity)
+                    // Preload next ad only if session limit not yet reached
+                    if (adsShownThisSession < MAX_ADS_PER_SESSION) {
+                        loadAd(activity)
+                    }
                     onAdClosed?.invoke()
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     Log.d("AdMob", "Interstitial ad failed to show: ${adError.message}")
                     mInterstitialAd = null
-                    loadAd(activity)
+                    if (adsShownThisSession < MAX_ADS_PER_SESSION) {
+                        loadAd(activity)
+                    }
                     onAdClosed?.invoke()
                 }
 
                 override fun onAdShowedFullScreenContent() {
                     Log.d("AdMob", "Interstitial ad showed")
                     mInterstitialAd = null
+                    adsShownThisSession++
+                    lastAdShownTimeMs = SystemClock.elapsedRealtime()
+                    Log.d("AdMob", "Total ads shown this session: $adsShownThisSession / $MAX_ADS_PER_SESSION")
                 }
             }
             ad.show(activity)
         } else {
             Log.d("AdMob", "The interstitial ad wasn't ready yet.")
-            loadAd(activity)
+            if (adsShownThisSession < MAX_ADS_PER_SESSION) {
+                loadAd(activity)
+            }
             onAdClosed?.invoke()
         }
     }
 
+    /**
+     * Schedules the first interstitial ad to appear 1 minute after app start / setup,
+     * ensuring users have full undisturbed time to use the app initially.
+     */
+    fun scheduleAppLaunchAd(
+        activity: Activity,
+        adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID
+    ) {
+        if (BillingManager.isAdsRemovedQuick(activity)) return
+        // Pre-load the ad in advance so it is cached and ready when 1 minute expires
+        loadAd(activity, adUnitId)
+
+        val timeAlreadyElapsed = SystemClock.elapsedRealtime() - appStartTimeMs
+        val delay = (INITIAL_DELAY_MS - timeAlreadyElapsed).coerceAtLeast(1000L)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                if (!activity.isFinishing && !activity.isDestroyed && canShowAd()) {
+                    Log.d("AdMob", "1 minute initial delay elapsed; presenting 1st interstitial ad.")
+                    showAd(activity)
+                }
+            } catch (e: Exception) {
+                Log.e("AdMob", "Error showing delayed launch ad: ${e.message}")
+            }
+        }, delay)
+    }
+
+    @Deprecated("Use scheduleAppLaunchAd to respect 1-minute setup and quiet period")
     fun loadAndShowOnAppLaunch(
         activity: Activity,
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
         fallbackToSample: Boolean = true
     ) {
-        if (BillingManager.isAdsRemovedQuick(activity)) {
-            return
-        }
-        if (mInterstitialAd != null) {
-            showAd(activity)
-            return
-        }
-        isLoading = true
-        val adRequest = AdRequest.Builder().build()
-        InterstitialAd.load(
-            activity,
-            adUnitId,
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d("AdMob", "App launch Interstitial ($adUnitId) failed: ${adError.message} (code: ${adError.code})")
-                    mInterstitialAd = null
-                    isLoading = false
-                    if (fallbackToSample && adUnitId != AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID) {
-                        Log.d("AdMob", "Retrying App launch with Sample Interstitial unit")
-                        loadAndShowOnAppLaunch(activity, AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID, fallbackToSample = false)
-                    }
-                }
-
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d("AdMob", "App launch Interstitial ad ($adUnitId) loaded successfully, showing now")
-                    mInterstitialAd = interstitialAd
-                    isLoading = false
-                    showAd(activity)
-                }
-            }
-        )
+        scheduleAppLaunchAd(activity, adUnitId)
     }
 
     fun triggerAdOnAction(activity: Activity, threshold: Int = 3, onAdClosed: (() -> Unit)? = null) {
-        if (BillingManager.isAdsRemovedQuick(activity)) {
+        if (BillingManager.isAdsRemovedQuick(activity) || !canShowAd()) {
             onAdClosed?.invoke()
             return
         }

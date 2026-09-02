@@ -245,7 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Color(0xFF1B5E20)),
                   title: Text(isHausa ? 'Shafi & Sigar Manhaja' : 'App Version'),
-                  subtitle: const Text('Zakiru v1.0.0 (iOS & Android)'),
+                  subtitle: const Text('Zakiru v1.2 (iOS & Android)'),
                 ),
                 const Divider(height: 1),
                 ListTile(

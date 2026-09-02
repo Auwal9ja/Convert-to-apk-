@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/main_screen.dart';
 import 'services/prayer_service.dart';
 import 'services/billing_service.dart';
+import 'services/ad_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,9 +18,10 @@ void main() async {
     debugPrint("BillingService init error: $e");
   }
 
-  // Initialize Mobile Ads SDK
+  // Initialize Mobile Ads SDK and start scheduled Ad Service (1 min delay, max 2 ads)
   try {
     await MobileAds.instance.initialize();
+    FlutterAdService().initialize();
   } catch (e) {
     debugPrint("MobileAds init error: $e");
   }

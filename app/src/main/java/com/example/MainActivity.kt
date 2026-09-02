@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
     // Initialize Google Mobile Ads SDK
     MobileAds.initialize(this) {}
-    InterstitialAdHelper.loadAndShowOnAppLaunch(this)
+    InterstitialAdHelper.scheduleAppLaunchAd(this)
     RewardedAdHelper.loadAd(this)
 
     // Ensure notification channels & exact alarms are scheduled if enabled
