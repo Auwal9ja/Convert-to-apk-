@@ -13,28 +13,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _selectedCity = "Kano";
+  String _selectedCity = "Wurin Da Kake";
+  String _countryName = "";
   String _selectedLanguage = "Hausa";
   bool _athanNotifications = true;
   bool _morningReminder = true;
   bool _eveningReminder = true;
+  bool _isDetecting = false;
   String _calcMethod = "Egyptian";
-
-  final List<Map<String, dynamic>> _presetCities = [
-    {"name": "Kano", "country": "Nigeria", "lat": 12.0022, "lng": 8.5920},
-    {"name": "Abuja", "country": "Nigeria", "lat": 9.0765, "lng": 7.3986},
-    {"name": "Lagos", "country": "Nigeria", "lat": 6.5244, "lng": 3.3792},
-    {"name": "Kaduna", "country": "Nigeria", "lat": 10.5105, "lng": 7.4165},
-    {"name": "Sokoto", "country": "Nigeria", "lat": 13.0609, "lng": 5.2343},
-    {"name": "Maiduguri", "country": "Nigeria", "lat": 11.8333, "lng": 13.1500},
-    {"name": "Ibadan", "country": "Nigeria", "lat": 7.3775, "lng": 3.9470},
-    {"name": "Enugu", "country": "Nigeria", "lat": 6.4584, "lng": 7.5464},
-    {"name": "Makkah", "country": "Saudi Arabia", "lat": 21.4225, "lng": 39.8262},
-    {"name": "Madinah", "country": "Saudi Arabia", "lat": 24.4672, "lng": 39.6024},
-    {"name": "Cairo", "country": "Egypt", "lat": 30.0444, "lng": 31.2357},
-    {"name": "London", "country": "United Kingdom", "lat": 51.5074, "lng": -0.1278},
-    {"name": "New York", "country": "United States", "lat": 40.7128, "lng": -74.0060},
-  ];
 
   @override
   void initState() {
@@ -45,7 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _selectedCity = prefs.getString('city_name') ?? "Kano";
+      _selectedCity = prefs.getString('city_name') ?? "Wurin Da Kake";
+      _countryName = prefs.getString('country_name') ?? "";
       _selectedLanguage = prefs.getString('selected_language') ?? "Hausa";
       _athanNotifications = prefs.getBool('athan_enabled') ?? true;
       _morningReminder = prefs.getBool('morning_adhkar_enabled') ?? true;
@@ -123,20 +110,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // 2. Location Setting
+          // 2. Location Setting (Automatic GPS)
           Text(
-            isHausa ? 'WURI & KASASHEN SALLA' : 'PRAYER LOCATION & CITY',
+            isHausa ? 'WURIN DA KAKE (GPS LOCATION)' : 'CURRENT LOCATION (GPS)',
             style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B5E20), fontSize: 12),
           ),
           const SizedBox(height: 8),
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: ListTile(
-              leading: const Icon(Icons.location_city, color: Color(0xFF1B5E20)),
-              title: Text(isHausa ? 'Zaɓi Gari / Wuri' : 'Select City / Location'),
-              subtitle: Text(_selectedCity),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-              onTap: () => _showCityPicker(),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.my_location, color: Color(0xFF1B5E20)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isHausa ? 'Ainihin Wurin Da Kake:' : 'Detected Location:',
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                            Text(
+                              _countryName.isNotEmpty ? '$_selectedCity, $_countryName' : _selectedCity,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isDetecting ? null : _detectLocationGps,
+                      icon: _isDetecting
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.refresh, size: 18),
+                      label: Text(
+                        _isDetecting
+                            ? (isHausa ? 'Ana neman wuri ta GPS...' : 'Detecting GPS...')
+                            : (isHausa ? 'Sabunta Wurin Da Kake Ta GPS' : 'Refresh Location via GPS'),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B5E20),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    isHausa
+                        ? 'Manhajar tana amfani da GPS kai tsaye don gano ainihin wurin da kake ba tare da zaɓen gari ba.'
+                        : 'The app uses real-time GPS to accurately determine prayer times without manual city selection.',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -266,60 +307,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.pop(context);
   }
 
-  void _showCityPicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          expand: false,
-          builder: (context, scrollController) {
-            return Column(
-              children: [
-                const SizedBox(height: 12),
-                const Text('Zaɓi Garinku don Lokutan Sallah', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const Divider(),
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: _presetCities.length,
-                    itemBuilder: (context, index) {
-                      final city = _presetCities[index];
-                      return ListTile(
-                        title: Text(city["name"]),
-                        subtitle: Text(city["country"]),
-                        trailing: _selectedCity == city["name"]
-                            ? const Icon(Icons.check_circle, color: Color(0xFF1B5E20))
-                            : null,
-                        onTap: () async {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setString('city_name', city["name"]);
-                          await prefs.setString('country_name', city["country"]);
-                          await prefs.setDouble('latitude', city["lat"]);
-                          await prefs.setDouble('longitude', city["lng"]);
-
-                          setState(() {
-                            _selectedCity = city["name"];
-                          });
-
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('An sabunta gari zuwa: ${city["name"]}')),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+  Future<void> _detectLocationGps() async {
+    setState(() => _isDetecting = true);
+    final loc = await PrayerService.autoDetectLocation();
+    setState(() => _isDetecting = false);
+    if (loc != null && mounted) {
+      setState(() {
+        _selectedCity = loc['city'] ?? _selectedCity;
+        _countryName = loc['country'] ?? _countryName;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _selectedLanguage == "Hausa"
+                ? 'An sabunta wurin ku: $_selectedCity'
+                : 'Updated location: $_selectedCity',
+          ),
+        ),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _selectedLanguage == "Hausa"
+                ? 'Ba a iya samun GPS ba. Duba izinin wuri (Location Permission).'
+                : 'Could not acquire GPS. Check location permission.',
+          ),
+        ),
+      );
+    }
   }
 }

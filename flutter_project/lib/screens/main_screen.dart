@@ -20,8 +20,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   PrayerTimes? _prayerTimes;
-  String _cityName = "Kano";
-  String _countryName = "Nigeria";
+  String _cityName = "Wurin Da Kake";
+  String _countryName = "";
   String _selectedLanguage = "Hausa";
   bool _isLoading = true;
 
@@ -29,13 +29,14 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _loadPreferencesAndPrayers();
+    _autoDetectLocation();
   }
 
   Future<void> _loadPreferencesAndPrayers() async {
     final prefs = await SharedPreferences.getInstance();
     final lang = prefs.getString('selected_language') ?? "Hausa";
-    final city = prefs.getString('city_name') ?? "Kano";
-    final country = prefs.getString('country_name') ?? "Nigeria";
+    final city = prefs.getString('city_name') ?? "Wurin Da Kake";
+    final country = prefs.getString('country_name') ?? "";
 
     setState(() {
       _selectedLanguage = lang;
@@ -48,6 +49,18 @@ class _MainScreenState extends State<MainScreen> {
       _prayerTimes = times;
       _isLoading = false;
     });
+  }
+
+  Future<void> _autoDetectLocation() async {
+    final loc = await PrayerService.autoDetectLocation();
+    if (loc != null && mounted) {
+      final times = await PrayerService.getPrayerTimes();
+      setState(() {
+        _cityName = loc['city'] ?? _cityName;
+        _countryName = loc['country'] ?? _countryName;
+        _prayerTimes = times;
+      });
+    }
   }
 
   @override
@@ -185,7 +198,7 @@ class _MainScreenState extends State<MainScreen> {
                                 const Icon(Icons.location_on, color: Color(0xFFFDE68A), size: 16),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '$_cityName, $_countryName',
+                                  _countryName.isNotEmpty ? '$_cityName, $_countryName' : _cityName,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

@@ -42,8 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.example.data.local.AppLocalizer
-import com.example.ui.screens.CityLocation
-import com.example.ui.screens.PRESET_CITIES
 import com.example.ui.theme.QuranFontFamily
 import com.example.util.CalculationMethod
 import com.example.util.JuristicMethod
@@ -68,10 +66,11 @@ fun PrayerTimesHeaderCard(
         isDetectingLocation = true
         PrayerTimeManager.tryDetectGpsLocation(context) { city, country, _, _ ->
             isDetectingLocation = false
+            val locDisplay = if (country.isNotBlank()) "$city, $country" else city
             Toast.makeText(
                 context,
-                if (selectedLanguage == "Hausa") "An sabunta wurin ku: $city, $country"
-                else "Location updated: $city, $country",
+                if (selectedLanguage == "Hausa") "An sabunta wurin ku: $locDisplay"
+                else "Location updated: $locDisplay",
                 Toast.LENGTH_SHORT
             ).show()
             onScheduleUpdated()
@@ -94,6 +93,17 @@ fun PrayerTimesHeaderCard(
                 else "Location permission required for GPS",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    // Auto-detect GPS location on initial composition if permission is already granted
+    LaunchedEffect(Unit) {
+        val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (hasFine || hasCoarse) {
+            PrayerTimeManager.tryDetectGpsLocation(context) { _, _, _, _ ->
+                onScheduleUpdated()
+            }
         }
     }
 
@@ -438,7 +448,7 @@ fun PrayerTimesHeaderCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (selectedLanguage == "Hausa") "Zaɓi Garinku (Wuri)" else "Select City Location",
+                            text = if (selectedLanguage == "Hausa") "Saitin Wuri (GPS)" else "Location Settings (GPS)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -452,9 +462,46 @@ fun PrayerTimesHeaderCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    // Auto GPS Detect Button with active spinner
+                    // Current Location Display Card
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Wurin Da Kake Yanzu:" else "Current Detected Location:",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = if (scheduleInfo.countryName.isNotBlank()) "${scheduleInfo.cityName}, ${scheduleInfo.countryName}" else scheduleInfo.cityName,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Auto GPS Detect / Refresh Button with active spinner
                     Button(
                         onClick = {
                             val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -484,7 +531,7 @@ fun PrayerTimesHeaderCard(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = if (selectedLanguage == "Hausa") "Ana neman wuri ta GPS..." else "Detecting location via GPS...",
+                                text = if (selectedLanguage == "Hausa") "Ana neman ainihin wurinku ta GPS..." else "Detecting live GPS location...",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
                             )
@@ -492,7 +539,7 @@ fun PrayerTimesHeaderCard(
                             Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = if (selectedLanguage == "Hausa") "Gano Wuri da GPS (Auto)" else "Detect Location via GPS",
+                                text = if (selectedLanguage == "Hausa") "Sabunta Wurin Da Kake Ta GPS" else "Refresh Location via GPS",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
                             )
@@ -502,70 +549,14 @@ fun PrayerTimesHeaderCard(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = if (selectedLanguage == "Hausa") "Shahararrun Garuruwa" else "Preset Cities",
+                        text = if (selectedLanguage == "Hausa")
+                            "Manhajar tana amfani da ainihin wurin da kake (GPS) domin lissafin ingantattun lokutan salloli 5 da alkibla ba tare da zaɓen gari ba."
+                        else
+                            "The app automatically detects your exact GPS location for accurate 5 daily prayer times and Qibla direction without needing manual city selection.",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 16.sp
                     )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = false),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        items(PRESET_CITIES) { city ->
-                            val isSelected = scheduleInfo.cityName == city.name
-                            Surface(
-                                onClick = {
-                                    if (!isDetectingLocation) {
-                                        PrayerTimeManager.setLocation(context, city.name, city.country, city.latitude, city.longitude)
-                                        onScheduleUpdated()
-                                        showLocationDialog = false
-                                    }
-                                },
-                                shape = RoundedCornerShape(10.dp),
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = city.name,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            fontSize = 14.sp,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Text(
-                                            text = city.country,
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "Selected",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

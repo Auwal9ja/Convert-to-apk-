@@ -65,65 +65,6 @@ import androidx.core.content.ContextCompat
 import com.example.data.local.AppLocalizer
 import kotlin.math.*
 
-data class CityLocation(
-    val name: String,
-    val country: String,
-    val latitude: Double,
-    val longitude: Double
-)
-
-val PRESET_CITIES = listOf(
-    // Nigeria
-    CityLocation("Kano", "Nigeria", 12.0022, 8.5920),
-    CityLocation("Kaduna", "Nigeria", 10.5105, 7.4165),
-    CityLocation("Abuja", "Nigeria", 9.0765, 7.3986),
-    CityLocation("Lagos", "Nigeria", 6.5244, 3.3792),
-    CityLocation("Sokoto", "Nigeria", 13.0609, 5.2476),
-    CityLocation("Maiduguri", "Nigeria", 11.8311, 13.1510),
-    CityLocation("Katsina", "Nigeria", 12.9908, 7.6018),
-    CityLocation("Zaria", "Nigeria", 11.0855, 7.7199),
-    CityLocation("Ilorin", "Nigeria", 8.4799, 4.5418),
-    CityLocation("Ibadan", "Nigeria", 7.3775, 3.9470),
-    CityLocation("Jos", "Nigeria", 9.8965, 8.8583),
-    CityLocation("Bauchi", "Nigeria", 10.3158, 9.8442),
-    CityLocation("Gombe", "Nigeria", 10.2897, 11.1673),
-    CityLocation("Yola", "Nigeria", 9.2004, 12.4966),
-    CityLocation("Minna", "Nigeria", 9.6139, 6.5569),
-    CityLocation("Port Harcourt", "Nigeria", 4.8156, 7.0498),
-    // West & North Africa
-    CityLocation("Niamey", "Niger", 13.5116, 2.1254),
-    CityLocation("Maradi", "Niger", 13.5000, 7.1000),
-    CityLocation("Zinder", "Niger", 13.8072, 8.9881),
-    CityLocation("N'Djamena", "Chad", 12.1348, 15.0557),
-    CityLocation("Cairo", "Egypt", 30.0444, 31.2357),
-    CityLocation("Khartoum", "Sudan", 15.5007, 32.5599),
-    CityLocation("Algiers", "Algeria", 36.7538, 3.0588),
-    CityLocation("Casablanca", "Morocco", 33.5731, -7.5898),
-    CityLocation("Dakar", "Senegal", 14.7167, -17.4677),
-    CityLocation("Accra", "Ghana", 5.6037, -0.1870),
-    // Middle East & Holy Sites
-    CityLocation("Makkah (Kaaba)", "Saudi Arabia", 21.4225, 39.8262),
-    CityLocation("Madinah", "Saudi Arabia", 24.5247, 39.5692),
-    CityLocation("Riyadh", "Saudi Arabia", 24.7136, 46.6753),
-    CityLocation("Jeddah", "Saudi Arabia", 21.5433, 39.1728),
-    CityLocation("Dubai", "UAE", 25.2048, 55.2708),
-    CityLocation("Doha", "Qatar", 25.2854, 51.5310),
-    CityLocation("Jerusalem", "Palestine", 31.7683, 35.2137),
-    CityLocation("Istanbul", "Turkey", 41.0082, 28.9784),
-    // Asia & Europe & America
-    CityLocation("London", "United Kingdom", 51.5074, -0.1278),
-    CityLocation("Paris", "France", 48.8566, 2.3522),
-    CityLocation("New York", "USA", 40.7128, -74.0060),
-    CityLocation("Toronto", "Canada", 43.6532, -79.3832),
-    CityLocation("Jakarta", "Indonesia", -6.2088, 106.8456),
-    CityLocation("Kuala Lumpur", "Malaysia", 3.1390, 101.6869),
-    CityLocation("Islamabad", "Pakistan", 33.6844, 73.0479),
-    CityLocation("Lahore", "Pakistan", 31.5204, 74.3587),
-    CityLocation("Karachi", "Pakistan", 24.8607, 67.0011),
-    CityLocation("Dhaka", "Bangladesh", 23.8103, 90.4125),
-    CityLocation("Beijing", "China", 39.9042, 116.4074)
-)
-
 // Coordinates of the Holy Kaaba in Makkah
 const val KAABA_LATITUDE = 21.422487
 const val KAABA_LONGITUDE = 39.826206
@@ -174,14 +115,8 @@ fun QiblaCompassScreen(
     val initialCountry = remember { com.example.util.PrayerTimeManager.getCountryName(context) }
     var currentLat by remember { mutableDoubleStateOf(initialLoc.first) }
     var currentLng by remember { mutableDoubleStateOf(initialLoc.second) }
-    var locationName by remember { mutableStateOf(if (com.example.util.PrayerTimeManager.isLocationSet(context)) "$initialCity, $initialCountry" else if (selectedLanguage == "Hausa") "Wuri Ba a Saita Ba" else "Location Not Set") }
+    var locationName by remember { mutableStateOf(if (com.example.util.PrayerTimeManager.isLocationSet(context)) "$initialCity, $initialCountry" else if (selectedLanguage == "Hausa") "Wurin Da Kake" else "Current Location") }
     var isGpsActive by remember { mutableStateOf(false) }
-    var showCityDialog by remember { mutableStateOf(false) }
-
-    // Intercept back button if city selection dialog is open
-    BackHandler(enabled = showCityDialog) {
-        showCityDialog = false
-    }
 
     // Compass Sensor State
     var rawAzimuth by remember { mutableFloatStateOf(0f) }
@@ -312,6 +247,16 @@ fun QiblaCompassScreen(
         }
     }
 
+    val detectGps: () -> Unit = {
+        isGpsActive = true
+        com.example.util.PrayerTimeManager.tryDetectGpsLocation(context) { city, country, lat, lng ->
+            currentLat = lat
+            currentLng = lng
+            locationName = if (country.isNotBlank()) "$city, $country" else city
+            isGpsActive = true
+        }
+    }
+
     // Location Permission Launcher
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -319,26 +264,16 @@ fun QiblaCompassScreen(
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (fineGranted || coarseGranted) {
-            fetchGpsLocation(context) { loc ->
-                currentLat = loc.latitude
-                currentLng = loc.longitude
-                locationName = "GPS (${String.format("%.2f", loc.latitude)}°, ${String.format("%.2f", loc.longitude)}°)"
-                isGpsActive = true
-            }
+            detectGps()
         }
     }
 
-    // Try reading location on start if permission already granted
+    // Automatically detect GPS location on start if permission already granted
     LaunchedEffect(Unit) {
         val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (hasFine || hasCoarse) {
-            fetchGpsLocation(context) { loc ->
-                currentLat = loc.latitude
-                currentLng = loc.longitude
-                locationName = "GPS (${String.format("%.2f", loc.latitude)}°, ${String.format("%.2f", loc.longitude)}°)"
-                isGpsActive = true
-            }
+            detectGps()
         }
     }
 
@@ -415,36 +350,35 @@ fun QiblaCompassScreen(
                     }
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    IconButton(
-                        onClick = {
+                Button(
+                    onClick = {
+                        val hasFine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        val hasCoarse = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        if (hasFine || hasCoarse) {
+                            detectGps()
+                        } else {
                             locationPermissionLauncher.launch(
                                 arrayOf(
                                     Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION
                                 )
                             )
-                        },
-                        modifier = Modifier.testTag("qibla_gps_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MyLocation,
-                            contentDescription = "GPS",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    FilledTonalButton(
-                        onClick = { showCityDialog = true },
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.testTag("qibla_select_city_button")
-                    ) {
-                        Text(
-                            text = AppLocalizer.getString("select_city", selectedLanguage),
-                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                        )
-                    }
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.testTag("qibla_gps_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MyLocation,
+                        contentDescription = "GPS",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Sabunta GPS" else "Refresh GPS",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                    )
                 }
             }
         }
@@ -700,21 +634,6 @@ fun QiblaCompassScreen(
             }
         }
     }
-
-    // City Selector Dialog
-    if (showCityDialog) {
-        CitySelectionDialog(
-            selectedLanguage = selectedLanguage,
-            onDismiss = { showCityDialog = false },
-            onSelectCity = { city ->
-                currentLat = city.latitude
-                currentLng = city.longitude
-                locationName = "${city.name}, ${city.country}"
-                isGpsActive = false
-                showCityDialog = false
-            }
-        )
-    }
 }
 
 @Composable
@@ -855,126 +774,6 @@ private fun DrawScope.drawQiblaIndicator(
     )
 }
 
-@Composable
-fun CitySelectionDialog(
-    selectedLanguage: String,
-    onDismiss: () -> Unit,
-    onSelectCity: (CityLocation) -> Unit
-) {
-    var searchQuery by remember { mutableStateOf("") }
-    val filteredCities = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
-            PRESET_CITIES
-        } else {
-            PRESET_CITIES.filter {
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                it.country.contains(searchQuery, ignoreCase = true)
-            }
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocationCity,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = AppLocalizer.getString("select_city", selectedLanguage),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-        },
-        text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { Text(AppLocalizer.getString("search_placeholder", selectedLanguage)) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = null)
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 350.dp)
-                ) {
-                    items(filteredCities) { city ->
-                        val bearing = calculateQiblaBearing(city.latitude, city.longitude)
-                        val distance = calculateDistanceToKaaba(city.latitude, city.longitude)
-
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clickable { onSelectCity(city) }
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = city.name,
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = city.country,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        text = "${String.format("%.1f", bearing)}°",
-                                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "$distance km",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
-
 /**
  * Converts degree bearing into human-readable compass cardinal text (e.g. "ENE", "NE")
  */
@@ -982,42 +781,4 @@ fun getCompassDirectionName(degree: Float): String {
     val directions = arrayOf("N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW")
     val index = (((degree + 11.25f) % 360) / 22.5f).toInt()
     return directions[index.coerceIn(0, directions.size - 1)]
-}
-
-/**
- * Helper to fetch location from Android LocationManager
- */
-@Suppress("MissingPermission")
-private fun fetchGpsLocation(context: Context, onLocationFound: (Location) -> Unit) {
-    try {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
-        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-        val provider = when {
-            isGpsEnabled -> LocationManager.GPS_PROVIDER
-            isNetworkEnabled -> LocationManager.NETWORK_PROVIDER
-            else -> LocationManager.PASSIVE_PROVIDER
-        }
-
-        val lastLocation = locationManager.getLastKnownLocation(provider)
-        if (lastLocation != null) {
-            onLocationFound(lastLocation)
-        } else {
-            // Request a single location update
-            locationManager.requestSingleUpdate(
-                provider,
-                object : LocationListener {
-                    override fun onLocationChanged(location: Location) {
-                        onLocationFound(location)
-                    }
-                    @Deprecated("Deprecated in Java")
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                    override fun onProviderEnabled(provider: String) {}
-                    override fun onProviderDisabled(provider: String) {}
-                },
-                null
-            )
-        }
-    } catch (_: Exception) { }
 }

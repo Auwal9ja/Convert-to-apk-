@@ -18,7 +18,6 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.receiver.PrayerAlarmReceiver
-import com.example.ui.screens.PRESET_CITIES
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
@@ -64,13 +63,15 @@ object PrayerTimeManager {
     val scheduleUpdateFlow = _scheduleUpdateFlow.asStateFlow()
 
     // Default location fallback if not yet chosen
-    const val DEFAULT_CITY = "Kano"
-    const val DEFAULT_COUNTRY = "Nigeria"
-    const val DEFAULT_LAT = 12.0022
-    const val DEFAULT_LNG = 8.5920
+    const val DEFAULT_CITY = "Wurin Da Kake"
+    const val DEFAULT_COUNTRY = ""
+    const val DEFAULT_LAT = 9.0765 // Central baseline coordinates
+    const val DEFAULT_LNG = 7.3986
 
     fun isLocationSet(context: Context): Boolean {
-        return getPreferences(context).contains("city_name")
+        return getPreferences(context).contains("city_name") &&
+                (getPreferences(context).getString("city_name", "")?.isNotBlank() == true) &&
+                getPreferences(context).getString("city_name", "") != DEFAULT_CITY
     }
 
     fun getPreferences(context: Context): SharedPreferences {
@@ -85,11 +86,12 @@ object PrayerTimeManager {
     }
 
     fun getCityName(context: Context): String {
-        return getPreferences(context).getString("city_name", DEFAULT_CITY) ?: DEFAULT_CITY
+        val city = getPreferences(context).getString("city_name", "")
+        return if (!city.isNullOrBlank()) city else DEFAULT_CITY
     }
 
     fun getCountryName(context: Context): String {
-        return getPreferences(context).getString("country_name", DEFAULT_COUNTRY) ?: DEFAULT_COUNTRY
+        return getPreferences(context).getString("country_name", "") ?: DEFAULT_COUNTRY
     }
 
     fun setLocation(context: Context, cityName: String, countryName: String, lat: Double, lng: Double) {
@@ -380,34 +382,11 @@ object PrayerTimeManager {
     }
 
     /**
-     * Finds the closest preset city immediately based on lat/lng coordinates (instant).
-     */
-    fun findClosestPresetCity(lat: Double, lng: Double): Pair<String, String> {
-        var minDistance = Double.MAX_VALUE
-        var closestCity = DEFAULT_CITY
-        var closestCountry = DEFAULT_COUNTRY
-
-        for (city in PRESET_CITIES) {
-            val dLat = Math.toRadians(city.latitude - lat)
-            val dLng = Math.toRadians(city.longitude - lng)
-            val a = sin(dLat / 2).pow(2.0) + cos(Math.toRadians(lat)) * cos(Math.toRadians(city.latitude)) * sin(dLng / 2).pow(2.0)
-            val c = 2 * atan2(sqrt(a), sqrt(1.0 - a))
-            val distanceKm = 6371.0 * c
-            if (distanceKm < minDistance) {
-                minDistance = distanceKm
-                closestCity = city.name
-                closestCountry = city.country
-            }
-        }
-        return Pair(closestCity, closestCountry)
-    }
-
-    /**
-     * Resolves human-friendly city and country name without delay.
+     * Resolves human-friendly city and country name without snapping to hardcoded preset lists.
+     * Works on Huawei and devices without Google Play Services by falling back to network reverse geocoding.
      */
     fun resolveLocationName(context: Context, lat: Double, lng: Double): Pair<String, String> {
-        val (closestCity, closestCountry) = findClosestPresetCity(lat, lng)
-
+        // Step 1: Standard Android Geocoder
         try {
             if (Geocoder.isPresent()) {
                 val geocoder = Geocoder(context, Locale.getDefault())
@@ -416,23 +395,79 @@ object PrayerTimeManager {
                 if (!addresses.isNullOrEmpty()) {
                     val addr = addresses[0]
                     val city = addr.locality ?: addr.subAdminArea ?: addr.adminArea ?: addr.featureName
-                    val country = addr.countryName
-                    if (!city.isNullOrBlank() && !country.isNullOrBlank()) {
+                    val country = addr.countryName ?: ""
+                    if (!city.isNullOrBlank()) {
                         return Pair(city, country)
                     }
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Geocoder lookup exception: ${e.message}")
+            Log.w(TAG, "Android Geocoder lookup exception: ${e.message}")
         }
 
-        return Pair(closestCity, closestCountry)
+        // Step 2: Network reverse-geocoding (especially for Huawei / devices without Google Mobile Services)
+        try {
+            val url = java.net.URL("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$lng&localityLanguage=en")
+            val conn = (url.openConnection() as java.net.HttpURLConnection).apply {
+                connectTimeout = 3500
+                readTimeout = 3500
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", "ZakiruMuslim/1.0")
+            }
+            if (conn.responseCode == 200) {
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                val json = org.json.JSONObject(response)
+                val city = json.optString("city").ifBlank {
+                    json.optString("locality").ifBlank {
+                        json.optString("principalSubdivision")
+                    }
+                }
+                val country = json.optString("countryName")
+                if (city.isNotBlank()) {
+                    return Pair(city, country)
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Network reverse geocoding exception: ${e.message}")
+        }
+
+        // Step 3: OpenStreetMap Nominatim fallback
+        try {
+            val url = java.net.URL("https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json")
+            val conn = (url.openConnection() as java.net.HttpURLConnection).apply {
+                connectTimeout = 3500
+                readTimeout = 3500
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", "ZakiruMuslim/1.0")
+            }
+            if (conn.responseCode == 200) {
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                val json = org.json.JSONObject(response)
+                val addr = json.optJSONObject("address")
+                if (addr != null) {
+                    val city = addr.optString("city").ifBlank {
+                        addr.optString("town").ifBlank {
+                            addr.optString("state").ifBlank {
+                                addr.optString("county")
+                            }
+                        }
+                    }
+                    val country = addr.optString("country")
+                    if (city.isNotBlank()) {
+                        return Pair(city, country)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Nominatim geocoding exception: ${e.message}")
+        }
+
+        return Pair("GPS Location", "")
     }
 
     /**
-     * Fast, reliable GPS Auto-detection:
-     * 1. Instantly reads any available cached location from any provider and sets location immediately.
-     * 2. Concurrently requests high-accuracy live GPS/Network update to refine if needed.
+     * Fast, reliable GPS & Multi-source Auto-detection.
+     * Engineered specifically for all Android devices including Huawei (without Google Play Services).
      */
     fun tryDetectGpsLocation(
         context: Context,
@@ -449,48 +484,57 @@ object PrayerTimeManager {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
         val mainHandler = Handler(Looper.getMainLooper())
 
-        // Step 1: Immediate check for any available location from any provider
+        // 1. Immediate check for cached location from ALL enabled providers
         var immediateLocation: Location? = null
-        val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
-
-        for (provider in providers) {
+        val enabledProviders = locationManager.getProviders(true)
+        for (provider in enabledProviders) {
             try {
-                if (locationManager.isProviderEnabled(provider)) {
-                    val loc = locationManager.getLastKnownLocation(provider)
-                    if (loc != null) {
-                        if (immediateLocation == null || loc.time > immediateLocation.time || (loc.hasAccuracy() && loc.accuracy < immediateLocation.accuracy)) {
-                            immediateLocation = loc
-                        }
+                val loc = locationManager.getLastKnownLocation(provider)
+                if (loc != null) {
+                    if (immediateLocation == null || loc.time > immediateLocation.time || (loc.hasAccuracy() && loc.accuracy < immediateLocation.accuracy)) {
+                        immediateLocation = loc
                     }
                 }
             } catch (_: SecurityException) {} catch (_: Exception) {}
         }
 
-        var hasHandledImmediate = false
+        var liveFixReceived = false
 
         if (immediateLocation != null) {
-            hasHandledImmediate = true
-            val lat = immediateLocation.latitude
-            val lng = immediateLocation.longitude
-            // Instant resolution with nearest preset city so UI responds in 0 milliseconds
-            val (fastCity, fastCountry) = findClosestPresetCity(lat, lng)
-            setLocation(context, fastCity, fastCountry, lat, lng)
-            onSuccess(fastCity, fastCountry, lat, lng)
-
-            // Asynchronously resolve detailed Geocoder in background to refine city name
+            applyLocationUpdate(context, immediateLocation.latitude, immediateLocation.longitude, mainHandler, onSuccess)
+        } else {
+            // Instant IP-based Geolocation fallback (super-fast ~200ms on Huawei and all phones while GPS acquires satellite lock)
             Thread {
-                val (resolvedCity, resolvedCountry) = resolveLocationName(context, lat, lng)
-                if (resolvedCity != fastCity || resolvedCountry != fastCountry) {
-                    mainHandler.post {
-                        setLocation(context, resolvedCity, resolvedCountry, lat, lng)
-                        onSuccess(resolvedCity, resolvedCountry, lat, lng)
+                try {
+                    val url = java.net.URL("http://ip-api.com/json/?fields=status,city,regionName,country,lat,lon")
+                    val conn = (url.openConnection() as java.net.HttpURLConnection).apply {
+                        connectTimeout = 3000
+                        readTimeout = 3000
+                        requestMethod = "GET"
                     }
-                }
+                    if (conn.responseCode == 200) {
+                        val resp = conn.inputStream.bufferedReader().use { it.readText() }
+                        val json = org.json.JSONObject(resp)
+                        if (json.optString("status") == "success") {
+                            val city = json.optString("city").ifBlank { json.optString("regionName") }
+                            val country = json.optString("country")
+                            val lat = json.optDouble("lat")
+                            val lon = json.optDouble("lon")
+                            if (city.isNotBlank() && !lat.isNaN() && !lon.isNaN() && !liveFixReceived) {
+                                mainHandler.post {
+                                    if (!liveFixReceived) {
+                                        setLocation(context, city, country, lat, lon)
+                                        onSuccess(city, country, lat, lon)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (_: Exception) {}
             }.start()
         }
 
-        // Step 2: Request fresh live GPS update
-        var liveFixReceived = false
+        // 2. Request live GPS updates with a 20-second active window
         val listener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 if (!liveFixReceived) {
@@ -499,21 +543,7 @@ object PrayerTimeManager {
                         locationManager.removeUpdates(this)
                     } catch (_: Exception) {}
 
-                    val lat = location.latitude
-                    val lng = location.longitude
-                    val (fastCity, fastCountry) = findClosestPresetCity(lat, lng)
-                    setLocation(context, fastCity, fastCountry, lat, lng)
-                    onSuccess(fastCity, fastCountry, lat, lng)
-
-                    Thread {
-                        val (resolvedCity, resolvedCountry) = resolveLocationName(context, lat, lng)
-                        if (resolvedCity != fastCity || resolvedCountry != fastCountry) {
-                            mainHandler.post {
-                                setLocation(context, resolvedCity, resolvedCountry, lat, lng)
-                                onSuccess(resolvedCity, resolvedCountry, lat, lng)
-                            }
-                        }
-                    }.start()
+                    applyLocationUpdate(context, location.latitude, location.longitude, mainHandler, onSuccess)
                 }
             }
 
@@ -525,35 +555,46 @@ object PrayerTimeManager {
 
         try {
             var updateRequested = false
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
-                updateRequested = true
-            }
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, listener, Looper.getMainLooper())
-                updateRequested = true
+            for (provider in listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)) {
+                if (locationManager.isProviderEnabled(provider)) {
+                    locationManager.requestLocationUpdates(provider, 0L, 0f, listener, Looper.getMainLooper())
+                    updateRequested = true
+                }
             }
 
             if (updateRequested) {
-                // Remove listener after 4 seconds to conserve battery
                 mainHandler.postDelayed({
                     try {
                         locationManager.removeUpdates(listener)
                     } catch (_: Exception) {}
-                    if (!liveFixReceived && !hasHandledImmediate) {
-                        val (lat, lng) = getSelectedLocation(context)
-                        val city = getCityName(context)
-                        val country = getCountryName(context)
-                        onSuccess(city, country, lat, lng)
-                    }
-                }, 4000L)
-            } else if (!hasHandledImmediate) {
-                val (lat, lng) = getSelectedLocation(context)
-                val city = getCityName(context)
-                val country = getCountryName(context)
-                onSuccess(city, country, lat, lng)
+                }, 20000L)
             }
         } catch (_: SecurityException) {
         } catch (_: Exception) {}
+    }
+
+    private fun applyLocationUpdate(
+        context: Context,
+        lat: Double,
+        lng: Double,
+        mainHandler: Handler,
+        onSuccess: (cityName: String, country: String, lat: Double, lng: Double) -> Unit
+    ) {
+        val existingCity = getCityName(context)
+        val existingCountry = getCountryName(context)
+        val tempCity = if (existingCity != DEFAULT_CITY && existingCity.isNotBlank()) existingCity else "Wurin Da Kake"
+        setLocation(context, tempCity, existingCountry, lat, lng)
+        onSuccess(tempCity, existingCountry, lat, lng)
+
+        // Asynchronously resolve real city and country in background
+        Thread {
+            val (resolvedCity, resolvedCountry) = resolveLocationName(context, lat, lng)
+            if (resolvedCity.isNotBlank() && resolvedCity != "GPS Location") {
+                mainHandler.post {
+                    setLocation(context, resolvedCity, resolvedCountry, lat, lng)
+                    onSuccess(resolvedCity, resolvedCountry, lat, lng)
+                }
+            }
+        }.start()
     }
 }
