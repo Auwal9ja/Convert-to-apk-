@@ -44,7 +44,7 @@ googleid = "1.1.1"
 playServicesAds = "23.6.0"
 onesignal = "5.1.28"
 playAppUpdate = "2.1.0"
-playBilling = "7.1.1"
+playBilling = "9.1.0"
 
 
 [libraries]
