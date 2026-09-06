@@ -13,6 +13,10 @@ class BillingConstants {
   static const String subYearly = 'noor_zikir_remove_ads_yearly';
 
   static const Set<String> productIds = {
+    'zakiru_weekly',
+    'zakiru_plans',
+    'zakiru_monthly',
+    'zakiru_yearly',
     subWeekly,
     subMonthly,
     subYearly,

@@ -59,8 +59,8 @@ fun SubscriptionDialog(
     // Auto-select yearly or first plan when plans load
     LaunchedEffect(availablePlans) {
         if (selectedPlanId == null && availablePlans.isNotEmpty()) {
-            val yearly = availablePlans.find { it.productId.contains("yearly", ignoreCase = true) }
-            selectedPlanId = yearly?.productId ?: availablePlans.first().productId
+            val yearly = availablePlans.find { it.planKey.contains("yearly", ignoreCase = true) }
+            selectedPlanId = yearly?.planKey ?: availablePlans.first().planKey
         }
     }
 
@@ -392,11 +392,11 @@ fun SubscriptionDialog(
                             // REAL GOOGLE PLAY STORE SUBSCRIPTION PRODUCTS
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 availablePlans.forEach { plan ->
-                                    val isSelected = plan.productId == selectedPlanId
+                                    val isSelected = plan.planKey == selectedPlanId
                                     PlanCard(
                                         plan = plan,
                                         isSelected = isSelected,
-                                        onClick = { selectedPlanId = plan.productId }
+                                        onClick = { selectedPlanId = plan.planKey }
                                     )
                                 }
                             }
@@ -407,7 +407,7 @@ fun SubscriptionDialog(
                         // PRIMARY SUBSCRIBE BUTTON
                         Button(
                             onClick = {
-                                val plan = availablePlans.find { it.productId == selectedPlanId }
+                                val plan = availablePlans.find { it.planKey == selectedPlanId }
                                     ?: availablePlans.firstOrNull()
 
                                 if (plan != null && activity != null) {

@@ -188,12 +188,24 @@ fun MainScreen(
         }
     }
 
+    // Update InterstitialAdHelper reading state whenever user enters/exits azkar/dua view
+    val isReadingAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
+    LaunchedEffect(isReadingAzkar) {
+        InterstitialAdHelper.setUserReadingAdhkar(isReadingAzkar)
+    }
+
     fun navigateToTab(targetTab: Int) {
         if (selectedTab != targetTab) {
+            val wasInAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
             tabBackStack.add(selectedTab)
             selectedTab = targetTab
             (context as? Activity)?.let { activity ->
-                InterstitialAdHelper.triggerAdOnAction(activity, threshold = 3)
+                if (wasInAzkar) {
+                    // Trigger interstitial ad only after user has finished and exited azkar/dua page
+                    InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
+                } else {
+                    InterstitialAdHelper.triggerAdOnAction(activity, threshold = 4)
+                }
             }
         }
     }
@@ -215,10 +227,20 @@ fun MainScreen(
             }
             selectedTab == 1 && selectedCategory != null -> {
                 viewModel.selectCategory(null)
+                // User has finished/exited the Azkar category page: show ad on exit
+                (context as? Activity)?.let { activity ->
+                    InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
+                }
             }
             tabBackStack.isNotEmpty() -> {
                 val previousTab = tabBackStack.removeAt(tabBackStack.lastIndex)
+                val wasInAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
                 selectedTab = previousTab
+                if (wasInAzkar) {
+                    (context as? Activity)?.let { activity ->
+                        InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
+                    }
+                }
             }
             selectedTab != 0 -> {
                 selectedTab = 0

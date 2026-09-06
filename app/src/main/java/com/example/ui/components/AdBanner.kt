@@ -102,13 +102,33 @@ object InterstitialAdHelper {
     private var adsShownThisSession = 0
     private var lastAdShownTimeMs = 0L
 
+    // Flag indicating whether user is currently inside a reading/suppressed Azkar or Dua screen
+    @Volatile
+    private var isUserReadingAdhkar: Boolean = false
+
+    /**
+     * Mark whether user is currently actively reciting or reading adhkar / dua.
+     * While true, all interstitial ads are strictly suppressed so the user is never interrupted.
+     */
+    fun setUserReadingAdhkar(reading: Boolean) {
+        isUserReadingAdhkar = reading
+        Log.d("AdMob", "setUserReadingAdhkar set to: $reading")
+    }
+
+    fun isUserReadingAdhkar(): Boolean = isUserReadingAdhkar
+
     /**
      * Checks whether an interstitial ad is permitted to be shown according to frequency rules:
-     * 1. Total ads this session < 2
-     * 2. At least 1 minute has elapsed since app launch/setup
-     * 3. At least 1 minute has elapsed since the previous ad
+     * 1. Not currently reading Azkar or Dua
+     * 2. Total ads this session < 2
+     * 3. At least 1 minute has elapsed since app launch/setup
+     * 4. At least 1 minute has elapsed since the previous ad
      */
     fun canShowAd(): Boolean {
+        if (isUserReadingAdhkar) {
+            Log.d("AdMob", "Ad blocked: User is currently reciting or reading Azkar/Dua.")
+            return false
+        }
         if (adsShownThisSession >= MAX_ADS_PER_SESSION) {
             Log.d("AdMob", "Ad blocked: Max ads per session ($MAX_ADS_PER_SESSION) reached ($adsShownThisSession shown).")
             return false

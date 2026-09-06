@@ -23,6 +23,12 @@ object BillingConstants {
     const val KEY_ACTIVE_PRODUCT_ID = "active_product_id"
     const val KEY_PURCHASE_TOKEN = "purchase_token"
 
+    // Play Console Product IDs
+    const val SUB_ZAKIRU_WEEKLY = "zakiru_weekly"
+    const val SUB_ZAKIRU_MONTHLY = "zakiru_monthly"
+    const val SUB_ZAKIRU_YEARLY = "zakiru_yearly"
+    const val SUB_ZAKIRU_PLANS = "zakiru_plans"
+
     // Subscriptions: Weekly, Monthly, Yearly
     const val SUB_WEEKLY = "noor_zikir_remove_ads_weekly"
     const val SUB_MONTHLY = "noor_zikir_remove_ads_monthly"
@@ -34,6 +40,10 @@ object BillingConstants {
     const val SUB_YEARLY_ALT = "remove_ads_yearly"
 
     val SUBSCRIPTION_IDS = listOf(
+        SUB_ZAKIRU_WEEKLY,
+        SUB_ZAKIRU_PLANS,
+        SUB_ZAKIRU_MONTHLY,
+        SUB_ZAKIRU_YEARLY,
         SUB_WEEKLY,
         SUB_MONTHLY,
         SUB_YEARLY,
@@ -54,7 +64,9 @@ data class PremiumPlan(
     val formattedPrice: String,
     val badge: String? = null,
     val productDetails: ProductDetails,
-    val offerToken: String? = null
+    val offerToken: String? = null,
+    val basePlanId: String? = null,
+    val planKey: String = if (!basePlanId.isNullOrEmpty()) "${productId}_$basePlanId" else productId
 )
 
 /**
@@ -124,6 +136,14 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
             queryAvailableProducts()
         } else {
             Log.w(TAG, "Billing setup failed with responseCode: ${billingResult.responseCode} - ${billingResult.debugMessage}")
+            val msg = when (billingResult.responseCode) {
+                BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+                    "Google Play Billing is unavailable. Ensure Google Play Store is installed and signed in."
+                else -> billingResult.debugMessage.ifBlank { null }
+            }
+            if (!msg.isNullOrBlank()) {
+                _billingStatusMessage.value = msg
+            }
             handleConnectionRetry()
         }
     }
@@ -175,55 +195,102 @@ class BillingManager private constructor(context: Context) : PurchasesUpdatedLis
                     val productDetailsList = subResult.productDetailsList ?: emptyList()
                     for (details in productDetailsList) {
                         val subOffers = details.subscriptionOfferDetails
-                        val baseOffer = subOffers?.firstOrNull()
-                        val pricingPhase = baseOffer?.pricingPhases?.pricingPhaseList?.firstOrNull()
-                        val formattedPrice = pricingPhase?.formattedPrice ?: "Subscription"
-
-                        val isYearly = details.productId.contains("yearly", ignoreCase = true)
-                        val isWeekly = details.productId.contains("weekly", ignoreCase = true)
-
-                        val title = when {
-                            isYearly -> "Yearly Subscription"
-                            isWeekly -> "Weekly Subscription"
-                            else -> "Monthly Subscription"
-                        }
-
-                        val subtitle = when {
-                            isYearly -> "Save 45% • 1 Year ad-free access"
-                            isWeekly -> "Billed weekly • Flexible short-term"
-                            else -> "Billed monthly • Cancel anytime"
-                        }
-
-                        val badge = when {
-                            isYearly -> "Best Value (Save 45%)"
-                            isWeekly -> "Trial"
-                            else -> "Popular"
-                        }
-
-                        plans.add(
-                            PremiumPlan(
-                                productId = details.productId,
-                                isSubscription = true,
-                                title = title,
-                                subtitle = subtitle,
-                                formattedPrice = formattedPrice,
-                                badge = badge,
-                                productDetails = details,
-                                offerToken = baseOffer?.offerToken
+                        if (subOffers.isNullOrEmpty()) {
+                            val isYearly = details.productId.contains("yearly", ignoreCase = true)
+                            val isWeekly = details.productId.contains("weekly", ignoreCase = true)
+                            val title = when {
+                                isYearly -> "Yearly Subscription"
+                                isWeekly -> "Weekly Subscription"
+                                else -> "Monthly Subscription"
+                            }
+                            val subtitle = when {
+                                isYearly -> "Save 45% • 1 Year ad-free access"
+                                isWeekly -> "Billed weekly • Flexible short-term"
+                                else -> "Billed monthly • Cancel anytime"
+                            }
+                            val badge = when {
+                                isYearly -> "Best Value (Save 45%)"
+                                isWeekly -> "Trial"
+                                else -> "Popular"
+                            }
+                            plans.add(
+                                PremiumPlan(
+                                    productId = details.productId,
+                                    isSubscription = true,
+                                    title = title,
+                                    subtitle = subtitle,
+                                    formattedPrice = "Available",
+                                    badge = badge,
+                                    productDetails = details,
+                                    offerToken = null,
+                                    basePlanId = null
+                                )
                             )
-                        )
+                        } else {
+                            // Support multiple base plans (e.g., monthly-plan, weekly-plan, yearly-plan under zakiru_weekly)
+                            for (offer in subOffers) {
+                                val basePlanId = offer.basePlanId
+                                val pricingPhase = offer.pricingPhases.pricingPhaseList.firstOrNull()
+                                val formattedPrice = pricingPhase?.formattedPrice ?: "Subscription"
+                                val billingPeriod = pricingPhase?.billingPeriod ?: ""
+
+                                val isYearly = basePlanId.contains("yearly", ignoreCase = true) ||
+                                    details.productId.contains("yearly", ignoreCase = true) ||
+                                    billingPeriod.contains("Y", ignoreCase = true)
+                                val isWeekly = basePlanId.contains("weekly", ignoreCase = true) ||
+                                    details.productId.contains("weekly", ignoreCase = true) ||
+                                    billingPeriod.contains("W", ignoreCase = true)
+                                val isMonthly = basePlanId.contains("monthly", ignoreCase = true) ||
+                                    details.productId.contains("monthly", ignoreCase = true) ||
+                                    billingPeriod.contains("M", ignoreCase = true)
+
+                                val title = when {
+                                    isYearly -> "Yearly Subscription"
+                                    isMonthly -> "Monthly Subscription"
+                                    isWeekly -> "Weekly Subscription"
+                                    else -> details.name.ifEmpty { "Subscription" }
+                                }
+
+                                val subtitle = when {
+                                    isYearly -> "Save 45% • 1 Year ad-free access"
+                                    isWeekly -> "Billed weekly • Flexible short-term"
+                                    else -> "Billed monthly • Cancel anytime"
+                                }
+
+                                val badge = when {
+                                    isYearly -> "Best Value (Save 45%)"
+                                    isWeekly -> "Trial"
+                                    else -> "Popular"
+                                }
+
+                                plans.add(
+                                    PremiumPlan(
+                                        productId = details.productId,
+                                        isSubscription = true,
+                                        title = title,
+                                        subtitle = subtitle,
+                                        formattedPrice = formattedPrice,
+                                        badge = badge,
+                                        productDetails = details,
+                                        offerToken = offer.offerToken,
+                                        basePlanId = basePlanId
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed querying subscription product details: ${e.message}")
             }
 
-            // Sort plans in order: Weekly, Monthly, Yearly
-            val sortedPlans = plans.sortedBy { plan ->
+            // Deduplicate by planKey and sort plans in order: Weekly, Monthly, Yearly
+            val distinctPlans = plans.distinctBy { it.planKey }
+            val sortedPlans = distinctPlans.sortedBy { plan ->
                 when {
-                    plan.productId.contains("weekly", ignoreCase = true) -> 1
-                    plan.productId.contains("monthly", ignoreCase = true) -> 2
-                    plan.productId.contains("yearly", ignoreCase = true) -> 3
+                    plan.planKey.contains("weekly", ignoreCase = true) -> 1
+                    plan.planKey.contains("monthly", ignoreCase = true) -> 2
+                    plan.planKey.contains("yearly", ignoreCase = true) -> 3
                     else -> 4
                 }
             }
