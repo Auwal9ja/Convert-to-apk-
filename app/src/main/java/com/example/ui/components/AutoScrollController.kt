@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +40,7 @@ import kotlin.math.roundToInt
  * - A clean vertical line track along the right side.
  * - A sleek pink/red circular knob that users can directly touch and drag up/down anytime.
  * - Dragging downwards increases the auto-scroll speed; dragging to the top or tapping pauses.
+ * - Displays an animated hint/indicator to teach users to drag the knob down for hands-free reading.
  * - Displays a minimal floating speed badge (e.g., 1.5x) next to the knob during interaction.
  */
 @Composable
@@ -50,8 +54,21 @@ fun AutoScrollSideBar(
     var thumbFraction by remember { mutableFloatStateOf(0.0f) } // 0.0f = Top (Paused), 1.0f = Bottom (Fastest)
     var trackHeightPx by remember { mutableFloatStateOf(1f) }
     var isUserDragging by remember { mutableStateOf(false) }
+    var hasUserInteracted by remember { mutableStateOf(false) }
 
     val density = LocalDensity.current
+
+    // Animated bouncing cue to teach users to drag down
+    val infiniteTransition = rememberInfiniteTransition(label = "scroller_hint")
+    val hintBounceOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 10f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hint_bounce"
+    )
 
     // Calculate current speed factor with deep focus on ultra-low slow-reading speeds (0.05x to 3.5x)
     val speedMultiplier = remember(thumbFraction, isPlaying) {
@@ -119,6 +136,7 @@ fun AutoScrollSideBar(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = { offset ->
+                            hasUserInteracted = true
                             isUserDragging = true
                             val fraction = (offset.y / trackHeightPx).coerceIn(0.0f, 1.0f)
                             if (fraction <= 0.06f) {
@@ -137,6 +155,7 @@ fun AutoScrollSideBar(
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { offset ->
+                            hasUserInteracted = true
                             isUserDragging = true
                             val fraction = (offset.y / trackHeightPx).coerceIn(0.0f, 1.0f)
                             thumbFraction = fraction
@@ -154,6 +173,7 @@ fun AutoScrollSideBar(
                         },
                         onDrag = { change, _ ->
                             change.consume()
+                            hasUserInteracted = true
                             isUserDragging = true
                             val fraction = (change.position.y / trackHeightPx).coerceIn(0.0f, 1.0f)
                             thumbFraction = fraction
@@ -188,7 +208,7 @@ fun AutoScrollSideBar(
             val availableTravel = (trackHeightPx - knobDiameterPx).coerceAtLeast(0f)
             val thumbYOffsetPx = (thumbFraction * availableTravel).coerceAtLeast(0f)
 
-            // Draggable Pink/Red Knob + Floating Speed Badge
+            // Draggable Pink/Red Knob + Floating Speed Badge + Drag-down Indicator
             Row(
                 modifier = Modifier
                     .offset { IntOffset(0, thumbYOffsetPx.roundToInt()) }
@@ -231,6 +251,7 @@ fun AutoScrollSideBar(
                         modifier = Modifier
                             .padding(end = 6.dp)
                             .clickable {
+                                hasUserInteracted = true
                                 // Tap badge to cycle through gentle presets or pause
                                 if (!isPlaying || speedMultiplier > 1.2f) {
                                     // Start with tranquil slow reading mode (0.1x)
@@ -273,6 +294,57 @@ fun AutoScrollSideBar(
                     }
                 }
 
+                // Educational Drag-down Indicator (appears when stopped to guide users)
+                AnimatedVisibility(
+                    visible = !isPlaying && !isUserDragging && thumbFraction <= 0.02f,
+                    enter = fadeIn() + expandHorizontally(),
+                    exit = fadeOut() + shrinkHorizontally()
+                ) {
+                    val guideText = when (selectedLanguage) {
+                        "Hausa" -> "Ja kasa ⤓"
+                        "Yoruba" -> "Fa sílẹ̀ ⤓"
+                        "Igbo" -> "Dọrọ ala ⤓"
+                        "Arabic" -> "اسحب لأسفل ⤓"
+                        "French" -> "Glisser bas ⤓"
+                        "Spanish" -> "Deslizar ⤓"
+                        else -> "Drag down ⤓"
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color(0xFFE91E63).copy(alpha = 0.92f),
+                        shadowElevation = 6.dp,
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .offset(y = hintBounceOffset.dp)
+                            .clickable {
+                                // Tapping this indicator also starts gentle auto-scroll
+                                hasUserInteracted = true
+                                thumbFraction = 0.12f
+                                isPlaying = true
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = "Drag scroller down to auto-scroll",
+                                tint = Color.White,
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text(
+                                text = guideText,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+
                 // Pure Circular Pink/Red Draggable Knob (Directly matching user's image)
                 Box(
                     modifier = Modifier
@@ -291,13 +363,22 @@ fun AutoScrollSideBar(
                         .border(1.5.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Subtle center white dot for grip visual cue
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.9f))
-                    )
+                    // Subtle center icon/dot for grip visual cue
+                    if (!isPlaying && thumbFraction <= 0.02f) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDownward,
+                            contentDescription = "Drag down",
+                            tint = Color.White,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.9f))
+                        )
+                    }
                 }
             }
         }

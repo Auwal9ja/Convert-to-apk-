@@ -153,7 +153,7 @@ class MandatoryAdhkarActivity : ComponentActivity() {
                     onCloseAfterCompletion = {
                         speaker?.stop()
                         Toast.makeText(this@MandatoryAdhkarActivity, "May Allah accept your Adhkar.", Toast.LENGTH_LONG).show()
-                        InterstitialAdHelper.showAd(this@MandatoryAdhkarActivity) {
+                        InterstitialAdHelper.showAdOnAppExit(this@MandatoryAdhkarActivity) {
                             finish()
                         }
                     }

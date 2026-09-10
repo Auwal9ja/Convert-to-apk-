@@ -90,14 +90,14 @@ object InterstitialAdHelper {
     private var isLoading = false
     private var actionCount = 0
 
-    // Frequency and session limits requested to protect user experience:
-    // 1. Initial delay of at least 1 minute after app launch/setup
-    // 2. Minimum 1 minute interval between consecutive ads
-    // 3. Maximum 2 ads shown per app session
+    // Frequency and session limits:
+    // 1. Initial delay of 10 seconds after app launch/setup
+    // 2. Minimum 45 seconds interval between consecutive ads
+    // 3. Maximum 3 ads shown per app session
     private val appStartTimeMs: Long = SystemClock.elapsedRealtime()
-    private const val INITIAL_DELAY_MS: Long = 60_000L // 1 minute after app start
-    private const val MIN_INTERVAL_BETWEEN_ADS_MS: Long = 60_000L // 1 minute cooldown between ads
-    private const val MAX_ADS_PER_SESSION: Int = 2 // Max 2 ads per app opening
+    private const val INITIAL_DELAY_MS: Long = 10_000L // 10 seconds after app start
+    private const val MIN_INTERVAL_BETWEEN_ADS_MS: Long = 45_000L // 45 seconds cooldown between ads
+    private const val MAX_ADS_PER_SESSION: Int = 4 // Max 4 ads per app opening
 
     private var adsShownThisSession = 0
     private var lastAdShownTimeMs = 0L
@@ -108,7 +108,7 @@ object InterstitialAdHelper {
 
     /**
      * Mark whether user is currently actively reciting or reading adhkar / dua.
-     * While true, all interstitial ads are strictly suppressed so the user is never interrupted.
+     * While true, all regular interstitial ads are strictly suppressed so the user is never interrupted.
      */
     fun setUserReadingAdhkar(reading: Boolean) {
         isUserReadingAdhkar = reading
@@ -120,12 +120,12 @@ object InterstitialAdHelper {
     /**
      * Checks whether an interstitial ad is permitted to be shown according to frequency rules:
      * 1. Not currently reading Azkar or Dua
-     * 2. Total ads this session < 2
-     * 3. At least 1 minute has elapsed since app launch/setup
-     * 4. At least 1 minute has elapsed since the previous ad
+     * 2. Total ads this session < MAX_ADS_PER_SESSION
+     * 3. At least 10 seconds have elapsed since app launch/setup
+     * 4. At least 45 seconds have elapsed since the previous ad
      */
-    fun canShowAd(): Boolean {
-        if (isUserReadingAdhkar) {
+    fun canShowAd(ignoreReadingState: Boolean = false): Boolean {
+        if (!ignoreReadingState && isUserReadingAdhkar) {
             Log.d("AdMob", "Ad blocked: User is currently reciting or reading Azkar/Dua.")
             return false
         }
@@ -185,13 +185,13 @@ object InterstitialAdHelper {
         )
     }
 
-    fun showAd(activity: Activity, onAdClosed: (() -> Unit)? = null) {
+    fun showAd(activity: Activity, forceShow: Boolean = false, onAdClosed: (() -> Unit)? = null) {
         if (BillingManager.isAdsRemovedQuick(activity)) {
             onAdClosed?.invoke()
             return
         }
 
-        if (!canShowAd()) {
+        if (!forceShow && !canShowAd()) {
             onAdClosed?.invoke()
             return
         }
@@ -236,16 +236,54 @@ object InterstitialAdHelper {
         }
     }
 
+    fun showAd(activity: Activity, onAdClosed: (() -> Unit)?) {
+        showAd(activity, forceShow = false, onAdClosed = onAdClosed)
+    }
+
     /**
-     * Schedules the first interstitial ad to appear 1 minute after app start / setup,
-     * ensuring users have full undisturbed time to use the app initially.
+     * Shows an interstitial ad when user is exiting the app or finishing an auto azkar session.
+     * Guaranteed to attempt display and then proceed with action.
+     */
+    fun showAdOnAppExit(activity: Activity, onFinished: () -> Unit) {
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            onFinished()
+            return
+        }
+        val ad = mInterstitialAd
+        if (ad != null) {
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    mInterstitialAd = null
+                    onFinished()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    mInterstitialAd = null
+                    onFinished()
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    mInterstitialAd = null
+                    adsShownThisSession++
+                    lastAdShownTimeMs = SystemClock.elapsedRealtime()
+                }
+            }
+            ad.show(activity)
+        } else {
+            // Ad not preloaded, proceed to close smoothly
+            onFinished()
+        }
+    }
+
+    /**
+     * Schedules the first interstitial ad to appear 10 seconds after app start / setup.
      */
     fun scheduleAppLaunchAd(
         activity: Activity,
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID
     ) {
         if (BillingManager.isAdsRemovedQuick(activity)) return
-        // Pre-load the ad in advance so it is cached and ready when 1 minute expires
+        // Pre-load the ad in advance so it is cached and ready when 10 seconds expire
         loadAd(activity, adUnitId)
 
         val timeAlreadyElapsed = SystemClock.elapsedRealtime() - appStartTimeMs
@@ -254,7 +292,7 @@ object InterstitialAdHelper {
         Handler(Looper.getMainLooper()).postDelayed({
             try {
                 if (!activity.isFinishing && !activity.isDestroyed && canShowAd()) {
-                    Log.d("AdMob", "1 minute initial delay elapsed; presenting 1st interstitial ad.")
+                    Log.d("AdMob", "10 seconds initial delay elapsed; presenting 1st interstitial ad.")
                     showAd(activity)
                 }
             } catch (e: Exception) {

@@ -256,7 +256,11 @@ fun MainScreen(
                 // At Home Screen root: Double tap back button to confirm exit
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastBackPressTime < 2000L) {
-                    (context as? Activity)?.finish()
+                    (context as? Activity)?.let { activity ->
+                        InterstitialAdHelper.showAdOnAppExit(activity) {
+                            activity.finish()
+                        }
+                    }
                 } else {
                     lastBackPressTime = currentTime
                     val exitMsg = when (selectedLanguage) {
