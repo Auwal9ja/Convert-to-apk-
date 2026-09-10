@@ -58,13 +58,13 @@ fun AutoScrollSideBar(
 
     val density = LocalDensity.current
 
-    // Animated bouncing cue to teach users to drag down
+    // Animated subtle bouncing cue to teach users to drag down gently
     val infiniteTransition = rememberInfiniteTransition(label = "scroller_hint")
     val hintBounceOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 10f,
+        targetValue = 4f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "hint_bounce"
@@ -294,52 +294,58 @@ fun AutoScrollSideBar(
                     }
                 }
 
-                // Educational Drag-down Indicator (appears when stopped to guide users)
+                // Educational Drag-down Indicator (small, sleek, light, and compact)
                 AnimatedVisibility(
                     visible = !isPlaying && !isUserDragging && thumbFraction <= 0.02f,
                     enter = fadeIn() + expandHorizontally(),
                     exit = fadeOut() + shrinkHorizontally()
                 ) {
                     val guideText = when (selectedLanguage) {
-                        "Hausa" -> "Ja kasa ⤓"
-                        "Yoruba" -> "Fa sílẹ̀ ⤓"
-                        "Igbo" -> "Dọrọ ala ⤓"
-                        "Arabic" -> "اسحب لأسفل ⤓"
-                        "French" -> "Glisser bas ⤓"
-                        "Spanish" -> "Deslizar ⤓"
-                        else -> "Drag down ⤓"
+                        "Hausa" -> "Ja kasa"
+                        "Yoruba" -> "Fa sílẹ̀"
+                        "Igbo" -> "Dọrọ ala"
+                        "Arabic" -> "اسحب"
+                        "French" -> "Glisser"
+                        "Spanish" -> "Deslizar"
+                        else -> "Drag"
                     }
 
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFE91E63).copy(alpha = 0.92f),
-                        shadowElevation = 6.dp,
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isDarkTheme) Color(0xFF162A20).copy(alpha = 0.88f)
+                                else Color(0xFFFFFFFF).copy(alpha = 0.90f),
+                        shadowElevation = 2.dp,
                         modifier = Modifier
-                            .padding(end = 6.dp)
+                            .padding(end = 5.dp)
                             .offset(y = hintBounceOffset.dp)
                             .clickable {
                                 // Tapping this indicator also starts gentle auto-scroll
                                 hasUserInteracted = true
-                                thumbFraction = 0.12f
+                                thumbFraction = 0.10f
                                 isPlaying = true
                             }
+                            .border(
+                                1.dp,
+                                Color(0xFFE91E63).copy(alpha = 0.55f),
+                                RoundedCornerShape(10.dp)
+                            )
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(2.5.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDownward,
                                 contentDescription = "Drag scroller down to auto-scroll",
-                                tint = Color.White,
-                                modifier = Modifier.size(13.dp)
+                                tint = Color(0xFFE91E63),
+                                modifier = Modifier.size(10.dp)
                             )
                             Text(
                                 text = guideText,
-                                fontSize = 10.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isDarkTheme) Color(0xFFF1F5F9) else Color(0xFF334155)
                             )
                         }
                     }
