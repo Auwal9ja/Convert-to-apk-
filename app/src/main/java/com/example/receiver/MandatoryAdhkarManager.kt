@@ -15,6 +15,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.MainActivity
 import com.example.ui.screens.MandatoryAdhkarActivity
+import com.example.util.VibrationHelper
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -495,7 +496,10 @@ object MandatoryAdhkarManager {
             Log.w(TAG, "errors: WakeLock acquire failed: ${e.message}")
         }
 
-        // 6. Show persistent notification with FullScreenIntent
+        // 6. Trigger two soft vibrations for Auto Azkar opening
+        VibrationHelper.triggerTwoSoftVibrations(context)
+
+        // 7. Show persistent notification with FullScreenIntent
         setSessionState(context, MandatorySessionState.STARTING)
         showPersistentNotification(
             context = context,
@@ -505,7 +509,7 @@ object MandatoryAdhkarManager {
             durationMinutes = durationMinutes
         )
 
-        // 7. Direct activity launch where permitted
+        // 8. Direct activity launch where permitted
         val fullScreenIntent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or

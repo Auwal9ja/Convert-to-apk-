@@ -24,12 +24,26 @@ class FlutterAdService {
   int _adsShownThisSession = 0;
   DateTime? _lastAdShownTime;
 
+  // Track whether user is currently actively reciting or reading Azkar/Dua
+  bool _isUserReadingAdhkar = false;
+
+  void setUserReadingAdhkar(bool reading) {
+    _isUserReadingAdhkar = reading;
+    debugPrint("FlutterAdService: setUserReadingAdhkar set to: $reading");
+  }
+
+  bool get isUserReadingAdhkar => _isUserReadingAdhkar;
+
   InterstitialAd? _interstitialAd;
   bool _isLoading = false;
   Timer? _initialScheduleTimer;
 
   bool get canShowAd {
     if (BillingService().isSubscribed) return false;
+    if (_isUserReadingAdhkar) {
+      debugPrint("FlutterAdService: Ad blocked: User is reciting or reading Azkar/Dua.");
+      return false;
+    }
     if (_adsShownThisSession >= _maxAdsPerSession) {
       debugPrint("FlutterAdService: Max ads per session ($_maxAdsPerSession) reached.");
       return false;

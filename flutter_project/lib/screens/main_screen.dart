@@ -86,8 +86,17 @@ class _MainScreenState extends State<MainScreen> {
           if (index == 0) {
             _loadPreferencesAndPrayers();
           }
-          // After initial 1 min & 1 min cooldown & within max 2 ads
-          if (prevIndex != index && FlutterAdService().canShowAd) {
+          // Set ad suppression state: Suppress ads while in Azkar (index 3) or Quran (index 1)
+          final isEnteringReading = (index == 3 || index == 1);
+          final wasInReading = (prevIndex == 3 || prevIndex == 1);
+
+          FlutterAdService().setUserReadingAdhkar(isEnteringReading);
+
+          // If the user has just exited Azkar/Quran reading page to another tab,
+          // now is the respectful time to present an interstitial ad if eligible.
+          if (wasInReading && !isEnteringReading && FlutterAdService().canShowAd) {
+            FlutterAdService().showInterstitialAd();
+          } else if (prevIndex != index && !isEnteringReading && FlutterAdService().canShowAd) {
             FlutterAdService().showInterstitialAd();
           }
         },

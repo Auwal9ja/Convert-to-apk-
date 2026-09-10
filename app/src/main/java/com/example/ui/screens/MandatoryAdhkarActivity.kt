@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import com.example.ui.components.AutoScrollSideBar
+import com.example.util.VibrationHelper
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -118,6 +119,9 @@ class MandatoryAdhkarActivity : ComponentActivity() {
         val durationMinutes = intent.getIntExtra("DURATION_MINUTES", intent.getIntExtra("READING_DURATION", 3))
 
         Log.d(TAG, "session start: MandatoryAdhkarActivity launched for scheduleId=$scheduleId, title=$scheduleTitle, duration=${durationMinutes}m")
+
+        // Trigger two soft vibrations when Auto Azkar opens
+        VibrationHelper.triggerTwoSoftVibrations(this)
 
         // Intercept back button to prevent accidental premature exit
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

@@ -367,6 +367,60 @@ object PrayerTimeManager {
                     Log.e(TAG, "Failed scheduling prayer alarm for $prayerId: ${e.message}")
                 }
             }
+
+            // Feature: 1 minute remaining before Sallah alert (Two soft vibrations)
+            val prePrayerTime = targetTime - 60_000L // Exactly 1 minute before sallah
+            val preRequestCode = getPrePrayerRequestCode(prayerId)
+            val preIntent = Intent(context, PrayerAlarmReceiver::class.java).apply {
+                action = PrayerAlarmReceiver.ACTION_PRE_PRAYER_VIBRATION
+                putExtra(PrayerAlarmReceiver.EXTRA_PRAYER_ID, prayerId)
+            }
+
+            if (prePrayerTime > now) {
+                val prePendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    preRequestCode,
+                    preIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                try {
+                    val preAlarmClockInfo = AlarmManager.AlarmClockInfo(prePrayerTime, prePendingIntent)
+                    alarmManager.setAlarmClock(preAlarmClockInfo, prePendingIntent)
+                    Log.d(TAG, "Scheduled pre-prayer 1m vibration for $prayerId at ${Date(prePrayerTime)}")
+                } catch (_: Exception) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, prePrayerTime, prePendingIntent)
+                        } else {
+                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, prePrayerTime, prePendingIntent)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed scheduling pre-prayer vibration for $prayerId: ${e.message}")
+                    }
+                }
+            } else {
+                val oldPrePi = PendingIntent.getBroadcast(
+                    context,
+                    preRequestCode,
+                    preIntent,
+                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                )
+                if (oldPrePi != null) {
+                    alarmManager.cancel(oldPrePi)
+                    oldPrePi.cancel()
+                }
+            }
+        }
+    }
+
+    private fun getPrePrayerRequestCode(prayerId: String): Int {
+        return when (prayerId) {
+            "FAJR" -> 2101
+            "DHUHR" -> 2102
+            "ASR" -> 2103
+            "MAGHRIB" -> 2104
+            "ISHA" -> 2105
+            else -> 2100
         }
     }
 
@@ -386,7 +440,7 @@ object PrayerTimeManager {
      * Works on Huawei and devices without Google Play Services by falling back to network reverse geocoding.
      */
     fun resolveLocationName(context: Context, lat: Double, lng: Double): Pair<String, String> {
-        // Step 1: Standard Android Geocoder
+        // Step 1: Standard Android Geocoder - prioritize locality, subAdminArea (LGA/County), town
         try {
             if (Geocoder.isPresent()) {
                 val geocoder = Geocoder(context, Locale.getDefault())
@@ -394,10 +448,24 @@ object PrayerTimeManager {
                 val addresses = geocoder.getFromLocation(lat, lng, 1)
                 if (!addresses.isNullOrEmpty()) {
                     val addr = addresses[0]
-                    val city = addr.locality ?: addr.subAdminArea ?: addr.adminArea ?: addr.featureName
+                    val subAdmin = addr.subAdminArea // e.g. Dandume LGA
+                    val locality = addr.locality // e.g. Dandume
+                    val admin = addr.adminArea // e.g. Katsina State
+                    val feature = addr.featureName
+
+                    val localPlace = locality ?: subAdmin ?: feature ?: admin
+                    val stateOrRegion = if (admin != null && admin != localPlace) admin else ""
                     val country = addr.countryName ?: ""
-                    if (!city.isNullOrBlank()) {
-                        return Pair(city, country)
+
+                    val displayCity = when {
+                        !localPlace.isNullOrBlank() && stateOrRegion.isNotBlank() && !localPlace.contains(stateOrRegion, ignoreCase = true) ->
+                            "$localPlace, $stateOrRegion"
+                        !localPlace.isNullOrBlank() -> localPlace
+                        else -> stateOrRegion
+                    }
+
+                    if (displayCity.isNotBlank()) {
+                        return Pair(displayCity, country)
                     }
                 }
             }
@@ -419,12 +487,21 @@ object PrayerTimeManager {
                 val json = org.json.JSONObject(response)
                 val city = json.optString("city").ifBlank {
                     json.optString("locality").ifBlank {
-                        json.optString("principalSubdivision")
+                        json.optString("localityInfo")
                     }
                 }
+                val state = json.optString("principalSubdivision")
                 val country = json.optString("countryName")
-                if (city.isNotBlank()) {
-                    return Pair(city, country)
+
+                val displayCity = when {
+                    city.isNotBlank() && state.isNotBlank() && !city.contains(state, ignoreCase = true) -> "$city, $state"
+                    city.isNotBlank() -> city
+                    state.isNotBlank() -> state
+                    else -> ""
+                }
+
+                if (displayCity.isNotBlank()) {
+                    return Pair(displayCity, country)
                 }
             }
         } catch (e: Exception) {
@@ -445,16 +522,25 @@ object PrayerTimeManager {
                 val json = org.json.JSONObject(response)
                 val addr = json.optJSONObject("address")
                 if (addr != null) {
-                    val city = addr.optString("city").ifBlank {
-                        addr.optString("town").ifBlank {
-                            addr.optString("state").ifBlank {
+                    val local = addr.optString("town").ifBlank {
+                        addr.optString("village").ifBlank {
+                            addr.optString("city").ifBlank {
                                 addr.optString("county")
                             }
                         }
                     }
+                    val state = addr.optString("state")
                     val country = addr.optString("country")
-                    if (city.isNotBlank()) {
-                        return Pair(city, country)
+
+                    val displayCity = when {
+                        local.isNotBlank() && state.isNotBlank() && !local.contains(state, ignoreCase = true) -> "$local, $state"
+                        local.isNotBlank() -> local
+                        state.isNotBlank() -> state
+                        else -> ""
+                    }
+
+                    if (displayCity.isNotBlank()) {
+                        return Pair(displayCity, country)
                     }
                 }
             }

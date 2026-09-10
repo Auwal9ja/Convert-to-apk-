@@ -16,6 +16,7 @@ import com.example.MainActivity
 import com.example.audio.AthanPlayer
 import com.example.data.local.AppLocalizer
 import com.example.util.PrayerTimeManager
+import com.example.util.VibrationHelper
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
 
@@ -24,6 +25,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         const val CHANNEL_ID = "zakiru_prayer_athan_channel"
         const val CHANNEL_NAME = "Zakiru Muslim Prayer Times & Athan"
         const val ACTION_PRAYER_ALARM = "com.example.ACTION_PRAYER_ALARM"
+        const val ACTION_PRE_PRAYER_VIBRATION = "com.example.ACTION_PRE_PRAYER_VIBRATION"
         const val ACTION_STOP_ATHAN = "com.example.ACTION_STOP_ATHAN"
         const val EXTRA_PRAYER_ID = "EXTRA_PRAYER_ID"
         const val EXTRA_NOTIFICATION_ID = "EXTRA_NOTIFICATION_ID"
@@ -101,6 +103,13 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
                 notificationManager?.cancel(notifId)
             }
+            return
+        }
+
+        if (action == ACTION_PRE_PRAYER_VIBRATION) {
+            val prayerId = intent.getStringExtra(EXTRA_PRAYER_ID) ?: "PRAYER"
+            Log.d(TAG, "Pre-prayer 1-minute alert triggered for $prayerId. Giving 2 soft vibrations.")
+            VibrationHelper.triggerTwoSoftVibrations(context)
             return
         }
 
