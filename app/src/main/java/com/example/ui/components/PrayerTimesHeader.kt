@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.example.data.local.AppLocalizer
 import com.example.ui.theme.QuranFontFamily
+import com.example.R
 import com.example.util.CalculationMethod
 import com.example.util.JuristicMethod
 import com.example.util.PrayerScheduleInfo
@@ -113,32 +117,55 @@ fun PrayerTimesHeaderCard(
             .padding(bottom = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 1. Hero Green Islamic Banner
+        // 1. Hero Islamic Twilight Banner with Medina/Mosque Glow
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp, bottomStart = 20.dp, bottomEnd = 20.dp))
+                .clip(RoundedCornerShape(26.dp))
                 .background(
                     Brush.verticalGradient(
                         colors = if (isDarkTheme) {
-                            listOf(Color(0xFF042F24), Color(0xFF064E3B), Color(0xFF0A3B2F))
+                            listOf(Color(0xFF062822), Color(0xFF0B3830), Color(0xFF031613))
                         } else {
-                            listOf(Color(0xFF006C4E), Color(0xFF075E45), Color(0xFF0B4636))
+                            listOf(Color(0xFF0B6354), Color(0xFF0E7A68), Color(0xFF07483D))
                         }
                     )
                 )
                 .testTag("prayer_times_hero_banner")
         ) {
-            // Subtle Islamic Hexagonal / Geometric Pattern in background
+            // High-resolution artistic mosque twilight background with soft Islamic glow
+            Image(
+                painter = painterResource(id = R.drawable.img_home_hero_bg_1789824178609),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
+
+            // Deep Emerald & Twilight Gradient Overlay for pristine readability
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = if (isDarkTheme) {
+                                listOf(Color(0xCC051D19), Color(0xDD082B24), Color(0xF2031411))
+                            } else {
+                                listOf(Color(0xAA084F43), Color(0xBB0B6656), Color(0xEE063830))
+                            }
+                        )
+                    )
+            )
+
+            // Subtle Islamic Hexagonal / Star Geometric Pattern in background
             Canvas(modifier = Modifier.matchParentSize()) {
-                val patternColor = Color.White.copy(alpha = 0.05f)
-                val step = 36.dp.toPx()
+                val patternColor = Color(0xFFFFE082).copy(alpha = 0.07f)
+                val step = 38.dp.toPx()
                 for (x in 0..(size.width / step).toInt() + 1) {
                     for (y in 0..(size.height / step).toInt() + 1) {
                         val cx = x * step + (if (y % 2 == 1) step / 2 else 0f)
                         val cy = y * step
                         drawCircle(color = patternColor, radius = 10.dp.toPx(), center = Offset(cx, cy), style = Stroke(1.dp.toPx()))
-                        drawCircle(color = patternColor, radius = 4.dp.toPx(), center = Offset(cx, cy))
+                        drawCircle(color = patternColor, radius = 3.dp.toPx(), center = Offset(cx, cy))
                     }
                 }
             }
@@ -146,73 +173,80 @@ fun PrayerTimesHeaderCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 18.dp),
+                    .padding(horizontal = 18.dp, vertical = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(5.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // Centered Bismillah Calligraphy in Arabic
+                // Centered Bismillah Calligraphy in Arabic with soft golden aura
                 Text(
                     text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                     fontFamily = QuranFontFamily,
-                    fontSize = 24.sp,
+                    fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = Color(0xFFFFF7ED),
                     textAlign = TextAlign.Center,
-                    lineHeight = 32.sp
+                    lineHeight = 34.sp
                 )
 
                 Spacer(modifier = Modifier.height(1.dp))
 
-                // Gregorian Date (e.g. Sunday, August 30, 2026)
+                // Gregorian Date
                 Text(
                     text = scheduleInfo.gregorianDateStr,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.White.copy(alpha = 0.92f),
+                    color = Color.White.copy(alpha = 0.94f),
                     textAlign = TextAlign.Center
                 )
 
-                // Hijri Date (e.g. 17 Rabi' Al-Awwal 1448 AH)
-                Text(
-                    text = scheduleInfo.hijriDateStr,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFFFDE68A), // Gentle Islamic gold/cream
-                    textAlign = TextAlign.Center
-                )
+                // Hijri Date with Glowing Sand Gold
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0x33D4A017),
+                    border = BorderStroke(0.7.dp, Color(0x66D4A017))
+                ) {
+                    Text(
+                        text = scheduleInfo.hijriDateStr,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFFDE68A),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // Clickable Location Pin
+                // Clickable Location Pill with Golden Accent
                 Surface(
                     onClick = { showLocationDialog = true },
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White.copy(alpha = 0.15f),
-                    border = BorderStroke(0.8.dp, Color.White.copy(alpha = 0.3f)),
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color.White.copy(alpha = 0.18f),
+                    border = BorderStroke(1.dp, Color(0xFFFDE68A).copy(alpha = 0.5f)),
                     modifier = Modifier.testTag("location_pill_btn")
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = "Location",
                             tint = Color(0xFFFDE68A),
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                         Text(
                             text = "${scheduleInfo.cityName}, ${scheduleInfo.countryName}",
-                            fontSize = 11.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
                             contentDescription = "Change location",
-                            tint = Color.White.copy(alpha = 0.8f),
-                            modifier = Modifier.size(16.dp)
+                            tint = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier.size(17.dp)
                         )
                     }
                 }

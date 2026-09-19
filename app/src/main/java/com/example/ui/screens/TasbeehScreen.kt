@@ -423,8 +423,9 @@ fun TasbeehScreen(
                         (currentCount.toFloat() / currentDhikr.targetCount.toFloat()).coerceIn(0f, 1f)
                     } else 0f
 
-                    val primaryGreen = Color(0xFF00897B)
-                    val trackColor = if (isDarkTheme) Color(0xFF1E3A34) else Color(0xFFE0F2F1)
+                    val primaryGreen = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF0D7A68)
+                    val goldGlow = Color(0xFFD4A017)
+                    val trackColor = if (isDarkTheme) Color(0xFF0E2E26) else Color(0xFFE0F2EE)
 
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         val strokeWidth = 14.dp.toPx()
@@ -440,11 +441,25 @@ fun TasbeehScreen(
                             style = Stroke(width = strokeWidth)
                         )
 
+                        // Outer thin gold accent ring
+                        drawCircle(
+                            color = goldGlow.copy(alpha = 0.35f),
+                            radius = radius + (strokeWidth / 2f) + 2.dp.toPx(),
+                            center = centerOffset,
+                            style = Stroke(width = 1.2.dp.toPx())
+                        )
+
                         // Animated Foreground Arc
                         val sweepAngle = progress * 360f
                         if (sweepAngle > 0f) {
                             drawArc(
-                                color = primaryGreen,
+                                brush = Brush.sweepGradient(
+                                    listOf(
+                                        primaryGreen,
+                                        goldGlow,
+                                        primaryGreen
+                                    )
+                                ),
                                 startAngle = -90f,
                                 sweepAngle = sweepAngle,
                                 useCenter = false,
@@ -470,7 +485,7 @@ fun TasbeehScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFF0D7A68),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 8.dp)
@@ -483,7 +498,7 @@ fun TasbeehScreen(
                             text = "$currentCount",
                             fontSize = 54.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF00897B),
+                            color = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF0D7A68),
                             lineHeight = 56.sp,
                             textAlign = TextAlign.Center
                         )
@@ -494,8 +509,8 @@ fun TasbeehScreen(
                         Text(
                             text = "${AppLocalizer.getString("count_of", selectedLanguage)} ${currentDhikr.targetCount}",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isDarkTheme) Color(0xFFD4A017) else Color(0xFFB45309)
                         )
                     }
                 }

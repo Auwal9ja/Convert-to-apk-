@@ -599,28 +599,39 @@ fun MainScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = if (isDarkTheme) Color(0xFF091F1A) else MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
             ) {
+                    val navItemColors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = if (isDarkTheme) Color(0xFF041210) else Color.White,
+                        selectedTextColor = if (isDarkTheme) Color(0xFFE6BE54) else Color(0xFF0D7A68),
+                        indicatorColor = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF0D7A68),
+                        unselectedIconColor = if (isDarkTheme) Color(0xFF7A9E96) else Color(0xFF64748B),
+                        unselectedTextColor = if (isDarkTheme) Color(0xFF7A9E96) else Color(0xFF64748B)
+                    )
+
                     NavigationBarItem(
                         selected = selectedTab == 0,
                         onClick = { navigateToTab(0) },
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text(AppLocalizer.getString("home", selectedLanguage)) },
+                        label = { Text(AppLocalizer.getString("home", selectedLanguage), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                        colors = navItemColors,
                         modifier = Modifier.testTag("nav_home")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 1,
                         onClick = { navigateToTab(1) },
                         icon = { Icon(Icons.Default.Book, contentDescription = "Library") },
-                        label = { Text(AppLocalizer.getString("library", selectedLanguage)) },
+                        label = { Text(AppLocalizer.getString("library", selectedLanguage), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                        colors = navItemColors,
                         modifier = Modifier.testTag("nav_book")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 2,
                         onClick = { navigateToTab(2) },
                         icon = { Icon(Icons.Default.Explore, contentDescription = "Qibla") },
-                        label = { Text(AppLocalizer.getString("qibla", selectedLanguage)) },
+                        label = { Text(AppLocalizer.getString("qibla", selectedLanguage), fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                        colors = navItemColors,
                         modifier = Modifier.testTag("nav_qibla")
                     )
                     NavigationBarItem(
@@ -632,14 +643,16 @@ fun MainScreen(
                                 contentDescription = "Favorites"
                             )
                         },
-                        label = { Text(AppLocalizer.getString("favorites", selectedLanguage)) },
+                        label = { Text(AppLocalizer.getString("favorites", selectedLanguage), fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
+                        colors = navItemColors,
                         modifier = Modifier.testTag("nav_favorites")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 4,
                         onClick = { navigateToTab(4) },
                         icon = { Icon(Icons.Default.TouchApp, contentDescription = "Tasbeeh") },
-                        label = { Text(AppLocalizer.getString("tasbeeh", selectedLanguage)) },
+                        label = { Text(AppLocalizer.getString("tasbeeh", selectedLanguage), fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
+                        colors = navItemColors,
                         modifier = Modifier.testTag("nav_tasbeeh")
                     )
                 }
@@ -1180,12 +1193,12 @@ fun LibraryTab(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp)
+                .height(145.dp)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(20.dp))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.img_hisnul_muslim_banner),
+                painter = painterResource(id = R.drawable.img_quran_hero_banner_1789824204990),
                 contentDescription = "Zakiru Muslim Banner",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -1194,7 +1207,11 @@ fun LibraryTab(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0x77000000))
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0x44000000), Color(0xCC06251E))
+                        )
+                    )
             )
             Column(
                 modifier = Modifier
@@ -1211,9 +1228,9 @@ fun LibraryTab(
                 )
                 Text(
                     "Zakiru Muslim • The Fortress of Remembrance",
-                    color = Color(0xFFECC76A),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    color = Color(0xFFFDE68A),
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
