@@ -87,17 +87,17 @@ class MandatoryAdhkarActivity : ComponentActivity() {
     private var scheduleTitle: String = "Morning Zikir"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Configure flags to wake screen and display above keyguard
+        // Display above keyguard when triggered; do NOT keep screen awake infinitely to prevent battery drain
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
         }
         window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
+        // Ensure FLAG_KEEP_SCREEN_ON is cleared so the system screen timeout operates normally
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val keyguardManager = getSystemService(KEYGUARD_SERVICE) as? android.app.KeyguardManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -145,10 +145,14 @@ class MandatoryAdhkarActivity : ComponentActivity() {
                     speaker = speaker!!,
                     showExitDialog = showExitWarningDialog,
                     onDismissExitDialog = { showExitWarningDialog = false },
-                    onSessionCompleted = {
+                    onSessionCompleted = { wasRead ->
                         isSessionCompletedState = true
                         speaker?.stop()
-                        MandatoryAdhkarManager.completeSession(this@MandatoryAdhkarActivity, scheduleId, scheduleTitle)
+                        MandatoryAdhkarManager.completeSession(this@MandatoryAdhkarActivity, scheduleId, scheduleTitle, wasRead)
+                    },
+                    onAutoClose = {
+                        speaker?.stop()
+                        finish()
                     },
                     onCloseAfterCompletion = {
                         speaker?.stop()
@@ -183,13 +187,15 @@ fun MandatoryAdhkarSessionScreen(
     speaker: DuaSpeaker,
     showExitDialog: Boolean,
     onDismissExitDialog: () -> Unit,
-    onSessionCompleted: () -> Unit,
+    onSessionCompleted: (wasRead: Boolean) -> Unit,
+    onAutoClose: () -> Unit,
     onCloseAfterCompletion: () -> Unit
 ) {
     val context = LocalContext.current
     val totalSeconds = remember(durationMinutes) { durationMinutes * 60 }
     var secondsLeft by remember(durationMinutes) { mutableIntStateOf(totalSeconds) }
     var isCompleted by remember { mutableStateOf(false) }
+    var hasUserInteracted by remember { mutableStateOf(false) }
     var duasList by remember { mutableStateOf<List<DuaEntity>>(emptyList()) }
 
     // Start session in state machine
@@ -245,7 +251,7 @@ fun MandatoryAdhkarSessionScreen(
         duasList = if (filteredList.isNotEmpty()) filteredList else allCategoryDuas
     }
 
-    // Countdown Timer Loop (Only begins when session screen is active)
+    // Countdown Timer Loop: Automatically closes the app when the session duration completes
     LaunchedEffect(secondsLeft, isCompleted) {
         if (!isCompleted) {
             if (secondsLeft > 0) {
@@ -256,8 +262,13 @@ fun MandatoryAdhkarSessionScreen(
                 }
             } else {
                 isCompleted = true
-                Log.d("NOOR_ZIKIR_MANDATORY", "countdown: Timer reached zero! Marking session completed.")
-                onSessionCompleted()
+                Log.d("NOOR_ZIKIR_MANDATORY", "countdown: Timer reached zero! Session finished. hasUserInteracted=$hasUserInteracted")
+                onSessionCompleted(hasUserInteracted)
+                // If user didn't actively interact, close automatically right away to save battery and display notification
+                // If user did interact, close automatically after a short 2-second grace period
+                val closeDelay = if (hasUserInteracted) 2000L else 500L
+                delay(closeDelay)
+                onAutoClose()
             }
         }
     }
@@ -581,6 +592,16 @@ fun MandatoryAdhkarSessionScreen(
 
             val listState = rememberLazyListState()
 
+            // Detect if user is actively scrolling or reading
+            LaunchedEffect(listState.isScrollInProgress, listState.firstVisibleItemIndex) {
+                if (listState.isScrollInProgress || listState.firstVisibleItemIndex > 0) {
+                    if (!hasUserInteracted) {
+                        hasUserInteracted = true
+                        MandatoryAdhkarManager.markSessionAsRead(context, scheduleId)
+                    }
+                }
+            }
+
             // Recitation List with Right-Side Draggable Auto-Scroll Controller Bar
             Box(
                 modifier = Modifier
@@ -645,6 +666,8 @@ fun MandatoryAdhkarSessionScreen(
                                     val isPlaying = speaker.isPlaying.collectAsStateWithLifecycle().value == dua.id
                                     IconButton(
                                         onClick = {
+                                            hasUserInteracted = true
+                                            MandatoryAdhkarManager.markSessionAsRead(context, scheduleId)
                                             if (isPlaying) speaker.stop() else speaker.speakArabic(dua.id, dua.arabic)
                                         },
                                         modifier = Modifier.size(36.dp)

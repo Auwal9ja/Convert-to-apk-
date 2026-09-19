@@ -75,6 +75,15 @@ object MandatoryAdhkarManager {
     const val CHANNEL_ID_MANDATORY = "noor_zikir_mandatory_session_channel"
     const val NOTIF_ID_ACTIVE_SESSION = 2000
     const val NOTIF_ID_MISSED_SESSION = 2010
+    const val NOTIF_ID_UNREAD_REMINDER = 2020
+
+    // Unread Tracking Keys
+    const val KEY_UNREAD_PENDING = "mandatory_unread_pending"
+    const val KEY_UNREAD_SCHEDULE_ID = "mandatory_unread_schedule_id"
+    const val KEY_UNREAD_SCHEDULE_TITLE = "mandatory_unread_schedule_title"
+    const val KEY_UNREAD_CATEGORY = "mandatory_unread_category"
+    const val KEY_UNREAD_TIMESTAMP = "mandatory_unread_timestamp"
+    const val KEY_UNREAD_REMINDER_SHOWN = "mandatory_unread_reminder_shown"
 
     fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -619,14 +628,34 @@ object MandatoryAdhkarManager {
             .putString(KEY_SESSION_SCHEDULE_TITLE, scheduleTitle)
             .putString(KEY_SESSION_CATEGORY, category)
             .putInt(KEY_SESSION_DURATION_MINS, durationMinutes)
+            // Record unread status: assume unread until user scrolls/interacts with azkar
+            .putBoolean(KEY_UNREAD_PENDING, true)
+            .putString(KEY_UNREAD_SCHEDULE_ID, scheduleId)
+            .putString(KEY_UNREAD_SCHEDULE_TITLE, scheduleTitle)
+            .putString(KEY_UNREAD_CATEGORY, category)
+            .putLong(KEY_UNREAD_TIMESTAMP, startTime)
+            .putBoolean(KEY_UNREAD_REMINDER_SHOWN, false)
             .apply()
 
         showPersistentNotification(context, scheduleId, scheduleTitle, category, durationMinutes)
         return sessionId
     }
 
-    fun completeSession(context: Context, scheduleId: String, scheduleTitle: String) {
-        Log.d(TAG, "session completion: schedule ID=$scheduleId, title=$scheduleTitle")
+    /**
+     * Called when the user has actively read/interacted with the Adhkar during the session.
+     * Clears any pending unread reminder state so no pickup alert is shown.
+     */
+    fun markSessionAsRead(context: Context, scheduleId: String) {
+        Log.d(TAG, "session marked as read by user interaction for schedule=$scheduleId")
+        getPrefs(context).edit()
+            .putBoolean(KEY_UNREAD_PENDING, false)
+            .putBoolean(KEY_UNREAD_REMINDER_SHOWN, true)
+            .apply()
+        cancelUnreadReminderNotification(context)
+    }
+
+    fun completeSession(context: Context, scheduleId: String, scheduleTitle: String, wasRead: Boolean = true) {
+        Log.d(TAG, "session completion: schedule ID=$scheduleId, title=$scheduleTitle, wasRead=$wasRead")
         setSessionState(context, MandatorySessionState.COMPLETED)
         cancelPersistentNotification(context)
 
@@ -639,13 +668,29 @@ object MandatoryAdhkarManager {
         } else if (scheduleId == SCHEDULE_ID_EVENING) {
             prefs.edit().putString(KEY_EVENING_COMPLETED_DATE, today).apply()
         }
-        prefs.edit()
+        val editor = prefs.edit()
             .putString("completed_${scheduleId}_$today", today)
             .putString("last_completed_$scheduleId", occurrenceId)
-            .apply()
 
-        updateStreakOnCompletion(context)
-        recordHistory(context, scheduleTitle, "COMPLETED")
+        if (wasRead) {
+            editor.putBoolean(KEY_UNREAD_PENDING, false)
+            editor.putBoolean(KEY_UNREAD_REMINDER_SHOWN, true)
+        } else {
+            // Keep unread pending flag so when user picks up the phone they get reminded
+            editor.putBoolean(KEY_UNREAD_PENDING, true)
+            editor.putString(KEY_UNREAD_SCHEDULE_ID, scheduleId)
+            editor.putString(KEY_UNREAD_SCHEDULE_TITLE, scheduleTitle)
+            editor.putBoolean(KEY_UNREAD_REMINDER_SHOWN, false)
+        }
+        editor.apply()
+
+        if (wasRead) {
+            cancelUnreadReminderNotification(context)
+            updateStreakOnCompletion(context)
+            recordHistory(context, scheduleTitle, "COMPLETED")
+        } else {
+            recordHistory(context, scheduleTitle, "AUTO_CLOSED_UNREAD")
+        }
 
         // Ensure next occurrence is intact
         val allSchedules = getAllSchedules(context)
@@ -861,6 +906,118 @@ object MandatoryAdhkarManager {
         Log.d(TAG, "notification cancelled: Removing active session notification ID=$NOTIF_ID_ACTIVE_SESSION")
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIF_ID_ACTIVE_SESSION)
+    }
+
+    /**
+     * Checks whether an auto-adhkar session ended without the user having read it,
+     * and shows a top reminder notification as soon as the user picks up or unlocks their phone.
+     */
+    fun checkAndNotifyIfUnreadOnPickup(context: Context) {
+        val prefs = getPrefs(context)
+        val isUnreadPending = prefs.getBoolean(KEY_UNREAD_PENDING, false)
+        val reminderAlreadyShown = prefs.getBoolean(KEY_UNREAD_REMINDER_SHOWN, false)
+
+        Log.d(TAG, "checkAndNotifyIfUnreadOnPickup: isUnreadPending=$isUnreadPending, reminderAlreadyShown=$reminderAlreadyShown")
+
+        if (isUnreadPending && !reminderAlreadyShown) {
+            val scheduleId = prefs.getString(KEY_UNREAD_SCHEDULE_ID, SCHEDULE_ID_MORNING) ?: SCHEDULE_ID_MORNING
+            val scheduleTitle = prefs.getString(KEY_UNREAD_SCHEDULE_TITLE, "Zikir") ?: "Zikir"
+            val category = prefs.getString(KEY_UNREAD_CATEGORY, "Morning Adhkar") ?: "Morning Adhkar"
+            val durationMinutes = prefs.getInt("duration_$scheduleId", 3)
+
+            showUnreadReminderNotification(context, scheduleId, scheduleTitle, category, durationMinutes)
+            prefs.edit().putBoolean(KEY_UNREAD_REMINDER_SHOWN, true).apply()
+        }
+    }
+
+    fun showUnreadReminderNotification(
+        context: Context,
+        scheduleId: String,
+        scheduleTitle: String,
+        category: String,
+        durationMinutes: Int
+    ) {
+        createNotificationChannel(context)
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val selectedLanguage = com.example.data.local.AppLocalizer.getAppSelectedLanguage(context)
+
+        val localizedTitle = when (scheduleId) {
+            SCHEDULE_ID_MORNING -> when (selectedLanguage) {
+                "Hausa" -> "Tunatarwar Zikirin Safe"
+                "Yoruba" -> "Ìránlétí Zikiri Ọ̀sán"
+                "Igbo" -> "Nchetara Ekpere Ụtụtụ"
+                "Arabic" -> "تذكير بأذكار الصباح"
+                "French" -> "Rappel des Adhkar du Matin"
+                "Spanish" -> "Recordatorio de Adhkar Matutino"
+                "Urdu" -> "صبح کے اذکار کی یاددہانی"
+                "Chinese" -> "早晨赞念提醒"
+                else -> "Morning Adhkar Reminder"
+            }
+            SCHEDULE_ID_EVENING -> when (selectedLanguage) {
+                "Hausa" -> "Tunatarwar Zikirin Yamma"
+                "Yoruba" -> "Ìránlétí Zikiri Irọlẹ"
+                "Igbo" -> "Nchetara Ekpere Anyasị"
+                "Arabic" -> "تذكير بأذكار المساء"
+                "French" -> "Rappel des Adhkar du Soir"
+                "Spanish" -> "Recordatorio de Adhkar Vespertino"
+                "Urdu" -> "شام کے اذکار کی یاددہانی"
+                "Chinese" -> "傍晚赞念提醒"
+                else -> "Evening Adhkar Reminder"
+            }
+            else -> scheduleTitle
+        }
+
+        val notifBody = when (selectedLanguage) {
+            "Hausa" -> "Ba a karanta zikirin ba a lokacin da ya bude. Danna nan domin karanta azkar dinka yanzu."
+            "Yoruba" -> "A kò ka zikiri náà nígbà tí ó ṣí sílẹ̀. Tẹ́ ibí láti kà á ní báyìí."
+            "Igbo" -> "A gụbeghị ekpere ahụ mgbe o mepere. Pịa ebe a ka ịgụọ ya ugbu a."
+            "Arabic" -> "لم تتم قراءة الأذكار عندما فُتحت تلقائياً. اضغط هنا لقراءتها الآن ونيل الأجر."
+            "French" -> "Les adhkar n'ont pas été lus. Appuyez ici pour réciter vos invocations maintenant."
+            "Spanish" -> "No se recitaron los adhkar. Toca aquí para leerlos ahora y obtener la recompensa."
+            "Urdu" -> "اذکار پڑھے نہیں گئے تھے۔ اپنے اذکار ابھی پڑھنے کے لیے یہاں دبائیں۔"
+            "Chinese" -> "赞念此前未被诵读。点击此处立即开启诵读。"
+            else -> "Your scheduled Adhkar was not read earlier. Tap here to read your Adhkar now."
+        }
+
+        val launchIntent = Intent(context, MandatoryAdhkarActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra("SCHEDULE_ID", scheduleId)
+            putExtra("SCHEDULE_TITLE", scheduleTitle)
+            putExtra("CATEGORY", category)
+            putExtra("DURATION_MINUTES", durationMinutes)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            NOTIF_ID_UNREAD_REMINDER,
+            launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID_MANDATORY)
+            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+            .setContentTitle(localizedTitle)
+            .setContentText(notifBody)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(notifBody))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setSound(soundUri)
+            .setVibrate(longArrayOf(0, 300, 150, 300))
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        notificationManager.notify(NOTIF_ID_UNREAD_REMINDER, notification)
+        Log.d(TAG, "showUnreadReminderNotification: Displayed unread reminder notification for $scheduleTitle")
+    }
+
+    fun cancelUnreadReminderNotification(context: Context) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIF_ID_UNREAD_REMINDER)
     }
 
     // ==========================================

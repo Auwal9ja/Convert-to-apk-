@@ -104,6 +104,8 @@ class MainActivity : ComponentActivity() {
     if (::inAppUpdateManager.isInitialized) {
       inAppUpdateManager.onResume(this)
     }
+    // Cancel unread notification if user has opened the main app
+    com.example.receiver.MandatoryAdhkarManager.cancelUnreadReminderNotification(this)
   }
 
   override fun onDestroy() {
