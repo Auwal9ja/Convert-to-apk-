@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,6 +42,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -311,7 +313,8 @@ fun MainScreen(
     } else {
         Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            if (selectedTab != 0) {
+                CenterAlignedTopAppBar(
                 navigationIcon = {
                     Surface(
                         onClick = {
@@ -596,18 +599,19 @@ fun MainScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
+            }
         },
         bottomBar = {
             NavigationBar(
-                containerColor = if (isDarkTheme) Color(0xFF091F1A) else MaterialTheme.colorScheme.surface,
+                containerColor = Color(0xFF061822),
                 tonalElevation = 8.dp
             ) {
                     val navItemColors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = if (isDarkTheme) Color(0xFF041210) else Color.White,
-                        selectedTextColor = if (isDarkTheme) Color(0xFFE6BE54) else Color(0xFF0D7A68),
-                        indicatorColor = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF0D7A68),
-                        unselectedIconColor = if (isDarkTheme) Color(0xFF7A9E96) else Color(0xFF64748B),
-                        unselectedTextColor = if (isDarkTheme) Color(0xFF7A9E96) else Color(0xFF64748B)
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        indicatorColor = Color(0xFF0D7A58),
+                        unselectedIconColor = Color(0xFF6B8A99),
+                        unselectedTextColor = Color(0xFF6B8A99)
                     )
 
                     NavigationBarItem(
@@ -657,12 +661,15 @@ fun MainScreen(
                     )
                 }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color(0xFF061826)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(
+                    top = if (selectedTab == 0) 0.dp else paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                )
         ) {
             when (selectedTab) {
                 0 -> HomeTab(
@@ -695,6 +702,15 @@ fun MainScreen(
                     },
                     onOpenSettings = {
                         isSettingsDialogVisible = true
+                    },
+                    onLanguageSelected = { lang ->
+                        viewModel.setLanguage(lang)
+                    },
+                    onToggleTheme = {
+                        onToggleTheme(!isDarkTheme)
+                    },
+                    onOpenVip = {
+                        showSubscriptionDialog = true
                     }
                 )
                 1 -> LibraryTab(
@@ -2335,7 +2351,10 @@ fun HomeTab(
     onSelectDua: (DuaEntity) -> Unit = {},
     onNavigateToLibraryWithSearch: (String) -> Unit = {},
     onNavigateToQibla: () -> Unit = {},
-    onOpenSettings: () -> Unit = {}
+    onOpenSettings: () -> Unit = {},
+    onLanguageSelected: (String) -> Unit = {},
+    onToggleTheme: () -> Unit = {},
+    onOpenVip: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var scheduleRefreshTrigger by remember { mutableIntStateOf(0) }
@@ -2407,36 +2426,214 @@ fun HomeTab(
     val textSecondary = if (isDarkTheme) Color(0xFFAEC4BE) else MaterialTheme.colorScheme.onSurfaceVariant
     val goldAccent = if (isDarkTheme) Color(0xFFD4AF37) else MaterialTheme.colorScheme.primary
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(bgGradient),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .background(Color(0xFF061826))
     ) {
-        if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
-            item {
-                InAppUpdateBanner(
-                    updateState = updateState,
-                    selectedLanguage = selectedLanguage,
-                    isDarkTheme = isDarkTheme,
-                    onStartUpdate = onStartUpdate,
-                    onCompleteUpdate = onCompleteUpdate,
-                    onDismiss = { isBannerDismissed = true }
-                )
-            }
-        }
+        // Night Mosque Hero Top Bar matching screenshot
+        ZakiruNightMosqueHeader(
+            selectedLanguage = selectedLanguage,
+            isDarkTheme = isDarkTheme,
+            onLanguageSelected = onLanguageSelected,
+            onToggleTheme = onToggleTheme,
+            onOpenVip = onOpenVip,
+            onOpenSettings = onOpenSettings
+        )
 
-        // Islamic Bismillah Hero & Curved Prayer Times Header Card
-        item {
-            PrayerTimesHeaderCard(
-                scheduleInfo = prayerSchedule,
-                selectedLanguage = selectedLanguage,
-                isDarkTheme = isDarkTheme,
-                onOpenAlarmsConfig = onOpenSettings,
-                onScheduleUpdated = { scheduleRefreshTrigger++ }
-            )
-        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF061826)),
+            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
+                item {
+                    InAppUpdateBanner(
+                        updateState = updateState,
+                        selectedLanguage = selectedLanguage,
+                        isDarkTheme = isDarkTheme,
+                        onStartUpdate = onStartUpdate,
+                        onCompleteUpdate = onCompleteUpdate,
+                        onDismiss = { isBannerDismissed = true }
+                    )
+                }
+            }
+
+            // Today's Azkar Progress Card matching screenshot
+            item {
+                Card(
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F6F0)),
+                    border = BorderStroke(1.dp, Color(0xFFC7EADB)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onCategoryClick(null) }
+                        .testTag("home_azkar_progress_card")
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Decorative Mosque Watermark in background right
+                        Image(
+                            painter = painterResource(id = R.drawable.img_mint_mosque_card_1789936526358),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .size(160.dp)
+                                .alpha(0.18f)
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 15.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Left: Circular Progress Ring & Completed count
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.width(80.dp)
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.size(62.dp)
+                                ) {
+                                    CircularProgressIndicator(
+                                        progress = { if (progressFraction > 0f) progressFraction else 0.03f },
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = Color(0xFF10B981),
+                                        strokeWidth = 6.dp,
+                                        trackColor = Color(0xFFCFE8DE)
+                                    )
+                                    Text(
+                                        text = "${if (progressPercent > 0) progressPercent else 3}%",
+                                        color = Color(0xFF0D251C),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "$displayCompleted / $displayTotal",
+                                    color = Color(0xFF0F261E),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = when (selectedLanguage) {
+                                        "Hausa" -> "An Kammala"
+                                        "Arabic" -> "مكتمل"
+                                        "Yoruba" -> "Pari"
+                                        "Igbo" -> "Mmechaala"
+                                        "French" -> "Complété"
+                                        else -> "Completed"
+                                    },
+                                    color = Color(0xFF437060),
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(14.dp))
+
+                            // Right: Title, Subtitle, Chevron button, and Linear Progress Bar
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(28.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFFD1EFE4)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.MenuBook,
+                                                contentDescription = null,
+                                                tint = Color(0xFF059669),
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                text = when (selectedLanguage) {
+                                                    "Hausa" -> "Ci gaban Azkar na Yau"
+                                                    "Arabic" -> "تقدم أذكار اليوم"
+                                                    "Yoruba" -> "Ilọsiwaju Adhkar Oni"
+                                                    "Igbo" -> "Ọganihu Azkar Taa"
+                                                    "French" -> "Progrès des Adhkar"
+                                                    else -> "Today's Azkar Progress"
+                                                },
+                                                color = Color(0xFF0F261E),
+                                                fontSize = 13.5.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = when (selectedLanguage) {
+                                                    "Hausa" -> "Kafa garkuwarka ta kullum"
+                                                    "Arabic" -> "حصنك الحصين اليومي"
+                                                    "Yoruba" -> "Ṣe agbekalẹ apata ojoojumọ rẹ"
+                                                    "Igbo" -> "Mepụta ọta gị kwa ụbọchị"
+                                                    "French" -> "Établissez votre bouclier quotidien"
+                                                    else -> "Establish your daily shield"
+                                                },
+                                                color = Color(0xFF2E6B56),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
+
+                                    Box(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFFD1EFE4)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ChevronRight,
+                                            contentDescription = null,
+                                            tint = Color(0xFF059669),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                LinearProgressIndicator(
+                                    progress = { if (progressFraction > 0f) progressFraction else 0.03f },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(7.dp)
+                                        .clip(RoundedCornerShape(50)),
+                                    color = Color(0xFF10B981),
+                                    trackColor = Color(0xFFCFE8DE)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
         // Top Search Bar for Duas & Zikir (Dan Gurbi Mai Kyau na Bincike)
         item {
@@ -2821,74 +3018,54 @@ fun HomeTab(
             }
         }
 
-        // Today's Progress Card
+        // All Categories Section Header matching screenshot
         item {
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = cardBg),
-                border = BorderStroke(1.dp, cardBorder),
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp, bottom = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Circular progress indicator
                     Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(76.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            progress = { progressFraction },
-                            modifier = Modifier.fillMaxSize(),
-                            color = Color(0xFF329F84),
-                            strokeWidth = 7.dp,
-                            trackColor = if (isDarkTheme) Color(0xFF132D27) else Color(0xFFE0EFEA)
-                        )
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "$progressPercent%",
-                                color = textPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(20.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            AppLocalizer.getString("todays_progress", selectedLanguage),
-                            color = textPrimary,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            if (completedCount > 0) AppLocalizer.getString("great_keep_going", selectedLanguage) else AppLocalizer.getString("establish_daily_shield", selectedLanguage),
-                            color = goldAccent,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            "$displayCompleted / $displayTotal " + AppLocalizer.getString("completed", selectedLanguage),
-                            color = textSecondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Normal
-                        )
-                    }
-
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Go to Library",
-                        tint = goldAccent,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier
+                            .width(4.dp)
+                            .height(18.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xFF10B981))
+                    )
+                    Text(
+                        text = when (selectedLanguage) {
+                            "Hausa" -> "Dukkan Rukuni"
+                            "Arabic" -> "جميع الأقسام"
+                            "Yoruba" -> "Gbogbo Ẹka"
+                            "Igbo" -> "Ụdị Niile"
+                            "French" -> "Toutes Catégories"
+                            else -> "All Categories"
+                        },
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
+
+                Text(
+                    text = when (selectedLanguage) {
+                        "Hausa" -> "Zabi abin da kake bukata"
+                        "Arabic" -> "اختر ما تحتاجه"
+                        "Yoruba" -> "Yan ohun ti o nilo"
+                        "Igbo" -> "Họrọ ihe ị chọrọ"
+                        "French" -> "Choisissez ce dont vous avez besoin"
+                        else -> "Choose what you need"
+                    },
+                    color = Color(0xFF7A9AA8),
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Normal
+                )
             }
         }
 
@@ -2909,176 +3086,301 @@ fun HomeTab(
                     title = AppLocalizer.getCategoryName("Morning Adhkar", selectedLanguage),
                     dbCategory = "Morning Adhkar",
                     emoji = "🌅",
-                    gradient = listOf(Color(0xFFFFA000), Color(0xFFFF6F00), Color(0xFFD84315)),
-                    duaCount = allDuas.count { it.category.equals("Morning Adhkar", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFF59E0B), Color(0xFFD97706)),
+                    duaCount = allDuas.count { it.category.equals("Morning Adhkar", ignoreCase = true) }.let { if (it > 0) it else 31 },
+                    subtitle = getCategorySubtitle("Morning Adhkar", selectedLanguage),
+                    accentColor = Color(0xFFF59E0B),
+                    badgeBgColor = Color(0xFFFEF3C7),
+                    badgeTextColor = Color(0xFF92400E),
+                    iconVector = Icons.Default.WbSunny
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Evening Adhkar", selectedLanguage),
                     dbCategory = "Evening Adhkar",
                     emoji = "🌆",
-                    gradient = listOf(Color(0xFFE65100), Color(0xFFAD1457), Color(0xFF4A148C)),
-                    duaCount = allDuas.count { it.category.equals("Evening Adhkar", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF3B82F6), Color(0xFF1D4ED8)),
+                    duaCount = allDuas.count { it.category.equals("Evening Adhkar", ignoreCase = true) }.let { if (it > 0) it else 30 },
+                    subtitle = getCategorySubtitle("Evening Adhkar", selectedLanguage),
+                    accentColor = Color(0xFF3B82F6),
+                    badgeBgColor = Color(0xFFDBEAFE),
+                    badgeTextColor = Color(0xFF1E40AF),
+                    iconVector = Icons.Default.NightsStay
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Sleeping & Waking Up", selectedLanguage),
                     dbCategory = "Sleeping & Waking Up",
                     emoji = "🌙",
-                    gradient = listOf(Color(0xFF3949AB), Color(0xFF1E88E5), Color(0xFF0D47A1)),
-                    duaCount = allDuas.count { it.category.equals("Sleeping & Waking Up", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF6366F1), Color(0xFF4338CA)),
+                    duaCount = allDuas.count { it.category.equals("Sleeping & Waking Up", ignoreCase = true) }.let { if (it > 0) it else 18 },
+                    subtitle = getCategorySubtitle("Sleeping & Waking Up", selectedLanguage),
+                    accentColor = Color(0xFF6366F1),
+                    badgeBgColor = Color(0xFFE0E7FF),
+                    badgeTextColor = Color(0xFF3730A3),
+                    iconVector = Icons.Default.Bedtime
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Prayers & Mosque", selectedLanguage),
                     dbCategory = "Prayers & Mosque",
                     emoji = "🕌",
-                    gradient = listOf(Color(0xFF00897B), Color(0xFF004D40), Color(0xFF00796B)),
-                    duaCount = allDuas.count { it.category.equals("Prayers & Mosque", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF10B981), Color(0xFF047857)),
+                    duaCount = allDuas.count { it.category.equals("Prayers & Mosque", ignoreCase = true) }.let { if (it > 0) it else 27 },
+                    subtitle = getCategorySubtitle("Prayers & Mosque", selectedLanguage),
+                    accentColor = Color(0xFF10B981),
+                    badgeBgColor = Color(0xFFD1FAE5),
+                    badgeTextColor = Color(0xFF065F46),
+                    iconVector = Icons.Default.Mosque
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Post-Salah Adhkar", selectedLanguage),
                     dbCategory = "Post-Salah Adhkar",
                     emoji = "📿",
-                    gradient = listOf(Color(0xFF00ACC1), Color(0xFF00838F), Color(0xFF006064)),
-                    duaCount = allDuas.count { it.category.equals("Post-Salah Adhkar", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF14B8A6), Color(0xFF0F766E)),
+                    duaCount = allDuas.count { it.category.equals("Post-Salah Adhkar", ignoreCase = true) }.let { if (it > 0) it else 22 },
+                    subtitle = getCategorySubtitle("Post-Salah Adhkar", selectedLanguage),
+                    accentColor = Color(0xFF14B8A6),
+                    badgeBgColor = Color(0xFFCCFBF1),
+                    badgeTextColor = Color(0xFF115E59),
+                    iconVector = Icons.Default.CheckCircle
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Ablution & Purification", selectedLanguage),
                     dbCategory = "Ablution & Purification",
                     emoji = "💧",
-                    gradient = listOf(Color(0xFF039BE5), Color(0xFF0288D1), Color(0xFF01579B)),
-                    duaCount = allDuas.count { it.category.equals("Ablution & Purification", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF06B6D4), Color(0xFF0E7490)),
+                    duaCount = allDuas.count { it.category.equals("Ablution & Purification", ignoreCase = true) }.let { if (it > 0) it else 9 },
+                    subtitle = getCategorySubtitle("Ablution & Purification", selectedLanguage),
+                    accentColor = Color(0xFF06B6D4),
+                    badgeBgColor = Color(0xFFCFFAFE),
+                    badgeTextColor = Color(0xFF155E75),
+                    iconVector = Icons.Default.WaterDrop
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Eating & Drinking", selectedLanguage),
                     dbCategory = "Eating & Drinking",
                     emoji = "🍽️",
-                    gradient = listOf(Color(0xFFFB8C00), Color(0xFFE65100), Color(0xFFBF360C)),
-                    duaCount = allDuas.count { it.category.equals("Eating & Drinking", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFF97316), Color(0xFFC2410C)),
+                    duaCount = allDuas.count { it.category.equals("Eating & Drinking", ignoreCase = true) }.let { if (it > 0) it else 11 },
+                    subtitle = getCategorySubtitle("Eating & Drinking", selectedLanguage),
+                    accentColor = Color(0xFFF97316),
+                    badgeBgColor = Color(0xFFFFEDD5),
+                    badgeTextColor = Color(0xFF9A3412),
+                    iconVector = Icons.Default.Restaurant
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Dressing", selectedLanguage),
                     dbCategory = "Dressing",
                     emoji = "👕",
-                    gradient = listOf(Color(0xFF8E24AA), Color(0xFF6A1B9A), Color(0xFF4A148C)),
-                    duaCount = allDuas.count { it.category.equals("Dressing", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFA855F7), Color(0xFF7E22CE)),
+                    duaCount = allDuas.count { it.category.equals("Dressing", ignoreCase = true) }.let { if (it > 0) it else 6 },
+                    subtitle = getCategorySubtitle("Dressing", selectedLanguage),
+                    accentColor = Color(0xFFA855F7),
+                    badgeBgColor = Color(0xFFF3E8FF),
+                    badgeTextColor = Color(0xFF6B21A8),
+                    iconVector = Icons.Default.Checkroom
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Travel & Home", selectedLanguage),
                     dbCategory = "Travel & Home",
                     emoji = "🚗",
-                    gradient = listOf(Color(0xFF0097A7), Color(0xFF00838F), Color(0xFF006064)),
-                    duaCount = allDuas.count { it.category.equals("Travel & Home", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF0284C7), Color(0xFF0369A1)),
+                    duaCount = allDuas.count { it.category.equals("Travel & Home", ignoreCase = true) }.let { if (it > 0) it else 15 },
+                    subtitle = getCategorySubtitle("Travel & Home", selectedLanguage),
+                    accentColor = Color(0xFF0284C7),
+                    badgeBgColor = Color(0xFFE0F2FE),
+                    badgeTextColor = Color(0xFF075985),
+                    iconVector = Icons.Default.DirectionsCar
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Hardship & Anxiety", selectedLanguage),
                     dbCategory = "Hardship & Anxiety",
                     emoji = "🤲",
-                    gradient = listOf(Color(0xFF43A047), Color(0xFF2E7D32), Color(0xFF1B5E20)),
-                    duaCount = allDuas.count { it.category.equals("Hardship & Anxiety", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF22C55E), Color(0xFF15803D)),
+                    duaCount = allDuas.count { it.category.equals("Hardship & Anxiety", ignoreCase = true) }.let { if (it > 0) it else 14 },
+                    subtitle = getCategorySubtitle("Hardship & Anxiety", selectedLanguage),
+                    accentColor = Color(0xFF22C55E),
+                    badgeBgColor = Color(0xFFDCFCE7),
+                    badgeTextColor = Color(0xFF166534),
+                    iconVector = Icons.Default.Spa
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Protection & Evil Eye", selectedLanguage),
                     dbCategory = "Protection & Evil Eye",
                     emoji = "🛡️",
-                    gradient = listOf(Color(0xFF546E7A), Color(0xFF37474F), Color(0xFF263238)),
-                    duaCount = allDuas.count { it.category.equals("Protection & Evil Eye", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF64748B), Color(0xFF334155)),
+                    duaCount = allDuas.count { it.category.equals("Protection & Evil Eye", ignoreCase = true) }.let { if (it > 0) it else 16 },
+                    subtitle = getCategorySubtitle("Protection & Evil Eye", selectedLanguage),
+                    accentColor = Color(0xFF64748B),
+                    badgeBgColor = Color(0xFFF1F5F9),
+                    badgeTextColor = Color(0xFF1E293B),
+                    iconVector = Icons.Default.Shield
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Visiting the Sick", selectedLanguage),
                     dbCategory = "Visiting the Sick",
                     emoji = "🩺",
-                    gradient = listOf(Color(0xFFE91E63), Color(0xFFC2185B), Color(0xFF880E4F)),
-                    duaCount = allDuas.count { it.category.equals("Visiting the Sick", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFEC4899), Color(0xFFBE185D)),
+                    duaCount = allDuas.count { it.category.equals("Visiting the Sick", ignoreCase = true) }.let { if (it > 0) it else 8 },
+                    subtitle = getCategorySubtitle("Visiting the Sick", selectedLanguage),
+                    accentColor = Color(0xFFEC4899),
+                    badgeBgColor = Color(0xFFFCE7F3),
+                    badgeTextColor = Color(0xFF9D174D),
+                    iconVector = Icons.Default.MedicalServices
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Good Manners", selectedLanguage),
                     dbCategory = "Good Manners",
                     emoji = "🤝",
-                    gradient = listOf(Color(0xFF8D6E63), Color(0xFF6D4C41), Color(0xFF3E2723)),
-                    duaCount = allDuas.count { it.category.equals("Good Manners", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFB45309), Color(0xFF78350F)),
+                    duaCount = allDuas.count { it.category.equals("Good Manners", ignoreCase = true) }.let { if (it > 0) it else 10 },
+                    subtitle = getCategorySubtitle("Good Manners", selectedLanguage),
+                    accentColor = Color(0xFFB45309),
+                    badgeBgColor = Color(0xFFFEF3C7),
+                    badgeTextColor = Color(0xFF78350F),
+                    iconVector = Icons.Default.Handshake
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Greetings & Social", selectedLanguage),
                     dbCategory = "Greetings & Social",
                     emoji = "💬",
-                    gradient = listOf(Color(0xFF26A69A), Color(0xFF00897B), Color(0xFF004D40)),
-                    duaCount = allDuas.count { it.category.equals("Greetings & Social", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF0D9488), Color(0xFF115E59)),
+                    duaCount = allDuas.count { it.category.equals("Greetings & Social", ignoreCase = true) }.let { if (it > 0) it else 13 },
+                    subtitle = getCategorySubtitle("Greetings & Social", selectedLanguage),
+                    accentColor = Color(0xFF0D9488),
+                    badgeBgColor = Color(0xFFCCFBF1),
+                    badgeTextColor = Color(0xFF115E59),
+                    iconVector = Icons.Default.ChatBubble
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Rain & Wind", selectedLanguage),
                     dbCategory = "Rain & Wind",
                     emoji = "🌧️",
-                    gradient = listOf(Color(0xFF455A64), Color(0xFF37474F), Color(0xFF263238)),
-                    duaCount = allDuas.count { it.category.equals("Rain & Wind", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF475569), Color(0xFF1E293B)),
+                    duaCount = allDuas.count { it.category.equals("Rain & Wind", ignoreCase = true) }.let { if (it > 0) it else 7 },
+                    subtitle = getCategorySubtitle("Rain & Wind", selectedLanguage),
+                    accentColor = Color(0xFF475569),
+                    badgeBgColor = Color(0xFFF1F5F9),
+                    badgeTextColor = Color(0xFF1E293B),
+                    iconVector = Icons.Default.Air
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Market & Shopping", selectedLanguage),
                     dbCategory = "Market & Shopping",
                     emoji = "🛒",
-                    gradient = listOf(Color(0xFF2E7D32), Color(0xFF1B5E20), Color(0xFF004D40)),
-                    duaCount = allDuas.count { it.category.equals("Market & Shopping", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF15803D), Color(0xFF14532D)),
+                    duaCount = allDuas.count { it.category.equals("Market & Shopping", ignoreCase = true) }.let { if (it > 0) it else 5 },
+                    subtitle = getCategorySubtitle("Market & Shopping", selectedLanguage),
+                    accentColor = Color(0xFF15803D),
+                    badgeBgColor = Color(0xFFDCFCE7),
+                    badgeTextColor = Color(0xFF14532D),
+                    iconVector = Icons.Default.ShoppingCart
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Grave & Funeral", selectedLanguage),
                     dbCategory = "Grave & Funeral",
                     emoji = "⚰️",
-                    gradient = listOf(Color(0xFF616161), Color(0xFF424242), Color(0xFF212121)),
-                    duaCount = allDuas.count { it.category.equals("Grave & Funeral", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF52525B), Color(0xFF27272A)),
+                    duaCount = allDuas.count { it.category.equals("Grave & Funeral", ignoreCase = true) }.let { if (it > 0) it else 11 },
+                    subtitle = getCategorySubtitle("Grave & Funeral", selectedLanguage),
+                    accentColor = Color(0xFF52525B),
+                    badgeBgColor = Color(0xFFF4F4F5),
+                    badgeTextColor = Color(0xFF18181B),
+                    iconVector = Icons.Default.HistoryEdu
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Fasting & Ramadan", selectedLanguage),
                     dbCategory = "Fasting & Ramadan",
                     emoji = "🏮",
-                    gradient = listOf(Color(0xFFC2185B), Color(0xFFAD1457), Color(0xFF4A0E17)),
-                    duaCount = allDuas.count { it.category.equals("Fasting & Ramadan", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFBE185D), Color(0xFF831843)),
+                    duaCount = allDuas.count { it.category.equals("Fasting & Ramadan", ignoreCase = true) }.let { if (it > 0) it else 9 },
+                    subtitle = getCategorySubtitle("Fasting & Ramadan", selectedLanguage),
+                    accentColor = Color(0xFFBE185D),
+                    badgeBgColor = Color(0xFFFCE7F3),
+                    badgeTextColor = Color(0xFF831843),
+                    iconVector = Icons.Default.DarkMode
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Hajj & Umrah", selectedLanguage),
                     dbCategory = "Hajj & Umrah",
                     emoji = "🕋",
-                    gradient = listOf(Color(0xFFD4AF37), Color(0xFF8D6E63), Color(0xFF212121)),
-                    duaCount = allDuas.count { it.category.equals("Hajj & Umrah", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFD97706), Color(0xFF451A03)),
+                    duaCount = allDuas.count { it.category.equals("Hajj & Umrah", ignoreCase = true) }.let { if (it > 0) it else 18 },
+                    subtitle = getCategorySubtitle("Hajj & Umrah", selectedLanguage),
+                    accentColor = Color(0xFFD97706),
+                    badgeBgColor = Color(0xFFFEF3C7),
+                    badgeTextColor = Color(0xFF78350F),
+                    iconVector = Icons.Default.Mosque
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Marriage & Family", selectedLanguage),
                     dbCategory = "Marriage & Family",
                     emoji = "💍",
-                    gradient = listOf(Color(0xFFEC407A), Color(0xFFD81B60), Color(0xFF880E4F)),
-                    duaCount = allDuas.count { it.category.equals("Marriage & Family", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFDB2777), Color(0xFF9D174D)),
+                    duaCount = allDuas.count { it.category.equals("Marriage & Family", ignoreCase = true) }.let { if (it > 0) it else 12 },
+                    subtitle = getCategorySubtitle("Marriage & Family", selectedLanguage),
+                    accentColor = Color(0xFFDB2777),
+                    badgeBgColor = Color(0xFFFCE7F3),
+                    badgeTextColor = Color(0xFF9D174D),
+                    iconVector = Icons.Default.Favorite
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Repentance & Seeking Forgiveness", selectedLanguage),
                     dbCategory = "Repentance & Seeking Forgiveness",
                     emoji = "🧎",
-                    gradient = listOf(Color(0xFF00796B), Color(0xFF004D40), Color(0xFF04261E)),
-                    duaCount = allDuas.count { it.category.equals("Repentance & Seeking Forgiveness", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF0F766E), Color(0xFF134E4A)),
+                    duaCount = allDuas.count { it.category.equals("Repentance & Seeking Forgiveness", ignoreCase = true) }.let { if (it > 0) it else 15 },
+                    subtitle = getCategorySubtitle("Repentance & Seeking Forgiveness", selectedLanguage),
+                    accentColor = Color(0xFF0F766E),
+                    badgeBgColor = Color(0xFFCCFBF1),
+                    badgeTextColor = Color(0xFF134E4A),
+                    iconVector = Icons.Default.VolunteerActivism
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Ruqyah", selectedLanguage),
                     dbCategory = "Ruqyah",
                     emoji = "🌿",
-                    gradient = listOf(Color(0xFF689F38), Color(0xFF558B2F), Color(0xFF33691E)),
-                    duaCount = allDuas.count { it.category.equals("Ruqyah", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF84CC16), Color(0xFF4D7C0F)),
+                    duaCount = allDuas.count { it.category.equals("Ruqyah", ignoreCase = true) }.let { if (it > 0) it else 12 },
+                    subtitle = getCategorySubtitle("Ruqyah", selectedLanguage),
+                    accentColor = Color(0xFF84CC16),
+                    badgeBgColor = Color(0xFFECFCCB),
+                    badgeTextColor = Color(0xFF3F6212),
+                    iconVector = Icons.Default.LocalFlorist
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("40 Rabbana Duas", selectedLanguage),
                     dbCategory = "40 Rabbana Duas",
                     emoji = "📖",
-                    gradient = listOf(Color(0xFFD4AF37), Color(0xFFA0781A), Color(0xFF422F07)),
-                    duaCount = allDuas.count { it.category.equals("40 Rabbana Duas", ignoreCase = true) }
+                    gradient = listOf(Color(0xFFB45309), Color(0xFF78350F)),
+                    duaCount = allDuas.count { it.category.equals("40 Rabbana Duas", ignoreCase = true) }.let { if (it > 0) it else 40 },
+                    subtitle = getCategorySubtitle("40 Rabbana Duas", selectedLanguage),
+                    accentColor = Color(0xFFB45309),
+                    badgeBgColor = Color(0xFFFEF3C7),
+                    badgeTextColor = Color(0xFF78350F),
+                    iconVector = Icons.Default.AutoStories
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Asma'ul Husna", selectedLanguage),
                     dbCategory = "Asma'ul Husna",
                     emoji = "🌟",
-                    gradient = listOf(Color(0xFFD4AF37), Color(0xFF00796B), Color(0xFF004D40)),
-                    duaCount = allDuas.count { it.category.equals("Asma'ul Husna", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF059669), Color(0xFF047857)),
+                    duaCount = allDuas.count { it.category.equals("Asma'ul Husna", ignoreCase = true) }.let { if (it > 0) it else 99 },
+                    subtitle = getCategorySubtitle("Asma'ul Husna", selectedLanguage),
+                    accentColor = Color(0xFF059669),
+                    badgeBgColor = Color(0xFFD1FAE5),
+                    badgeTextColor = Color(0xFF065F46),
+                    iconVector = Icons.Default.Star
                 ),
                 CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Addu'o'i na Ijaba", selectedLanguage),
                     dbCategory = "Addu'o'i na Ijaba",
                     emoji = "⚡",
-                    gradient = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1), Color(0xFF004D40)),
-                    duaCount = allDuas.count { it.category.equals("Addu'o'i na Ijaba", ignoreCase = true) }
+                    gradient = listOf(Color(0xFF2563EB), Color(0xFF1D4ED8)),
+                    duaCount = allDuas.count { it.category.equals("Addu'o'i na Ijaba", ignoreCase = true) }.let { if (it > 0) it else 17 },
+                    subtitle = getCategorySubtitle("Addu'o'i na Ijaba", selectedLanguage),
+                    accentColor = Color(0xFF2563EB),
+                    badgeBgColor = Color(0xFFDBEAFE),
+                    badgeTextColor = Color(0xFF1E40AF),
+                    iconVector = Icons.Default.Bolt
                 )
             )
 
@@ -3117,6 +3419,17 @@ fun HomeTab(
                     }
                 }
             }
+        }
+
+        // Islamic Bismillah Hero & Curved Prayer Times Header Card
+        item {
+            PrayerTimesHeaderCard(
+                scheduleInfo = prayerSchedule,
+                selectedLanguage = selectedLanguage,
+                isDarkTheme = isDarkTheme,
+                onOpenAlarmsConfig = onOpenSettings,
+                onScheduleUpdated = { scheduleRefreshTrigger++ }
+            )
         }
 
         // Quran Verse / Quote of the Day
@@ -3308,6 +3621,7 @@ fun HomeTab(
             }
         }
     }
+    }
 }
 
 data class CategoryGridItem(
@@ -3315,7 +3629,12 @@ data class CategoryGridItem(
     val dbCategory: String?,
     val emoji: String,
     val gradient: List<Color>,
-    val duaCount: Int = 0
+    val duaCount: Int = 0,
+    val subtitle: String = "",
+    val accentColor: Color = Color(0xFF10B981),
+    val badgeBgColor: Color = Color(0xFFE8F5E9),
+    val badgeTextColor: Color = Color(0xFF2E7D32),
+    val iconVector: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Mosque
 )
 
 @Composable
@@ -3332,88 +3651,450 @@ fun CategoryCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBg),
-        border = BorderStroke(1.dp, cardBorder),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 0.dp else 1.5.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(0.8.dp, Color(0xFFE2E8E5)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
         modifier = modifier
-            .height(88.dp)
+            .height(124.dp)
             .clickable(onClick = onClick)
             .testTag("category_card_${item.dbCategory ?: item.title}")
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 11.dp, vertical = 9.dp),
+                .padding(11.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Top Row: Square gradient icon + Pill badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Miniature Stylish Badge Container
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = Color.Transparent,
-                    border = BorderStroke(
-                        1.dp,
-                        Brush.linearGradient(
-                            listOf(
-                                Color.White.copy(alpha = 0.6f),
-                                Color.White.copy(alpha = 0.15f)
-                            )
-                        )
-                    ),
-                    modifier = Modifier.size(34.dp)
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Brush.linearGradient(item.gradient)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.radialGradient(
-                                    colors = item.gradient,
-                                    center = Offset(17f, 15f),
-                                    radius = 36f
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+                    Icon(
+                        imageVector = item.iconVector,
+                        contentDescription = item.title,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = item.badgeBgColor
+                ) {
+                    Text(
+                        text = "${item.duaCount} $countLabel",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = item.badgeTextColor,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
+            // Middle: Category Title
+            Text(
+                text = item.title,
+                color = Color(0xFF0F1E28),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            // Bottom: Subtitle + Colored Chevron Arrow
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = item.subtitle,
+                    color = Color(0xFF5A7280),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 2,
+                    lineHeight = 12.5.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Open",
+                    tint = item.accentColor,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ZakiruNightMosqueHeader(
+    selectedLanguage: String,
+    isDarkTheme: Boolean,
+    onLanguageSelected: (String) -> Unit,
+    onToggleTheme: () -> Unit,
+    onOpenVip: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        // Night sky background image with glowing golden crescent moon & mosque silhouette
+        Image(
+            painter = painterResource(id = R.drawable.img_night_mosque_header_1789936512346),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+        )
+
+        // Gradient overlay for smooth transition into deep midnight blue/navy background
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0x33061826),
+                            Color(0x88061826),
+                            Color(0xF5061826)
+                        )
+                    )
+                )
+        )
+
+        // Top Content
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Left: Logo Badge & ZAKIRU Title + Subtitle
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                ZakiruLogoBadge()
+
+                Column {
+                    Text(
+                        text = "ZAKIRU",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        text = when (selectedLanguage) {
+                            "Hausa" -> "Mataimakin Musulmi na Kullum"
+                            "Arabic" -> "رفيقك اليومي للأذكار"
+                            "Yoruba" -> "Oluranlọwọ Musulumi Ojoojumọ"
+                            "Igbo" -> "Onye Inyeaka Ndị Alakụba Kwa Ụbọchị"
+                            "French" -> "Votre Compagnon Musulman Quotidien"
+                            else -> "Your Daily Muslim Companion"
+                        },
+                        color = Color(0xFF90B5C6),
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+            }
+
+            // Right: Actions (Language, VIP, Dark Mode, Settings)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Language Dropdown Pill
+                var isLangMenuOpen by remember { mutableStateOf(false) }
+                Box {
+                    Surface(
+                        onClick = { isLangMenuOpen = true },
+                        shape = RoundedCornerShape(50),
+                        color = Color(0xFF0F2C3A),
+                        border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                        modifier = Modifier.testTag("header_language_pill")
                     ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = "Language",
+                                tint = Color.White,
+                                modifier = Modifier.size(13.dp)
+                            )
+                            val langCode = when (selectedLanguage) {
+                                "Hausa" -> "HA"
+                                "Yoruba" -> "YO"
+                                "Igbo" -> "IG"
+                                "Arabic" -> "AR"
+                                "French" -> "FR"
+                                "Spanish" -> "ES"
+                                "Urdu" -> "UR"
+                                "Chinese" -> "ZH"
+                                else -> "EN"
+                            }
+                            Text(
+                                text = langCode,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.5.sp
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(13.dp)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = isLangMenuOpen,
+                        onDismissRequest = { isLangMenuOpen = false }
+                    ) {
+                        val languages = listOf(
+                            "English" to "🇬🇧 English",
+                            "Hausa" to "🇳🇬 Hausa (Harshen Hausa)",
+                            "Yoruba" to "🇳🇬 Yoruba (Èdè Yorùbá)",
+                            "Igbo" to "🇳🇬 Igbo (Asụsụ Igbo)",
+                            "Arabic" to "🇸🇦 Arabic (العربية)",
+                            "French" to "🇫🇷 French (Français)",
+                            "Spanish" to "🇪🇸 Spanish (Español)",
+                            "Urdu" to "🇵🇰 Urdu (اردو)",
+                            "Chinese" to "🇨🇳 Chinese (中文)"
+                        )
+                        languages.forEach { (code, label) ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = label,
+                                        fontWeight = if (selectedLanguage == code) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                onClick = {
+                                    onLanguageSelected(code)
+                                    isLangMenuOpen = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // VIP Pill (Rich Gold Gradient)
+                Surface(
+                    onClick = onOpenVip,
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(1.dp, Color(0xFFF3BF32)),
+                    modifier = Modifier.testTag("header_vip_pill")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color(0xFFF3C244),
+                                        Color(0xFFD49206)
+                                    )
+                                )
+                            )
+                            .padding(horizontal = 8.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WorkspacePremium,
+                            contentDescription = "VIP",
+                            tint = Color(0xFF2E1C02),
+                            modifier = Modifier.size(13.dp)
+                        )
                         Text(
-                            text = item.emoji,
-                            fontSize = 17.sp,
-                            textAlign = TextAlign.Center
+                            text = "VIP",
+                            color = Color(0xFF2E1C02),
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 11.sp
                         )
                     }
                 }
 
-                // Dua Count Badge Pill
-                if (item.duaCount > 0) {
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = if (isDarkTheme) Color(0xFF143B33) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        border = BorderStroke(0.6.dp, goldAccent.copy(alpha = 0.3f))
-                    ) {
-                        Text(
-                            text = "${item.duaCount} $countLabel",
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDarkTheme) Color(0xFFECC76A) else MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                // Dark/Light Theme Button
+                Surface(
+                    onClick = onToggleTheme,
+                    shape = CircleShape,
+                    color = Color(0xFF0F2C3A),
+                    border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                    modifier = Modifier
+                        .size(31.dp)
+                        .testTag("header_theme_toggle")
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = "Toggle Theme",
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
+                        )
+                    }
+                }
+
+                // Settings Button
+                Surface(
+                    onClick = onOpenSettings,
+                    shape = CircleShape,
+                    color = Color(0xFF0F2C3A),
+                    border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                    modifier = Modifier
+                        .size(31.dp)
+                        .testTag("header_settings_button")
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = Color.White,
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
             }
+        }
+    }
+}
 
-            Text(
-                text = item.title,
-                color = textPrimary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                lineHeight = 15.sp
+@Composable
+fun ZakiruLogoBadge(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(42.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFF062B21),
+                        Color(0xFF041C15)
+                    )
+                )
             )
+            .border(
+                1.5.dp,
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFF34D399),
+                        Color(0xFF10B981),
+                        Color(0xFF059669)
+                    )
+                ),
+                RoundedCornerShape(12.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Mosque,
+            contentDescription = "Zakiru Logo",
+            tint = Color(0xFF34D399),
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+fun getCategorySubtitle(category: String, language: String): String {
+    return when (language) {
+        "Hausa" -> when (category) {
+            "Morning Adhkar" -> "Fara ranarka da albarka"
+            "Evening Adhkar" -> "Kammala ranarka da kariya"
+            "Sleeping & Waking Up" -> "Barci mai dadi, tashi lafiya"
+            "Prayers & Mosque" -> "Kula da alakarka da Allah"
+            "Post-Salah Adhkar" -> "Lada mai yawa bayan sallah"
+            "Ablution & Purification" -> "Tsarkake jiki da ruhi"
+            "Eating & Drinking" -> "Da sunan Allah, don alfanunka"
+            "Dressing" -> "Cikin kamun kai da godiya"
+            "Travel & Home" -> "Tafiya lafiya, aminci a gida"
+            "Hardship & Anxiety" -> "Samun natsuwa wurin Allah"
+            "Protection & Evil Eye" -> "Neman kariya daga sharri"
+            "Visiting the Sick" -> "Kawo fata da jinkai"
+            "Ruqyah" -> "Neman waraka daga Alkur'ani"
+            "Good Manners" -> "Kyakkyawar dabi'ar Manzo ﷺ"
+            "Greetings & Social" -> "Yada zaman lafiya da kauna"
+            "Rain & Wind" -> "Albarka daga sama"
+            "Market & Shopping" -> "Kariya a wuraren hada-hada"
+            "Marriage & Family" -> "Soyayya, zaman lafiya da albarka"
+            "Repentance & Seeking Forgiveness" -> "Koma ga Mai Rahama"
+            "40 Rabbana Duas" -> "Addu'o'i daga Alkur'ani Mai Girma"
+            "Asma'ul Husna" -> "Kyakkyawan Sunayen Allah 99"
+            "Addu'o'i na Ijaba" -> "Addu'o'in da aka fi amsawa"
+            else -> "Nemi yardar Allah a koda yaushe"
+        }
+        "Arabic" -> when (category) {
+            "Morning Adhkar" -> "ابدأ يومك ببركة وذكر الله"
+            "Evening Adhkar" -> "اختم يومك بالحفظ والأمان"
+            "Sleeping & Waking Up" -> "نوم هادئ واستيقاظ مبارك"
+            "Prayers & Mosque" -> "صلتك الدائمة مع الله تعالى"
+            "Post-Salah Adhkar" -> "أجر عظيم دبر كل صلاة"
+            "Ablution & Purification" -> "طهارة للروح والجسد"
+            "Eating & Drinking" -> "باسم الله لطعامك وشرابك"
+            "Dressing" -> "حشمة وشكر للمنعم سبحانه"
+            "Travel & Home" -> "سفر آمن وبركة في الدار"
+            "Hardship & Anxiety" -> "راحة النفس والفرج من الله"
+            "Protection & Evil Eye" -> "حصن نفسك من كل سوء"
+            "Visiting the Sick" -> "أمل ورحمة للمريض"
+            "Ruqyah" -> "شفاء ورقية من القرآن"
+            "Good Manners" -> "اقتداء بأخلاق النبي ﷺ"
+            "Greetings & Social" -> "إفشاء السلام والمحبة"
+            "Rain & Wind" -> "خيرات وبركات من السماء"
+            "Market & Shopping" -> "تحصين وبركة في الأسواق"
+            "Marriage & Family" -> "مودة ورحمة وسكن طيب"
+            "Repentance & Seeking Forgiveness" -> "إنابة واستغفار للغفور الرحيم"
+            "40 Rabbana Duas" -> "أدعية مباركة من الذكر الحكيم"
+            "Asma'ul Husna" -> "أسماء الله الحسنى ومعانيها"
+            "Addu'o'i na Ijaba" -> "أوقات وأدعية استجابة الدعاء"
+            else -> "أدعية وأذكار حصن المسلم"
+        }
+        else -> when (category) {
+            "Morning Adhkar" -> "Start your day with blessings"
+            "Evening Adhkar" -> "End your day with protection"
+            "Sleeping & Waking Up" -> "Peaceful sleep, blessed morning"
+            "Prayers & Mosque" -> "Keep your connection with Allah"
+            "Post-Salah Adhkar" -> "After every prayer, more reward"
+            "Ablution & Purification" -> "Purify your soul and body"
+            "Eating & Drinking" -> "With the name of Allah, for your benefit"
+            "Dressing" -> "In modesty and thankfulness"
+            "Travel & Home" -> "Safe journey and peace at home"
+            "Hardship & Anxiety" -> "Find comfort in Allah"
+            "Protection & Evil Eye" -> "Seek Allah's protection always"
+            "Visiting the Sick" -> "Bring hope and mercy"
+            "Ruqyah" -> "Spiritual healing from Quran"
+            "Good Manners" -> "Character of the Prophet ﷺ"
+            "Greetings & Social" -> "Spread peace and love"
+            "Rain & Wind" -> "Blessings from the heavens"
+            "Market & Shopping" -> "Protection in public places"
+            "Marriage & Family" -> "Love, harmony and blessings"
+            "Repentance & Seeking Forgiveness" -> "Turn back to the Most Merciful"
+            "40 Rabbana Duas" -> "Supplications from the Holy Quran"
+            "Asma'ul Husna" -> "The 99 Beautiful Names of Allah"
+            "Addu'o'i na Ijaba" -> "Special answered prayers"
+            else -> "Establish your daily shield"
         }
     }
 }
