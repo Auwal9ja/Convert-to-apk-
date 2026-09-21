@@ -2461,6 +2461,17 @@ fun HomeTab(
                 }
             }
 
+            // Islamic Bismillah Hero & Curved Prayer Times Header Card (At top of screen)
+            item {
+                PrayerTimesHeaderCard(
+                    scheduleInfo = prayerSchedule,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme,
+                    onOpenAlarmsConfig = onOpenSettings,
+                    onScheduleUpdated = { scheduleRefreshTrigger++ }
+                )
+            }
+
             // Today's Azkar Progress Card matching screenshot
             item {
                 Card(
@@ -3419,17 +3430,6 @@ fun HomeTab(
                     }
                 }
             }
-        }
-
-        // Islamic Bismillah Hero & Curved Prayer Times Header Card
-        item {
-            PrayerTimesHeaderCard(
-                scheduleInfo = prayerSchedule,
-                selectedLanguage = selectedLanguage,
-                isDarkTheme = isDarkTheme,
-                onOpenAlarmsConfig = onOpenSettings,
-                onScheduleUpdated = { scheduleRefreshTrigger++ }
-            )
         }
 
         // Quran Verse / Quote of the Day
