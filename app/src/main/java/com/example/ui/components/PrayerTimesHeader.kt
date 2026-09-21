@@ -283,9 +283,11 @@ fun PrayerTimesHeaderCard(
         // =========================================================================
         Card(
             shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF061E28)),
-            border = BorderStroke(1.dp, Color(0xFF0F4454)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isDarkTheme) Color(0xFF061E28) else Color.White
+            ),
+            border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF0F4454) else Color(0xFFD6EAE0)),
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 2.dp else 1.5.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("prayer_times_card")
@@ -320,7 +322,7 @@ fun PrayerTimesHeaderCard(
                             },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = if (isDarkTheme) Color.White else Color(0xFF0F261E)
                         )
                     }
 
@@ -328,8 +330,8 @@ fun PrayerTimesHeaderCard(
                     Surface(
                         onClick = onOpenAlarmsConfig,
                         shape = RoundedCornerShape(18.dp),
-                        color = Color(0xFF0A3442),
-                        border = BorderStroke(1.dp, Color(0xFF185B70)),
+                        color = if (isDarkTheme) Color(0xFF0A3442) else Color(0xFFE8F6F0),
+                        border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF185B70) else Color(0xFFBBE4D4)),
                         modifier = Modifier.testTag("btn_alarms_athan_config")
                     ) {
                         Row(
@@ -349,12 +351,12 @@ fun PrayerTimesHeaderCard(
                                 },
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFDE047)
+                                color = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFF065F46)
                             )
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = "Alarms",
-                                tint = Color(0xFFFDE047),
+                                tint = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFF065F46),
                                 modifier = Modifier.size(13.dp)
                             )
                         }
@@ -388,8 +390,8 @@ fun PrayerTimesHeaderCard(
 
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF082E38),
-                    border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.55f)),
+                    color = if (isDarkTheme) Color(0xFF082E38) else Color(0xFFE8F6F0),
+                    border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF10B981).copy(alpha = 0.55f) else Color(0xFFA7F3D0)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -408,7 +410,7 @@ fun PrayerTimesHeaderCard(
                                 text = "$prefixText $nextName",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFA7F3D0)
+                                color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
                             )
                         }
 
@@ -416,7 +418,7 @@ fun PrayerTimesHeaderCard(
                             text = "$nextTime ($sauraText)",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFFDE68A)
+                            color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFF047857)
                         )
                     }
                 }
@@ -434,15 +436,15 @@ fun PrayerTimesHeaderCard(
                             }
                         },
                         shape = CircleShape,
-                        color = Color(0xFF092934),
-                        border = BorderStroke(1.dp, Color(0xFF154857)),
+                        color = if (isDarkTheme) Color(0xFF092934) else Color(0xFFF0F7F4),
+                        border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF154857) else Color(0xFFCFE5DA)),
                         modifier = Modifier.size(32.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronLeft,
                                 contentDescription = "Scroll Left",
-                                tint = Color.White,
+                                tint = if (isDarkTheme) Color.White else Color(0xFF065F46),
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -465,11 +467,15 @@ fun PrayerTimesHeaderCard(
 
                             Surface(
                                 shape = RoundedCornerShape(15.dp),
-                                color = if (isCurrent) Color(0xFF093933) else Color(0xFF072832),
-                                border = if (isCurrent) {
-                                    BorderStroke(1.8.dp, Color(0xFF34D399))
+                                color = if (isCurrent) {
+                                    if (isDarkTheme) Color(0xFF093933) else Color(0xFFD1FAE5)
                                 } else {
-                                    BorderStroke(1.dp, Color(0xFF114352))
+                                    if (isDarkTheme) Color(0xFF072832) else Color(0xFFF7FAF8)
+                                },
+                                border = if (isCurrent) {
+                                    BorderStroke(1.8.dp, if (isDarkTheme) Color(0xFF34D399) else Color(0xFF059669))
+                                } else {
+                                    BorderStroke(1.dp, if (isDarkTheme) Color(0xFF114352) else Color(0xFFE2EDE7))
                                 },
                                 modifier = Modifier
                                     .width(76.dp)
@@ -508,7 +514,11 @@ fun PrayerTimesHeaderCard(
                                         text = shortName,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White,
+                                        color = if (isCurrent) {
+                                            if (isDarkTheme) Color(0xFF34D399) else Color(0xFF065F46)
+                                        } else {
+                                            if (isDarkTheme) Color.White else Color(0xFF0F261E)
+                                        },
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                         textAlign = TextAlign.Center
@@ -519,7 +529,11 @@ fun PrayerTimesHeaderCard(
                                         text = prayer.formattedTime,
                                         fontSize = 11.5.sp,
                                         fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
-                                        color = if (isCurrent) Color.White else Color(0xFF94A3B8),
+                                        color = if (isCurrent) {
+                                            if (isDarkTheme) Color(0xFF34D399) else Color(0xFF065F46)
+                                        } else {
+                                            if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF4A6B60)
+                                        },
                                         maxLines = 1,
                                         textAlign = TextAlign.Center
                                     )
@@ -556,15 +570,15 @@ fun PrayerTimesHeaderCard(
                             }
                         },
                         shape = CircleShape,
-                        color = Color(0xFF092934),
-                        border = BorderStroke(1.dp, Color(0xFF154857)),
+                        color = if (isDarkTheme) Color(0xFF092934) else Color(0xFFF0F7F4),
+                        border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF154857) else Color(0xFFCFE5DA)),
                         modifier = Modifier.size(32.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ChevronRight,
                                 contentDescription = "Scroll Right",
-                                tint = Color.White,
+                                tint = if (isDarkTheme) Color.White else Color(0xFF065F46),
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -585,7 +599,10 @@ fun PrayerTimesHeaderCard(
                                 .padding(horizontal = 3.dp)
                                 .size(if (index == 0) 6.5.dp else 5.dp)
                                 .clip(CircleShape)
-                                .background(if (index == 0) Color(0xFF10B981) else Color(0xFF184958))
+                                .background(
+                                    if (index == 0) Color(0xFF10B981)
+                                    else if (isDarkTheme) Color(0xFF184958) else Color(0xFFCBD5E1)
+                                )
                         )
                     }
                 }
@@ -596,7 +613,8 @@ fun PrayerTimesHeaderCard(
         // CARD 3: AYATUL QUR'AN CARD (Arabesque Corners, Classical Arabic, Hausa)
         // =========================================================================
         AyatulQuranHeroCard(
-            selectedLanguage = selectedLanguage
+            selectedLanguage = selectedLanguage,
+            isDarkTheme = isDarkTheme
         )
     }
 
@@ -745,13 +763,16 @@ fun PrayerTimesHeaderCard(
 @Composable
 fun AyatulQuranHeroCard(
     selectedLanguage: String,
+    isDarkTheme: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF061E28)),
-        border = BorderStroke(1.2.dp, Color(0xFF124B5C)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) Color(0xFF061E28) else Color.White
+        ),
+        border = BorderStroke(1.2.dp, if (isDarkTheme) Color(0xFF124B5C) else Color(0xFFD6EAE0)),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 2.dp else 1.5.dp),
         modifier = modifier
             .fillMaxWidth()
             .testTag("ayatul_quran_hero_card")
@@ -761,7 +782,7 @@ fun AyatulQuranHeroCard(
         ) {
             // Traditional Islamic Gold Arabesque Corner Ornaments on Canvas
             Canvas(modifier = Modifier.matchParentSize()) {
-                val goldColor = Color(0xFFD4AF37).copy(alpha = 0.35f)
+                val goldColor = if (isDarkTheme) Color(0xFFD4AF37).copy(alpha = 0.35f) else Color(0xFFB45309).copy(alpha = 0.25f)
                 val strokeW = 1.2.dp.toPx()
                 val cornerSize = 42.dp.toPx()
 
@@ -843,14 +864,14 @@ fun AyatulQuranHeroCard(
                     Icon(
                         imageVector = Icons.Default.MenuBook,
                         contentDescription = null,
-                        tint = Color(0xFFFDE68A),
+                        tint = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFFB45309),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = "Ayatul Qur'an",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFFDE68A)
+                        color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFFB45309)
                     )
                 }
 
@@ -860,7 +881,7 @@ fun AyatulQuranHeroCard(
                     fontFamily = QuranFontFamily,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = if (isDarkTheme) Color.White else Color(0xFF0F261E),
                     textAlign = TextAlign.Center,
                     lineHeight = 34.sp
                 )
@@ -879,7 +900,7 @@ fun AyatulQuranHeroCard(
                     fontSize = 15.sp,
                     fontStyle = FontStyle.Italic,
                     fontFamily = FontFamily.Serif,
-                    color = Color.White.copy(alpha = 0.94f),
+                    color = if (isDarkTheme) Color.White.copy(alpha = 0.94f) else Color(0xFF2E483F),
                     textAlign = TextAlign.Center,
                     lineHeight = 22.sp
                 )
@@ -889,7 +910,7 @@ fun AyatulQuranHeroCard(
                     text = "— Suratul Ra'ad 13:28",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF2DD4BF)
+                    color = if (isDarkTheme) Color(0xFF2DD4BF) else Color(0xFF059669)
                 )
             }
         }

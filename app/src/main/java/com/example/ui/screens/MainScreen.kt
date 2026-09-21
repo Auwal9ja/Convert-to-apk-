@@ -603,15 +603,15 @@ fun MainScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color(0xFF061822),
+                containerColor = if (isDarkTheme) Color(0xFF061822) else Color.White,
                 tonalElevation = 8.dp
             ) {
                     val navItemColors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = Color.White,
-                        indicatorColor = Color(0xFF0D7A58),
-                        unselectedIconColor = Color(0xFF6B8A99),
-                        unselectedTextColor = Color(0xFF6B8A99)
+                        selectedIconColor = if (isDarkTheme) Color.White else Color(0xFF064E3B),
+                        selectedTextColor = if (isDarkTheme) Color.White else Color(0xFF064E3B),
+                        indicatorColor = if (isDarkTheme) Color(0xFF0D7A58) else Color(0xFFD1FAE5),
+                        unselectedIconColor = if (isDarkTheme) Color(0xFF6B8A99) else Color(0xFF64748B),
+                        unselectedTextColor = if (isDarkTheme) Color(0xFF6B8A99) else Color(0xFF64748B)
                     )
 
                     NavigationBarItem(
@@ -661,7 +661,7 @@ fun MainScreen(
                     )
                 }
         },
-        containerColor = Color(0xFF061826)
+        containerColor = if (isDarkTheme) Color(0xFF061826) else Color(0xFFF4F7F5)
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -2429,7 +2429,7 @@ fun HomeTab(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF061826))
+            .background(if (isDarkTheme) Color(0xFF061826) else Color(0xFFF4F7F5))
     ) {
         // Night Mosque Hero Top Bar matching screenshot
         ZakiruNightMosqueHeader(
@@ -2444,7 +2444,7 @@ fun HomeTab(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF061826)),
+                .background(if (isDarkTheme) Color(0xFF061826) else Color(0xFFF4F7F5)),
             contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -2476,8 +2476,10 @@ fun HomeTab(
             item {
                 Card(
                     shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F6F0)),
-                    border = BorderStroke(1.dp, Color(0xFFC7EADB)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isDarkTheme) Color(0xFF0A2B24) else Color(0xFFE8F6F0)
+                    ),
+                    border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF165243) else Color(0xFFC7EADB)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -2518,11 +2520,11 @@ fun HomeTab(
                                         modifier = Modifier.fillMaxSize(),
                                         color = Color(0xFF10B981),
                                         strokeWidth = 6.dp,
-                                        trackColor = Color(0xFFCFE8DE)
+                                        trackColor = if (isDarkTheme) Color(0xFF134237) else Color(0xFFCFE8DE)
                                     )
                                     Text(
                                         text = "${if (progressPercent > 0) progressPercent else 3}%",
-                                        color = Color(0xFF0D251C),
+                                        color = if (isDarkTheme) Color(0xFFD1FAE5) else Color(0xFF0D251C),
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.ExtraBold
                                     )
@@ -2530,7 +2532,7 @@ fun HomeTab(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = "$displayCompleted / $displayTotal",
-                                    color = Color(0xFF0F261E),
+                                    color = if (isDarkTheme) Color.White else Color(0xFF0F261E),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -2543,7 +2545,7 @@ fun HomeTab(
                                         "French" -> "Complété"
                                         else -> "Completed"
                                     },
-                                    color = Color(0xFF437060),
+                                    color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF437060),
                                     fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -2569,13 +2571,13 @@ fun HomeTab(
                                             modifier = Modifier
                                                 .size(28.dp)
                                                 .clip(CircleShape)
-                                                .background(Color(0xFFD1EFE4)),
+                                                .background(if (isDarkTheme) Color(0xFF134237) else Color(0xFFD1EFE4)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.MenuBook,
                                                 contentDescription = null,
-                                                tint = Color(0xFF059669),
+                                                tint = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF059669),
                                                 modifier = Modifier.size(16.dp)
                                             )
                                         }
@@ -2589,7 +2591,7 @@ fun HomeTab(
                                                     "French" -> "Progrès des Adhkar"
                                                     else -> "Today's Azkar Progress"
                                                 },
-                                                color = Color(0xFF0F261E),
+                                                color = if (isDarkTheme) Color.White else Color(0xFF0F261E),
                                                 fontSize = 13.5.sp,
                                                 fontWeight = FontWeight.ExtraBold,
                                                 maxLines = 1,
@@ -2604,7 +2606,7 @@ fun HomeTab(
                                                     "French" -> "Établissez votre bouclier quotidien"
                                                     else -> "Establish your daily shield"
                                                 },
-                                                color = Color(0xFF2E6B56),
+                                                color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF2E6B56),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Medium,
                                                 maxLines = 1,
@@ -2617,13 +2619,13 @@ fun HomeTab(
                                         modifier = Modifier
                                             .size(24.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFFD1EFE4)),
+                                            .background(if (isDarkTheme) Color(0xFF134237) else Color(0xFFD1EFE4)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ChevronRight,
                                             contentDescription = null,
-                                            tint = Color(0xFF059669),
+                                            tint = if (isDarkTheme) Color(0xFF34D399) else Color(0xFF059669),
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -2638,7 +2640,7 @@ fun HomeTab(
                                         .height(7.dp)
                                         .clip(RoundedCornerShape(50)),
                                     color = Color(0xFF10B981),
-                                    trackColor = Color(0xFFCFE8DE)
+                                    trackColor = if (isDarkTheme) Color(0xFF134237) else Color(0xFFCFE8DE)
                                 )
                             }
                         }
@@ -3432,48 +3434,6 @@ fun HomeTab(
             }
         }
 
-        // Quran Verse / Quote of the Day
-        item {
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = cardBg),
-                border = BorderStroke(1.dp, cardBorder),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatQuote,
-                        contentDescription = null,
-                        tint = goldAccent.copy(alpha = 0.8f),
-                        modifier = Modifier.size(36.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "“" + AppLocalizer.getString("quran_quote", selectedLanguage) + "”",
-                        color = textPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        fontFamily = FontFamily.Serif,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 22.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = AppLocalizer.getString("quran_ref", selectedLanguage),
-                        color = goldAccent,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
-                    )
-                }
-            }
-        }
 
         // Compact More Applications & Company Website Card
         item {
@@ -3652,9 +3612,9 @@ fun CategoryCard(
 ) {
     Card(
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(0.8.dp, Color(0xFFE2E8E5)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
+        border = BorderStroke(0.8.dp, cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDarkTheme) 0.dp else 1.5.dp),
         modifier = modifier
             .height(124.dp)
             .clickable(onClick = onClick)
@@ -3704,7 +3664,7 @@ fun CategoryCard(
             // Middle: Category Title
             Text(
                 text = item.title,
-                color = Color(0xFF0F1E28),
+                color = textPrimary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.ExtraBold,
                 maxLines = 1,
@@ -3719,7 +3679,7 @@ fun CategoryCard(
             ) {
                 Text(
                     text = item.subtitle,
-                    color = Color(0xFF5A7280),
+                    color = textSecondary,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Normal,
                     maxLines = 2,
@@ -3752,31 +3712,59 @@ fun ZakiruNightMosqueHeader(
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Night sky background image with glowing golden crescent moon & mosque silhouette
-        Image(
-            painter = painterResource(id = R.drawable.img_night_mosque_header_1789936512346),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(130.dp)
-        )
+        if (isDarkTheme) {
+            // Night sky background image with glowing golden crescent moon & mosque silhouette
+            Image(
+                painter = painterResource(id = R.drawable.img_night_mosque_header_1789936512346),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+            )
 
-        // Gradient overlay for smooth transition into deep midnight blue/navy background
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(130.dp)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color(0x33061826),
-                            Color(0x88061826),
-                            Color(0xF5061826)
+            // Gradient overlay for smooth transition into deep midnight blue/navy background
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0x33061826),
+                                Color(0x88061826),
+                                Color(0xF5061826)
+                            )
                         )
                     )
-                )
-        )
+            )
+        } else {
+            // Morning mosque background image with warm dawn light
+            Image(
+                painter = painterResource(id = R.drawable.welcome_mosque_bg_1789987490127),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+            )
+
+            // Gradient overlay for smooth transition into light/white background
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0x20FFFFFF),
+                                Color(0x90F4F7F5),
+                                Color(0xFFF4F7F5)
+                            )
+                        )
+                    )
+            )
+        }
 
         // Top Content
         Row(
@@ -3797,7 +3785,7 @@ fun ZakiruNightMosqueHeader(
                 Column {
                     Text(
                         text = "ZAKIRU",
-                        color = Color.White,
+                        color = if (isDarkTheme) Color.White else Color(0xFF064E3B),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 1.sp
@@ -3811,7 +3799,7 @@ fun ZakiruNightMosqueHeader(
                             "French" -> "Votre Compagnon Musulman Quotidien"
                             else -> "Your Daily Muslim Companion"
                         },
-                        color = Color(0xFF90B5C6),
+                        color = if (isDarkTheme) Color(0xFF90B5C6) else Color(0xFF2E6B56),
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Normal
                     )
@@ -3823,14 +3811,18 @@ fun ZakiruNightMosqueHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                val actionBtnBg = if (isDarkTheme) Color(0xFF0F2C3A) else Color.White
+                val actionBtnBorder = if (isDarkTheme) Color(0xFF1E485B) else Color(0xFFCCE4DA)
+                val actionBtnTint = if (isDarkTheme) Color.White else Color(0xFF064E3B)
+
                 // Language Dropdown Pill
                 var isLangMenuOpen by remember { mutableStateOf(false) }
                 Box {
                     Surface(
                         onClick = { isLangMenuOpen = true },
                         shape = RoundedCornerShape(50),
-                        color = Color(0xFF0F2C3A),
-                        border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                        color = actionBtnBg,
+                        border = BorderStroke(1.dp, actionBtnBorder),
                         modifier = Modifier.testTag("header_language_pill")
                     ) {
                         Row(
@@ -3841,7 +3833,7 @@ fun ZakiruNightMosqueHeader(
                             Icon(
                                 imageVector = Icons.Default.Language,
                                 contentDescription = "Language",
-                                tint = Color.White,
+                                tint = actionBtnTint,
                                 modifier = Modifier.size(13.dp)
                             )
                             val langCode = when (selectedLanguage) {
@@ -3857,14 +3849,14 @@ fun ZakiruNightMosqueHeader(
                             }
                             Text(
                                 text = langCode,
-                                color = Color.White,
+                                color = actionBtnTint,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.5.sp
                             )
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = actionBtnTint,
                                 modifier = Modifier.size(13.dp)
                             )
                         }
@@ -3943,8 +3935,8 @@ fun ZakiruNightMosqueHeader(
                 Surface(
                     onClick = onToggleTheme,
                     shape = CircleShape,
-                    color = Color(0xFF0F2C3A),
-                    border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                    color = actionBtnBg,
+                    border = BorderStroke(1.dp, actionBtnBorder),
                     modifier = Modifier
                         .size(31.dp)
                         .testTag("header_theme_toggle")
@@ -3953,7 +3945,7 @@ fun ZakiruNightMosqueHeader(
                         Icon(
                             imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = "Toggle Theme",
-                            tint = Color.White,
+                            tint = actionBtnTint,
                             modifier = Modifier.size(15.dp)
                         )
                     }
@@ -3963,8 +3955,8 @@ fun ZakiruNightMosqueHeader(
                 Surface(
                     onClick = onOpenSettings,
                     shape = CircleShape,
-                    color = Color(0xFF0F2C3A),
-                    border = BorderStroke(1.dp, Color(0xFF1E485B)),
+                    color = actionBtnBg,
+                    border = BorderStroke(1.dp, actionBtnBorder),
                     modifier = Modifier
                         .size(31.dp)
                         .testTag("header_settings_button")
@@ -3973,7 +3965,7 @@ fun ZakiruNightMosqueHeader(
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Settings",
-                            tint = Color.White,
+                            tint = actionBtnTint,
                             modifier = Modifier.size(15.dp)
                         )
                     }
@@ -4546,22 +4538,39 @@ fun OnboardingLanguageSelection(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF4F9F6),
-                        Color(0xFFE8F2EE)
+    ) {
+        // Full screen mosque background image
+        Image(
+            painter = painterResource(id = R.drawable.welcome_mosque_bg_1789987490127),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Gradient overlay for contrast and legibility
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0x80031814),
+                            Color(0xCC05201A),
+                            Color(0xF2031612),
+                            Color(0xFF020F0C)
+                        )
                     )
                 )
-            )
-            .safeDrawingPadding()
-    ) {
+        )
+
         if (currentStep == 0) {
-            // STEP 0: LANGUAGE SELECTION
+            // STEP 0: LANGUAGE SELECTION & WELCOME
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -4569,129 +4578,190 @@ fun OnboardingLanguageSelection(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
                 ) {
-                    // Moon and Stars Header
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Mosque / App Emblem Header with glowing accent
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(115.dp),
+                            .size(76.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    listOf(
+                                        Color(0xFFD4AF37).copy(alpha = 0.45f),
+                                        Color(0xFF059669).copy(alpha = 0.25f),
+                                        Color.Transparent
+                                    )
+                                )
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            val center = Offset(size.width / 2, size.height / 2)
-                            // Draw golden crescent moon
-                            drawCircle(
-                                color = Color(0xFFD4AF37),
-                                radius = 32.dp.toPx(),
-                                center = center
-                            )
-                            drawCircle(
-                                color = Color(0xFFF4F9F6),
-                                radius = 30.dp.toPx(),
-                                center = center - Offset(9.dp.toPx(), 4.dp.toPx())
-                            )
-
-                            val stars = listOf(
-                                center + Offset(-55.dp.toPx(), -18.dp.toPx()),
-                                center + Offset(60.dp.toPx(), -10.dp.toPx()),
-                                center + Offset(28.dp.toPx(), -45.dp.toPx()),
-                                center + Offset(-30.dp.toPx(), 36.dp.toPx()),
-                                center + Offset(40.dp.toPx(), 30.dp.toPx())
-                            )
-                            stars.forEach { pos ->
-                                drawCircle(
-                                    color = Color(0xFF1B5E20).copy(alpha = 0.6f),
-                                    radius = 2.dp.toPx(),
-                                    center = pos
-                                )
-                            }
-                        }
+                        ZakiruLogoBadge(modifier = Modifier.size(54.dp))
                     }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Classical Bismillah Banner
                     Text(
-                        text = "Zakiru Muslim",
+                        text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                        fontFamily = QuranFontFamily,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFDE68A),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "ZAKIRU MUSLIM",
                         style = MaterialTheme.typography.headlineMedium,
                         fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1B5E20),
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White,
+                        letterSpacing = 1.5.sp,
                         textAlign = TextAlign.Center
                     )
 
                     Text(
-                        text = "THE FORTRESS OF REMEMBRANCE",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = if (tempSelectedLanguage == "Hausa")
+                            "GARKUWAR MUSULMI & ADDU'O'IN KULLUM"
+                        else
+                            "THE FORTRESS OF REMEMBRANCE & DAILY ADHKAR",
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2E7D32),
-                        letterSpacing = 2.sp,
+                        color = Color(0xFF34D399),
+                        letterSpacing = 1.5.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                     )
 
-                    Text(
-                        text = "Select your preferred translation language / Zaɓi harshen da kake so:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF2E4039),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 14.dp)
-                    )
-
-                    // Scrollable Languages List
-                    LazyColumn(
+                    // Glassmorphic Card for Language Selection
+                    Card(
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xCC06231C)
+                        ),
+                        border = BorderStroke(1.2.dp, Color(0xFF1E5243)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(vertical = 4.dp)
+                            .weight(1f)
                     ) {
-                        val languages = listOf(
-                            "English" to "🇬🇧 English (English)",
-                            "Hausa" to "🇳🇬 Hausa (Harshen Hausa)",
-                            "Yoruba" to "🇳🇬 Yoruba (Èdè Yorùbá)",
-                            "Igbo" to "🇳🇬 Igbo (Asụsụ Igbo)",
-                            "Spanish" to "🇪🇸 Spanish (Español)",
-                            "French" to "🇫🇷 French (Français)",
-                            "Arabic" to "🇸🇦 Arabic (العربية)",
-                            "Urdu" to "🇵🇰 Urdu (اردو)",
-                            "Chinese" to "🇨🇳 Chinese (中文)"
-                        )
-
-                        items(languages) { (langCode, displayName) ->
-                            val isSelected = tempSelectedLanguage == langCode
-                            Surface(
-                                onClick = {
-                                    tempSelectedLanguage = langCode
-                                    onLanguageSelected(langCode)
-                                },
-                                shape = RoundedCornerShape(16.dp),
-                                color = if (isSelected) Color(0xFFE8F5E9) else Color.White,
-                                border = BorderStroke(
-                                    width = if (isSelected) 2.dp else 1.dp,
-                                    color = if (isSelected) Color(0xFF1B5E20) else Color(0xFFD2E3DE)
-                                ),
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(14.dp)
+                        ) {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(54.dp)
-                                    .testTag("lang_onboarding_$langCode")
+                                    .padding(bottom = 10.dp, start = 4.dp, end = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 18.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Language,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFDE68A),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Text(
+                                        text = if (tempSelectedLanguage == "Hausa") "Zaɓi Harshenka" else "Select Language",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = Color.White
+                                    )
+                                }
+
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = Color(0xFF0F3D32),
+                                    border = BorderStroke(0.8.dp, Color(0xFF10B981))
                                 ) {
                                     Text(
-                                        text = displayName,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) Color(0xFF1B5E20) else Color(0xFF132D27)
+                                        text = "Step 1 of 2",
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF6EE7B7),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                     )
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "Selected",
-                                            tint = Color(0xFF1B5E20),
-                                            modifier = Modifier.size(20.dp)
-                                        )
+                                }
+                            }
+
+                            // Scrollable Languages List
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(vertical = 2.dp)
+                            ) {
+                                val languages = listOf(
+                                    "English" to "🇬🇧 English",
+                                    "Hausa" to "🇳🇬 Hausa (Harshen Hausa)",
+                                    "Yoruba" to "🇳🇬 Yoruba (Èdè Yorùbá)",
+                                    "Igbo" to "🇳🇬 Igbo (Asụsụ Igbo)",
+                                    "Arabic" to "🇸🇦 Arabic (العربية)",
+                                    "French" to "🇫🇷 French (Français)",
+                                    "Spanish" to "🇪🇸 Spanish (Español)",
+                                    "Urdu" to "🇵🇰 Urdu (اردو)",
+                                    "Chinese" to "🇨🇳 Chinese (中文)"
+                                )
+
+                                items(languages) { (langCode, displayName) ->
+                                    val isSelected = tempSelectedLanguage == langCode
+                                    Surface(
+                                        onClick = {
+                                            tempSelectedLanguage = langCode
+                                            onLanguageSelected(langCode)
+                                        },
+                                        shape = RoundedCornerShape(14.dp),
+                                        color = if (isSelected) Color(0xFF0D3D32) else Color(0x73071F19),
+                                        border = BorderStroke(
+                                            width = if (isSelected) 1.5.dp else 1.dp,
+                                            color = if (isSelected) Color(0xFF10B981) else Color(0xFF184236)
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(50.dp)
+                                            .testTag("lang_onboarding_$langCode")
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 14.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = displayName,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                                                color = if (isSelected) Color.White else Color(0xFFD1E8DF),
+                                                fontSize = 14.5.sp
+                                            )
+                                            if (isSelected) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(24.dp)
+                                                        .clip(CircleShape)
+                                                        .background(Color(0xFF10B981)),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Check,
+                                                        contentDescription = "Selected",
+                                                        tint = Color.White,
+                                                        modifier = Modifier.size(15.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -4705,27 +4775,46 @@ fun OnboardingLanguageSelection(
                 Button(
                     onClick = { currentStep = 1 },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1B5E20),
+                        containerColor = Color.Transparent,
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)
                         .testTag("btn_onboarding_next_setup"),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color(0xFF10B981),
+                                        Color(0xFF047857)
+                                    )
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = if (tempSelectedLanguage == "Hausa") "CI GABA ZUWA SAITIN IZINI" else "CONTINUE TO PERMISSIONS SETUP",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            letterSpacing = 0.5.sp
-                        )
-                        Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = if (tempSelectedLanguage == "Hausa") "CI GABA ZUWA SAITIN IZINI" else "CONTINUE TO PERMISSIONS SETUP",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 13.5.sp,
+                                letterSpacing = 0.5.sp
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -4738,6 +4827,8 @@ fun OnboardingLanguageSelection(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
