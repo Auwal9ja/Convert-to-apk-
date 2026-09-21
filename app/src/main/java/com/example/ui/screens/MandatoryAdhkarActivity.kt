@@ -120,6 +120,11 @@ class MandatoryAdhkarActivity : ComponentActivity() {
 
         Log.d(TAG, "session start: MandatoryAdhkarActivity launched for scheduleId=$scheduleId, title=$scheduleTitle, duration=${durationMinutes}m")
 
+        // Strictly suppress ads while user is reading Azkar
+        InterstitialAdHelper.setUserReadingAdhkar(true)
+        // Pre-load interstitial ad so it is guaranteed ready upon session completion
+        InterstitialAdHelper.loadAd(this)
+
         // Trigger two soft vibrations when Auto Azkar opens
         VibrationHelper.triggerTwoSoftVibrations(this)
 
@@ -127,7 +132,10 @@ class MandatoryAdhkarActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isSessionCompletedState) {
-                    finish()
+                    speaker?.stop()
+                    InterstitialAdHelper.showAdOnAutoAzkarComplete(this@MandatoryAdhkarActivity) {
+                        finish()
+                    }
                 } else {
                     Log.d(TAG, "Back pressed while Mandatory Zikir session is ACTIVE. Showing warning dialog.")
                     showExitWarningDialog = true
@@ -152,12 +160,14 @@ class MandatoryAdhkarActivity : ComponentActivity() {
                     },
                     onAutoClose = {
                         speaker?.stop()
-                        finish()
+                        InterstitialAdHelper.showAdOnAutoAzkarComplete(this@MandatoryAdhkarActivity) {
+                            finish()
+                        }
                     },
                     onCloseAfterCompletion = {
                         speaker?.stop()
                         Toast.makeText(this@MandatoryAdhkarActivity, "May Allah accept your Adhkar.", Toast.LENGTH_LONG).show()
-                        InterstitialAdHelper.showAdOnAppExit(this@MandatoryAdhkarActivity) {
+                        InterstitialAdHelper.showAdOnAutoAzkarComplete(this@MandatoryAdhkarActivity) {
                             finish()
                         }
                     }
@@ -175,6 +185,7 @@ class MandatoryAdhkarActivity : ComponentActivity() {
         super.onDestroy()
         speaker?.shutdown()
         speaker = null
+        InterstitialAdHelper.setUserReadingAdhkar(false)
     }
 }
 

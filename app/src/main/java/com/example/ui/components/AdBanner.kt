@@ -276,6 +276,139 @@ object InterstitialAdHelper {
     }
 
     /**
+     * Shows an interstitial ad when user completes an Auto Azkar session and presses complete.
+     * User explicitly requested: "Amma idan an kammala auto azkar anyi pressing complete to definetly ads ta bude."
+     * Guaranteed to open an interstitial ad (unless ads are removed via VIP subscription).
+     * If already preloaded, shows immediately.
+     * If not yet cached, loads on-demand with high priority and safety timeout before finishing.
+     */
+    fun showAdOnAutoAzkarComplete(activity: Activity, onFinished: () -> Unit) {
+        // End reading state
+        setUserReadingAdhkar(false)
+
+        if (BillingManager.isAdsRemovedQuick(activity)) {
+            onFinished()
+            return
+        }
+
+        var hasFinished = false
+        val finishOnce = {
+            if (!hasFinished) {
+                hasFinished = true
+                onFinished()
+            }
+        }
+
+        val ad = mInterstitialAd
+        if (ad != null) {
+            Log.d("AdMob", "Auto Azkar completed: Preloaded interstitial ad available, showing.")
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d("AdMob", "Auto Azkar completed ad dismissed.")
+                    mInterstitialAd = null
+                    loadAd(activity)
+                    finishOnce()
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    Log.e("AdMob", "Auto Azkar completed ad failed to show: ${adError.message}")
+                    mInterstitialAd = null
+                    loadAd(activity)
+                    finishOnce()
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    Log.d("AdMob", "Auto Azkar completed ad showed.")
+                    mInterstitialAd = null
+                    adsShownThisSession++
+                    lastAdShownTimeMs = SystemClock.elapsedRealtime()
+                }
+            }
+            ad.show(activity)
+        } else {
+            Log.d("AdMob", "Auto Azkar completed: Interstitial ad not cached yet, loading on-demand...")
+            val handler = Handler(Looper.getMainLooper())
+            val timeoutRunnable = Runnable {
+                Log.d("AdMob", "Auto Azkar ad load timed out (safety for offline), finishing.")
+                finishOnce()
+            }
+            handler.postDelayed(timeoutRunnable, 3500L)
+
+            val adRequest = AdRequest.Builder().build()
+            InterstitialAd.load(
+                activity,
+                AdConstants.INTERSTITIAL_AD_UNIT_ID,
+                adRequest,
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(loadedAd: InterstitialAd) {
+                        handler.removeCallbacks(timeoutRunnable)
+                        if (hasFinished || activity.isFinishing || activity.isDestroyed) return
+                        Log.d("AdMob", "Auto Azkar on-demand live ad loaded successfully, showing.")
+                        loadedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+                            override fun onAdDismissedFullScreenContent() {
+                                mInterstitialAd = null
+                                finishOnce()
+                            }
+
+                            override fun onAdFailedToShowFullScreenContent(err: AdError) {
+                                mInterstitialAd = null
+                                finishOnce()
+                            }
+
+                            override fun onAdShowedFullScreenContent() {
+                                mInterstitialAd = null
+                                adsShownThisSession++
+                                lastAdShownTimeMs = SystemClock.elapsedRealtime()
+                            }
+                        }
+                        loadedAd.show(activity)
+                    }
+
+                    override fun onAdFailedToLoad(loadError: LoadAdError) {
+                        Log.d("AdMob", "Auto Azkar live ad failed: ${loadError.message}, falling back to sample unit")
+                        InterstitialAd.load(
+                            activity,
+                            AdConstants.SAMPLE_INTERSTITIAL_AD_UNIT_ID,
+                            adRequest,
+                            object : InterstitialAdLoadCallback() {
+                                override fun onAdLoaded(sampleAd: InterstitialAd) {
+                                    handler.removeCallbacks(timeoutRunnable)
+                                    if (hasFinished || activity.isFinishing || activity.isDestroyed) return
+                                    Log.d("AdMob", "Auto Azkar sample unit loaded, showing.")
+                                    sampleAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                        override fun onAdDismissedFullScreenContent() {
+                                            mInterstitialAd = null
+                                            finishOnce()
+                                        }
+
+                                        override fun onAdFailedToShowFullScreenContent(err: AdError) {
+                                            mInterstitialAd = null
+                                            finishOnce()
+                                        }
+
+                                        override fun onAdShowedFullScreenContent() {
+                                            mInterstitialAd = null
+                                            adsShownThisSession++
+                                            lastAdShownTimeMs = SystemClock.elapsedRealtime()
+                                        }
+                                    }
+                                    sampleAd.show(activity)
+                                }
+
+                                override fun onAdFailedToLoad(err: LoadAdError) {
+                                    Log.e("AdMob", "Both live and sample ads failed to load: ${err.message}")
+                                    handler.removeCallbacks(timeoutRunnable)
+                                    finishOnce()
+                                }
+                            }
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    /**
      * Schedules the first interstitial ad to appear 10 seconds after app start / setup.
      */
     fun scheduleAppLaunchAd(

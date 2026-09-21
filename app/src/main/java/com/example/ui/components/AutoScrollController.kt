@@ -58,16 +58,25 @@ fun AutoScrollSideBar(
 
     val density = LocalDensity.current
 
-    // Animated subtle bouncing cue to teach users to drag down gently
-    val infiniteTransition = rememberInfiniteTransition(label = "scroller_hint")
-    val hintBounceOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 4f,
+    // Animated subtle sliding finger cue to indicate dragging/scrolling down
+    val infiniteTransition = rememberInfiniteTransition(label = "scroller_finger_cue")
+    val fingerSlideOffset by infiniteTransition.animateFloat(
+        initialValue = -2f,
+        targetValue = 5f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
+            animation = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
         ),
-        label = "hint_bounce"
+        label = "finger_slide"
+    )
+    val fingerAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 0.40f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "finger_alpha"
     )
 
     // Calculate current speed factor with deep focus on ultra-low slow-reading speeds (0.05x to 3.5x)
@@ -294,58 +303,52 @@ fun AutoScrollSideBar(
                     }
                 }
 
-                // Educational Drag-down Indicator (small, sleek, light, and compact)
+                // Small Animated Finger Indicator indicating scroll down (Dan Karamin finger)
                 AnimatedVisibility(
                     visible = !isPlaying && !isUserDragging && thumbFraction <= 0.02f,
-                    enter = fadeIn() + expandHorizontally(),
-                    exit = fadeOut() + shrinkHorizontally()
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
                 ) {
-                    val guideText = when (selectedLanguage) {
-                        "Hausa" -> "Ja kasa"
-                        "Yoruba" -> "Fa sílẹ̀"
-                        "Igbo" -> "Dọrọ ala"
-                        "Arabic" -> "اسحب"
-                        "French" -> "Glisser"
-                        "Spanish" -> "Deslizar"
-                        else -> "Drag"
-                    }
-
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (isDarkTheme) Color(0xFF162A20).copy(alpha = 0.88f)
-                                else Color(0xFFFFFFFF).copy(alpha = 0.90f),
-                        shadowElevation = 2.dp,
+                    Box(
                         modifier = Modifier
-                            .padding(end = 5.dp)
-                            .offset(y = hintBounceOffset.dp)
+                            .padding(end = 4.dp)
+                            .size(24.dp)
+                            .shadow(2.dp, CircleShape)
+                            .clip(CircleShape)
+                            .background(
+                                if (isDarkTheme) Color(0xFF162A20).copy(alpha = 0.94f)
+                                else Color(0xFFFFFFFF).copy(alpha = 0.95f)
+                            )
+                            .border(
+                                1.dp,
+                                Color(0xFFE91E63).copy(alpha = 0.65f),
+                                CircleShape
+                            )
                             .clickable {
-                                // Tapping this indicator also starts gentle auto-scroll
                                 hasUserInteracted = true
                                 thumbFraction = 0.10f
                                 isPlaying = true
-                            }
-                            .border(
-                                1.dp,
-                                Color(0xFFE91E63).copy(alpha = 0.55f),
-                                RoundedCornerShape(10.dp)
-                            )
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.5.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.offset(y = fingerSlideOffset.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ArrowDownward,
-                                contentDescription = "Drag scroller down to auto-scroll",
-                                tint = Color(0xFFE91E63),
-                                modifier = Modifier.size(10.dp)
+                                imageVector = Icons.Default.TouchApp,
+                                contentDescription = "Scroll down",
+                                tint = Color(0xFFE91E63).copy(alpha = fingerAlpha),
+                                modifier = Modifier.size(13.dp)
                             )
-                            Text(
-                                text = guideText,
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isDarkTheme) Color(0xFFF1F5F9) else Color(0xFF334155)
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = null,
+                                tint = Color(0xFFE91E63).copy(alpha = fingerAlpha),
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .offset(y = (-2).dp)
                             )
                         }
                     }

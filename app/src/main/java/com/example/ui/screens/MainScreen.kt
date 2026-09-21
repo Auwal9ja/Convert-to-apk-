@@ -198,21 +198,22 @@ fun MainScreen(
     }
 
     // Update InterstitialAdHelper reading state whenever user enters/exits azkar/dua view
-    val isReadingAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
+    val isReadingAzkar = (selectedTab == 1) || (selectedTab == 3)
     LaunchedEffect(isReadingAzkar) {
         InterstitialAdHelper.setUserReadingAdhkar(isReadingAzkar)
     }
 
     fun navigateToTab(targetTab: Int) {
         if (selectedTab != targetTab) {
-            val wasInAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
+            val wasInAzkar = (selectedTab == 1) || (selectedTab == 3)
+            val willBeInAzkar = (targetTab == 1) || (targetTab == 3)
             tabBackStack.add(selectedTab)
             selectedTab = targetTab
             (context as? Activity)?.let { activity ->
-                if (wasInAzkar) {
-                    // Trigger interstitial ad only after user has finished and exited azkar/dua page
+                if (wasInAzkar && !willBeInAzkar) {
+                    // Trigger interstitial ad only after user has finished and exited azkar/dua reading page
                     InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
-                } else {
+                } else if (!willBeInAzkar) {
                     InterstitialAdHelper.triggerAdOnAction(activity, threshold = 4)
                 }
             }
@@ -235,24 +236,28 @@ fun MainScreen(
                 viewModel.setSearchQuery("")
             }
             selectedTab == 1 && selectedCategory != null -> {
+                // User is resetting category filter within Azkar page: stay in reading mode, do not trigger ad
                 viewModel.selectCategory(null)
-                // User has finished/exited the Azkar category page: show ad on exit
-                (context as? Activity)?.let { activity ->
-                    InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
-                }
             }
             tabBackStack.isNotEmpty() -> {
                 val previousTab = tabBackStack.removeAt(tabBackStack.lastIndex)
-                val wasInAzkar = (selectedTab == 1 && selectedCategory != null) || (selectedTab == 4)
+                val wasInAzkar = (selectedTab == 1) || (selectedTab == 3)
+                val willBeInAzkar = (previousTab == 1) || (previousTab == 3)
                 selectedTab = previousTab
-                if (wasInAzkar) {
+                if (wasInAzkar && !willBeInAzkar) {
                     (context as? Activity)?.let { activity ->
                         InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
                     }
                 }
             }
             selectedTab != 0 -> {
+                val wasInAzkar = (selectedTab == 1) || (selectedTab == 3)
                 selectedTab = 0
+                if (wasInAzkar) {
+                    (context as? Activity)?.let { activity ->
+                        InterstitialAdHelper.triggerAdOnAction(activity, threshold = 2)
+                    }
+                }
             }
             else -> {
                 // At Home Screen root: Double tap back button to confirm exit
