@@ -1422,6 +1422,7 @@ fun LibraryTab(
                             isTarget = targetDuaId == dua.id,
                             onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
                             getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                            getDuaDetails = { d, lang -> viewModel.getLocalizedDuaDetails(d, lang) },
                             onFavoriteToggle = {
                                 viewModel.toggleFavorite(dua.id, dua.isFavorite)
                             }
@@ -1519,6 +1520,7 @@ fun FavoritesTab(
                             isDarkTheme = isDarkTheme,
                             onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
                             getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                            getDuaDetails = { d, lang -> viewModel.getLocalizedDuaDetails(d, lang) },
                             onFavoriteToggle = {
                                 viewModel.toggleFavorite(dua.id, dua.isFavorite)
                             }
@@ -1823,9 +1825,14 @@ fun DuaItemCard(
     isTarget: Boolean = false,
     onCompleteToggle: () -> Unit = {},
     getTranslation: suspend (DuaEntity, String) -> Pair<String, String>,
+    getDuaDetails: (suspend (DuaEntity, String) -> com.example.data.repository.LocalizedDuaDetails)? = null,
     onFavoriteToggle: () -> Unit
 ) {
     val context = LocalContext.current
+
+    var titleText by remember(dua.id, selectedLanguage) {
+        mutableStateOf(AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage))
+    }
 
     var translationText by remember(dua.id, selectedLanguage) {
         val initial = DuaTranslationLocalization.getLocalizedTranslation(
@@ -1866,16 +1873,30 @@ fun DuaItemCard(
         } else {
             DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
         }
+        val staticTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
 
         translationText = localTrans
         referenceText = localRef
+        titleText = staticTitle
 
-        if (selectedLanguage != "English" && localTrans == dua.translation) {
+        val needsDynamic = (dua.id > 359) ||
+            (selectedLanguage != "English" && localTrans == dua.translation) ||
+            (selectedLanguage == "Hausa" && dua.translationHausa.isBlank() && dua.translation.isNotBlank()) ||
+            (selectedLanguage != "Hausa" && selectedLanguage != "English" && localTrans == dua.translation)
+
+        if (needsDynamic) {
             isTranslating = true
             try {
-                val result = getTranslation(dua, selectedLanguage)
-                translationText = result.first
-                referenceText = result.second
+                if (getDuaDetails != null) {
+                    val details = getDuaDetails(dua, selectedLanguage)
+                    titleText = details.title
+                    translationText = details.translation
+                    referenceText = details.reference
+                } else {
+                    val result = getTranslation(dua, selectedLanguage)
+                    translationText = result.first
+                    referenceText = result.second
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -1954,7 +1975,7 @@ fun DuaItemCard(
 
             // Supplication Title
             Text(
-                text = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage),
+                text = titleText,
                 fontSize = 18.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -2106,8 +2127,7 @@ fun DuaItemCard(
                 Row {
                     IconButton(
                         onClick = {
-                            val localizedTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
-                            val shareBody = "${localizedTitle}\n\n${dua.arabic}\n\n${translationText}\n\nRef: ${referenceText}"
+                            val shareBody = "${titleText}\n\n${dua.arabic}\n\n${translationText}\n\nRef: ${referenceText}"
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, shareBody)

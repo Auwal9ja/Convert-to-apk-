@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.example.data.local.DuaDatabase
 import com.example.data.repository.DuaRepository
 import com.example.receiver.OneSignalHelper
@@ -46,10 +47,14 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Google Mobile Ads SDK
-    MobileAds.initialize(this) {}
-    InterstitialAdHelper.scheduleAppLaunchAd(this)
-    RewardedAdHelper.loadAd(this)
+    // Initialize Google Mobile Ads SDK safely
+    try {
+      MobileAds.initialize(this) {}
+      InterstitialAdHelper.scheduleAppLaunchAd(this)
+      RewardedAdHelper.loadAd(this)
+    } catch (e: Exception) {
+      Log.w("MainActivity", "MobileAds initialization or loading error: ${e.message}")
+    }
 
     // Ensure notification channels & exact alarms are scheduled if enabled
     com.example.receiver.MandatoryAdhkarManager.createNotificationChannel(this)
@@ -58,6 +63,15 @@ class MainActivity : ComponentActivity() {
 
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
+
+    // Background Cloud Sync check if enabled
+    if (com.example.data.remote.CloudSyncManager.isAutoSyncEnabled(this)) {
+      lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        try {
+          com.example.data.remote.CloudSyncManager.syncWithRemote(this@MainActivity)
+        } catch (_: Exception) {}
+      }
+    }
 
     // Initialize In-App Update Manager & check for background updates cleanly
     inAppUpdateManager = InAppUpdateManager(this)

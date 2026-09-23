@@ -1665,7 +1665,7 @@ object AppLocalizer {
     }
 
     fun getDuaTitle(id: Int, defaultTitle: String, language: String): String {
-        if (id == 244) {
+        if (id == 244 && defaultTitle.contains("Asma'ul Husna", ignoreCase = true)) {
             return when (language) {
                 "Hausa" -> "Amfanin Sanin Asma'ul Husna (Sunayen Allah 99)"
                 "Yoruba" -> "Àǹfààní Kíkẹ́kọ̀ọ́ Àwọn Orúkọ Allāhu (Asma'ul Husna)"

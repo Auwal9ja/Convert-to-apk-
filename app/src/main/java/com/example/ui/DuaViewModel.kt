@@ -169,6 +169,10 @@ class DuaViewModel(
         return repository.getTranslationAndReference(dua, language)
     }
 
+    suspend fun getLocalizedDuaDetails(dua: DuaEntity, language: String): com.example.data.repository.LocalizedDuaDetails {
+        return repository.getLocalizedDuaDetails(dua, language)
+    }
+
     fun toggleFavorite(id: Int, isCurrentlyFavorite: Boolean) {
         viewModelScope.launch {
             repository.toggleFavorite(id, !isCurrentlyFavorite)
