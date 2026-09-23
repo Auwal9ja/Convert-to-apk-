@@ -52,10 +52,32 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Create temporary debug keystore
+      - name: Ensure environment configuration
+        run: |
+          if [ ! -f "./.env" ]; then
+            if [ -f "./.env.example" ]; then
+              echo "Creating .env from .env.example..."
+              cp .env.example .env
+            else
+              echo "Creating minimal .env..."
+              echo "GEMINI_API_KEY=" > .env
+            fi
+          fi
+
+      - name: Accept Android SDK licenses
+        run: |
+          if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
+            echo "Accepting Android SDK licenses..."
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || yes | "$ANDROID_HOME/tools/bin/sdkmanager" --licenses 2>/dev/null || true
+          fi
+
+      - name: Restore or create debug keystore
         run: |
           if [ -f "./debug.keystore" ]; then
             echo "Existing debug.keystore detected."
+          elif [ -f "./debug.keystore.base64" ]; then
+            echo "Restoring debug.keystore from debug.keystore.base64..."
+            base64 -d ./debug.keystore.base64 > ./debug.keystore
           else
             echo "Generating temporary debug keystore..."
             keytool -genkeypair \
@@ -68,13 +90,13 @@ jobs:
               -storepass android \
               -keypass android \
               -dname "CN=Android Debug,O=Android,C=US"
-
-            if [ ! -f "./debug.keystore" ]; then
-              echo "::error::Failed to create debug.keystore"
-              exit 1
-            fi
-            echo "Temporary debug keystore generated successfully."
           fi
+
+          if [ ! -f "./debug.keystore" ]; then
+            echo "::error::Failed to create debug.keystore"
+            exit 1
+          fi
+          echo "Debug keystore ready."
 
       - name: Build the debug APK
         env:
