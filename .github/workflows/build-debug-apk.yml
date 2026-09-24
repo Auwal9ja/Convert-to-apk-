@@ -27,69 +27,107 @@ jobs:
           cache: 'gradle'
 
       - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
-      - name: Run Build Diagnostics
+      - name: Environment Diagnostics
+        shell: bash
         run: |
-          echo "=== Java Environment ==="
-          java -version
-          echo "=== Gradle Environment ==="
-          ./gradlew --version
-          echo "=== Android Build Configuration ==="
-          echo "Application Module: :app"
-          echo "JDK Version: 21 (Temurin)"
-          echo "Gradle Version: 9.3.1"
-          echo "Android Gradle Plugin Version: 9.1.1"
-          echo "Kotlin Version: 2.2.10"
-          echo "compileSdk: 36 (minorApiLevel = 1)"
-          echo "minSdk: 24"
-          echo "targetSdk: 36"
+          mkdir -p diagnostics
+          {
+            echo "=========================================="
+            echo "JAVA VERSION"
+            echo "=========================================="
+            java -version 2>&1
+            echo ""
+            echo "=========================================="
+            echo "GRADLE VERSION"
+            echo "=========================================="
+            ./gradlew --version
+            echo ""
+            echo "=========================================="
+            echo "PROJECT FILE TREE (maxdepth 3)"
+            echo "=========================================="
+            find . -maxdepth 3 -type f | sort
+          } > diagnostics/build-diagnostics.txt
+          cat diagnostics/build-diagnostics.txt
 
-      - name: Prepare environment configuration
+      - name: Upload Build Diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-diagnostics
+          path: diagnostics/build-diagnostics.txt
+          if-no-files-found: warn
+
+      - name: List Gradle Tasks
+        run: ./gradlew tasks --all --stacktrace
+
+      - name: Build Debug APK
+        shell: bash
         run: |
-          # Ensure .env is present for secrets-gradle-plugin
+          set -o pipefail
+
+          # Ensure .env is present so secrets-gradle-plugin passes on clean runners
           if [ ! -f .env ]; then
             if [ -f .env.example ]; then
               echo "Creating .env from .env.example..."
               cp .env.example .env
             else
-              echo "Creating minimal empty .env..."
+              echo "Creating empty .env..."
               touch .env
             fi
           fi
-          # Restore debug keystore if base64 backup exists
+
+          # Restore debug keystore from base64 if present
           if [ ! -f debug.keystore ] && [ -f debug.keystore.base64 ]; then
-            echo "Restoring debug.keystore from debug.keystore.base64..."
+            echo "Restoring debug.keystore from base64..."
             base64 -d debug.keystore.base64 > debug.keystore
           fi
 
-      - name: Build Debug APK
-        run: |
-          ./gradlew :app:assembleDebug --stacktrace --no-daemon || {
-            echo "::error::Gradle build failed. Printing detailed build info..."
-            ./gradlew :app:assembleDebug --stacktrace --info --no-daemon
-            exit 1
-          }
+          # Accept Android SDK licenses if running on standard Ubuntu runner
+          if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || yes | "$ANDROID_HOME/tools/bin/sdkmanager" --licenses 2>/dev/null || true
+          fi
 
-      - name: Verify Generated APK
+          # Execute assembleDebug with full-stacktrace and info logging, capturing full log
+          ./gradlew assembleDebug --full-stacktrace --info --no-daemon 2>&1 | tee gradle-build.log
+
+      - name: Upload Gradle Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: gradle-build.log
+          if-no-files-found: warn
+
+      - name: Find and Verify Debug APK
+        if: success()
         run: |
           echo "=== Searching for generated APK files ==="
           find . -type f -name "*.apk" -print
-          
+
           EXPECTED_APK="app/build/outputs/apk/debug/app-debug.apk"
           if [ ! -f "$EXPECTED_APK" ]; then
-            echo "::error::Debug APK was not found at expected path: $EXPECTED_APK"
-            exit 1
+            echo "Looking for any generated debug APK..."
+            FOUND_APK=$(find app/build -type f -name "*debug*.apk" | head -n 1)
+            if [ -n "$FOUND_APK" ]; then
+              EXPECTED_APK="$FOUND_APK"
+            else
+              echo "::error::No debug APK found in app/build output."
+              exit 1
+            fi
           fi
+
           if [ ! -s "$EXPECTED_APK" ]; then
-            echo "::error::Generated APK is empty (0 bytes): $EXPECTED_APK"
+            echo "::error::Debug APK file is empty (0 bytes): $EXPECTED_APK"
             exit 1
           fi
-          echo "✅ Debug APK verified successfully:"
-          echo "  Location: $EXPECTED_APK"
-          echo "  Size: $(stat -c%s "$EXPECTED_APK") bytes"
+
+          echo "APK verified successfully: $EXPECTED_APK (Size: $(stat -c%s "$EXPECTED_APK") bytes)"
+          echo "APK_OUTPUT_PATH=$EXPECTED_APK" >> "$GITHUB_ENV"
 
       - name: Upload Debug APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
