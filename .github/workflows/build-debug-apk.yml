@@ -1,4 +1,4 @@
-name: Build Debug APK
+name: Build Android Debug APK
 
 on:
   push:
@@ -29,6 +29,22 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
+      - name: Run Build Diagnostics
+        run: |
+          echo "=== Java Environment ==="
+          java -version
+          echo "=== Gradle Environment ==="
+          ./gradlew --version
+          echo "=== Android Build Configuration ==="
+          echo "Application Module: :app"
+          echo "JDK Version: 21 (Temurin)"
+          echo "Gradle Version: 9.3.1"
+          echo "Android Gradle Plugin Version: 9.1.1"
+          echo "Kotlin Version: 2.2.10"
+          echo "compileSdk: 36 (minorApiLevel = 1)"
+          echo "minSdk: 24"
+          echo "targetSdk: 36"
+
       - name: Prepare environment configuration
         run: |
           # Ensure .env is present for secrets-gradle-plugin
@@ -47,23 +63,31 @@ jobs:
             base64 -d debug.keystore.base64 > debug.keystore
           fi
 
-      - name: Build Debug APK with Gradle
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
-
-      - name: Verify Debug APK
+      - name: Build Debug APK
         run: |
-          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$APK_PATH" ]; then
-            echo "::error::Debug APK was not generated at expected path: $APK_PATH"
+          ./gradlew :app:assembleDebug --stacktrace --no-daemon || {
+            echo "::error::Gradle build failed. Printing detailed build info..."
+            ./gradlew :app:assembleDebug --stacktrace --info --no-daemon
+            exit 1
+          }
+
+      - name: Verify Generated APK
+        run: |
+          echo "=== Searching for generated APK files ==="
+          find . -type f -name "*.apk" -print
+          
+          EXPECTED_APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$EXPECTED_APK" ]; then
+            echo "::error::Debug APK was not found at expected path: $EXPECTED_APK"
             exit 1
           fi
-          if [ ! -s "$APK_PATH" ]; then
-            echo "::error::Generated APK is empty (0 bytes): $APK_PATH"
+          if [ ! -s "$EXPECTED_APK" ]; then
+            echo "::error::Generated APK is empty (0 bytes): $EXPECTED_APK"
             exit 1
           fi
-          echo "Debug APK verified successfully:"
-          echo "  Location: $APK_PATH"
-          echo "  Size: $(stat -c%s "$APK_PATH") bytes"
+          echo "✅ Debug APK verified successfully:"
+          echo "  Location: $EXPECTED_APK"
+          echo "  Size: $(stat -c%s "$EXPECTED_APK") bytes"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4

@@ -31,9 +31,9 @@ android {
       keyAlias = "upload"
       keyPassword = System.getenv("KEY_PASSWORD")
     }
-    create("debugConfig") {
-      val debugKeystoreFile = file("${rootDir}/debug.keystore")
-      if (debugKeystoreFile.exists()) {
+    val debugKeystoreFile = file("${rootDir}/debug.keystore")
+    if (debugKeystoreFile.exists()) {
+      create("debugConfig") {
         storeFile = debugKeystoreFile
         storePassword = "android"
         keyAlias = "androiddebugkey"
