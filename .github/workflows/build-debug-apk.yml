@@ -27,7 +27,49 @@ jobs:
           cache: 'gradle'
 
       - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        run: |
+          chmod +x ./gradlew
+          sed -i 's/\r$//' ./gradlew || true
+
+      - name: Prepare Build Environment
+        shell: bash
+        run: |
+          # Ensure .env is present so secrets-gradle-plugin passes on clean runners
+          if [ ! -f .env ]; then
+            if [ -f .env.example ]; then
+              echo "Creating .env from .env.example..."
+              cp .env.example .env
+            else
+              echo "Creating empty .env..."
+              touch .env
+            fi
+          fi
+
+          # Ensure debug keystore is present to prevent missing storeFile errors
+          if [ ! -f debug.keystore ]; then
+            if [ -f debug.keystore.base64 ]; then
+              echo "Restoring debug.keystore from base64..."
+              base64 -d debug.keystore.base64 > debug.keystore
+            else
+              echo "Generating standard debug.keystore..."
+              keytool -genkeypair -v -keystore debug.keystore \
+                -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+                -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+            fi
+          fi
+
+          # Pre-accept Android SDK licenses if running on standard Ubuntu runner
+          if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
+            mkdir -p "$ANDROID_HOME/licenses"
+            echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-license"
+            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$ANDROID_HOME/licenses/android-sdk-license"
+            echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-preview-license"
+            echo "84831b9409646a918e30573bab4c9c91346d8abd" >> "$ANDROID_HOME/licenses/android-sdk-preview-license"
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
+          fi
+
+          # Initialize build log
+          touch gradle-build.log
 
       - name: Environment Diagnostics
         shell: bash
@@ -60,6 +102,7 @@ jobs:
           if-no-files-found: warn
 
       - name: List Gradle Tasks
+        continue-on-error: true
         run: ./gradlew tasks --all --stacktrace
 
       - name: Build Debug APK
@@ -67,30 +110,17 @@ jobs:
         run: |
           set -o pipefail
 
-          # Ensure .env is present so secrets-gradle-plugin passes on clean runners
-          if [ ! -f .env ]; then
-            if [ -f .env.example ]; then
-              echo "Creating .env from .env.example..."
-              cp .env.example .env
-            else
-              echo "Creating empty .env..."
-              touch .env
-            fi
-          fi
+          echo "================================================================"
+          echo "Attempt 1: ./gradlew assembleDebug --stacktrace --info"
+          echo "================================================================"
 
-          # Restore debug keystore from base64 if present
-          if [ ! -f debug.keystore ] && [ -f debug.keystore.base64 ]; then
-            echo "Restoring debug.keystore from base64..."
-            base64 -d debug.keystore.base64 > debug.keystore
+          if ./gradlew assembleDebug --stacktrace --info 2>&1 | tee -a gradle-build.log; then
+            echo "Build succeeded on first attempt!"
+          else
+            echo "First build attempt failed! Capturing detailed failure log with --full-stacktrace..."
+            echo -e "\n\n================================================================\nAttempt 2: ./gradlew assembleDebug --full-stacktrace --info --no-daemon\n================================================================\n\n" >> gradle-build.log
+            ./gradlew assembleDebug --full-stacktrace --info --no-daemon 2>&1 | tee -a gradle-build.log
           fi
-
-          # Accept Android SDK licenses if running on standard Ubuntu runner
-          if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
-            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || yes | "$ANDROID_HOME/tools/bin/sdkmanager" --licenses 2>/dev/null || true
-          fi
-
-          # Execute assembleDebug with full-stacktrace and info logging, capturing full log
-          ./gradlew assembleDebug --full-stacktrace --info --no-daemon 2>&1 | tee gradle-build.log
 
       - name: Upload Gradle Build Log
         if: always()
