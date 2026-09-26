@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Android Debug APK
@@ -34,7 +37,7 @@ jobs:
       - name: Prepare Build Environment
         shell: bash
         run: |
-          # Ensure .env is present so secrets-gradle-plugin passes on clean runners
+          # 1. Ensure .env is present so secrets-gradle-plugin passes on clean runners
           if [ ! -f .env ]; then
             if [ -f .env.example ]; then
               echo "Creating .env from .env.example..."
@@ -45,7 +48,7 @@ jobs:
             fi
           fi
 
-          # Ensure debug keystore is present to prevent missing storeFile errors
+          # 2. Ensure debug keystore is present to prevent missing storeFile errors
           if [ ! -f debug.keystore ]; then
             if [ -f debug.keystore.base64 ]; then
               echo "Restoring debug.keystore from base64..."
@@ -58,7 +61,7 @@ jobs:
             fi
           fi
 
-          # Pre-accept Android SDK licenses if running on standard Ubuntu runner
+          # 3. Pre-accept Android SDK licenses if running on standard Ubuntu runner
           if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
             mkdir -p "$ANDROID_HOME/licenses"
             echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> "$ANDROID_HOME/licenses/android-sdk-license"
@@ -68,38 +71,17 @@ jobs:
             yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
           fi
 
-          # Initialize build log
-          touch gradle-build.log
-
       - name: Environment Diagnostics
         shell: bash
         run: |
-          mkdir -p diagnostics
-          {
-            echo "=========================================="
-            echo "JAVA VERSION"
-            echo "=========================================="
-            java -version 2>&1
-            echo ""
-            echo "=========================================="
-            echo "GRADLE VERSION"
-            echo "=========================================="
-            ./gradlew --version
-            echo ""
-            echo "=========================================="
-            echo "PROJECT FILE TREE (maxdepth 3)"
-            echo "=========================================="
-            find . -maxdepth 3 -type f | sort
-          } > diagnostics/build-diagnostics.txt
-          cat diagnostics/build-diagnostics.txt
-
-      - name: Upload Build Diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-diagnostics
-          path: diagnostics/build-diagnostics.txt
-          if-no-files-found: warn
+          echo "### Environment Diagnostics" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          echo "=== JAVA VERSION ==="
+          java -version 2>&1 | tee -a $GITHUB_STEP_SUMMARY
+          echo "" | tee -a $GITHUB_STEP_SUMMARY
+          echo "=== GRADLE VERSION ==="
+          ./gradlew --version | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: List Gradle Tasks
         continue-on-error: true
@@ -114,21 +96,12 @@ jobs:
           echo "Attempt 1: ./gradlew assembleDebug --stacktrace --info"
           echo "================================================================"
 
-          if ./gradlew assembleDebug --stacktrace --info 2>&1 | tee -a gradle-build.log; then
+          if ./gradlew assembleDebug --stacktrace --info; then
             echo "Build succeeded on first attempt!"
           else
-            echo "First build attempt failed! Capturing detailed failure log with --full-stacktrace..."
-            echo -e "\n\n================================================================\nAttempt 2: ./gradlew assembleDebug --full-stacktrace --info --no-daemon\n================================================================\n\n" >> gradle-build.log
-            ./gradlew assembleDebug --full-stacktrace --info --no-daemon 2>&1 | tee -a gradle-build.log
+            echo "First build attempt failed! Running with --full-stacktrace --info --no-daemon..."
+            ./gradlew assembleDebug --full-stacktrace --info --no-daemon
           fi
-
-      - name: Upload Gradle Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-build-log
-          path: gradle-build.log
-          if-no-files-found: warn
 
       - name: Find and Verify Debug APK
         if: success()
@@ -153,14 +126,36 @@ jobs:
             exit 1
           fi
 
-          echo "APK verified successfully: $EXPECTED_APK (Size: $(stat -c%s "$EXPECTED_APK") bytes)"
+          SIZE=$(stat -c%s "$EXPECTED_APK" 2>/dev/null || echo "Unknown")
+          echo "✅ APK verified successfully: $EXPECTED_APK (Size: $SIZE bytes)"
           echo "APK_OUTPUT_PATH=$EXPECTED_APK" >> "$GITHUB_ENV"
 
-      - name: Upload Debug APK
+          echo "### Build Success Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ✅ Debug APK successfully built" >> $GITHUB_STEP_SUMMARY
+          echo "- **Location:** \`$EXPECTED_APK\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Size:** $SIZE bytes" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Debug APK (Actions Artifact)
         if: success()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Publish Debug APK to GitHub Releases (Quota-Free Download)
+        if: success()
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Publishing APK to GitHub Releases (bypasses Artifact Storage Quota)..."
+          gh release delete "debug-apk" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "debug-apk" "app/build/outputs/apk/debug/app-debug.apk" \
+            --title "Latest Debug APK" \
+            --notes "Automated Debug APK built by GitHub Actions. Download app-debug.apk below." \
+            --prerelease
+          echo "✅ Successfully published to Releases!"
+          echo "- **Download:** [Releases Page](${{ github.server_url }}/${{ github.repository }}/releases/tag/debug-apk)" >> $GITHUB_STEP_SUMMARY
