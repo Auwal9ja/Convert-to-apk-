@@ -64,15 +64,6 @@ class MainActivity : ComponentActivity() {
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
 
-    // Background Cloud Sync check if enabled
-    if (com.example.data.remote.CloudSyncManager.isAutoSyncEnabled(this)) {
-      lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-        try {
-          com.example.data.remote.CloudSyncManager.syncWithRemote(this@MainActivity)
-        } catch (_: Exception) {}
-      }
-    }
-
     // Initialize In-App Update Manager & check for background updates cleanly
     inAppUpdateManager = InAppUpdateManager(this)
     inAppUpdateManager.checkForUpdates(isManual = false)
