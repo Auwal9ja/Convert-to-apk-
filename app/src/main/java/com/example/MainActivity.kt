@@ -15,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import com.example.data.local.DuaDatabase
 import com.example.data.repository.DuaRepository
 import com.example.receiver.OneSignalHelper

@@ -1665,7 +1665,7 @@ object AppLocalizer {
     }
 
     fun getDuaTitle(id: Int, defaultTitle: String, language: String): String {
-        if (id == 244 && defaultTitle.contains("Asma'ul Husna", ignoreCase = true)) {
+        if (id == 244) {
             return when (language) {
                 "Hausa" -> "Amfanin Sanin Asma'ul Husna (Sunayen Allah 99)"
                 "Yoruba" -> "Àǹfààní Kíkẹ́kọ̀ọ́ Àwọn Orúkọ Allāhu (Asma'ul Husna)"
@@ -1702,7 +1702,6 @@ object AppLocalizer {
         4 -> "Satisfaction with Islam & Allah"
         5 -> "Before Sleeping"
         6 -> "Upon Waking Up"
-        1001 -> "Supplication When Waking Up at Night"
         7 -> "Entering the Mosque"
         8 -> "Leaving the Mosque"
         10 -> "Before Eating"
@@ -1964,7 +1963,6 @@ object AppLocalizer {
         4 -> "Yarda da Musulunci da Allah"
         5 -> "Addu'ar Kafin Barci"
         6 -> "Addu'ar Tashi Daga Barci"
-        1001 -> "Addu'a idan an farkar cikin dare"
         7 -> "Addu'ar Shiga Masallaci"
         8 -> "Addu'ar Fita Daga Masallaci"
         10 -> "Addu'ar Kafin Cin Abinci"
@@ -2226,7 +2224,6 @@ object AppLocalizer {
         4 -> "Ìtẹ́lọ́rùn pẹ̀lú Ẹ̀sìn Islam ati Allāhu"
         5 -> "Pẹ̀lú Kí A Tó Sùn"
         6 -> "Nígbà Tí A Bánhùn Látinú Ụ̀ra"
-        1001 -> "Àdúà Nígbà Tí A Bá Jí Lálẹ́"
         7 -> "Ìwọlé sí Mọ́sáláṣí"
         8 -> "Ìjáde kúrò ní Mọ́sáláṣí"
         10 -> "Kí A Tó Jẹun"
@@ -2447,7 +2444,6 @@ object AppLocalizer {
         4 -> "Inwe Afọ Ojuju n'Islam na Allah"
         5 -> "Chetara Chineke Tupu I Sụọ Ụra"
         6 -> "N'Ihi Mbilite n'Ụra"
-        1001 -> "Ekpere Mgbe A Na-eteta n'Abalị"
         7 -> "Ịbanye n'Ụlọ Ekpere"
         8 -> "Ịpụ n'Ụlọ Ekpere"
         10 -> "Tupu Iri Nri"
@@ -2668,7 +2664,6 @@ object AppLocalizer {
         4 -> "الرضا بالإسلام وبالله"
         5 -> "أذكار النوم"
         6 -> "أذكار الاستيقاظ"
-        1001 -> "دعاء من تعار من الليل"
         7 -> "دعاء دخول المسجد"
         8 -> "دعاء الخروج من المسجد"
         10 -> "دعاء قبل الطعام"

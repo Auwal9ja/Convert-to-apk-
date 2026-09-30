@@ -78,18 +78,6 @@ object DuaDatabaseSeeder {
                 translationIgbo = "Otuto dịrị Chineke Onye nyere ahụ m ume na ike, weghachiri mkpụrụ obi m n'ime m ma kwe ka m cheta aha Ya.",
                 reference = "At-Tirmidhi 5/473."
             ),
-            DuaEntity(
-                id = 1001,
-                category = "Sleeping & Waking Up",
-                title = "Supplication When Waking Up at Night",
-                arabic = "لَا إِلٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلٰهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ. اللَّهُمَّ اغْفِرْ لِي",
-                transliteration = "Laa ilaaha illallaahu wahdahu laa shareeka lah, lahul-mulku wa lahul-hamdu, wa huwa ‘alaa kulli shay’in qadeer. Subhaanallaah, walhamdu lillaah, wa laa ilaaha illallaah, wallaahu akbar, wa laa hawla wa laa quwwata illaa billaah, Allaahummaghfir lee.",
-                translation = "There is no god worthy of worship except Allah, alone, without any partner. To Him belongs the kingdom, and to Him belongs all praise, and He has power over everything. Glory be to Allah, all praise is for Allah, there is no god worthy of worship except Allah, and Allah is the Greatest. There is no power and no strength except through Allah. O Allah, forgive me.",
-                translationHausa = "Babu abin bautawa da gaskiya sai Allah, Shi kaɗai, ba Shi da abokin tarayya. Mulki naSa ne, kuma yabo da godiya naSa ne, kuma Shi Mai iko ne a kan komai. Tsarki ya tabbata ga Allah, yabo da godiya sun tabbata ga Allah, babu abin bautawa da gaskiya sai Allah, Allah ne Mafi Girma. Babu dabara kuma babu ƙarfi sai da Allah. Ya Allah, Ka gafarta mini.",
-                translationYoruba = "Ko si ọba miran ti a gbọdọ jọsin fun afi Allāhu nikan, ko si alabaṣepọ fun Un. Tirẹ ni gbogbo ijọba ati ọpẹ, O si ni agbara lori ohun gbogbo. Mímọ́ ni fun Allāhu, gbogbo ọpẹ si n jẹ ti Allāhu, ko si ọba miran afi Allāhu, Allāhu si tobi julọ. Ko si ẹtan ati agbara ayafi pẹlu Allāhu. Allāhu, rọ mi lẹṣẹ ji.",
-                translationIgbo = "Ọ dịghị onye kwesịrị ofufe ma ọ bụghị Chineke, Onye Naanị Ya, O nweghị onye ya na Ya na-ekerịta. Nke Ya bụ alaeze na otuto, Ọ nwekwara ike n'elu ihe niile. Otuto dịrị Chineke, ekele niile dịrị Chineke, ọ dịghị onye kwesịrị ofufe ma ọ bụghị Chineke, Chineke bụ Onye Kachasị Ukwuu. Ọ dịghị ike ma ọ bụ ikike ọ bụla ma ọ bụghị site na Chineke. Chineke, meere m ebere gbaghara m.",
-                reference = "Whoever awakes at night and says this supplication, then supplicates, his supplication will be answered. If he performs ablution and prays, his prayer will be accepted.\nReference: Sahih Al-Bukhari 1154."
-            ),
 
             // Prayers & Mosque
             DuaEntity(

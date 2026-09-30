@@ -77,12 +77,6 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3975025431204010~3916645921" />
 
-        <!-- Disable AdServices / Measurement service binding on unsupported devices/emulators -->
-        <property
-            android:name="android.adservices.AD_SERVICES_CONFIG"
-            android:resource="@xml/gma_ad_services_config"
-            tools:replace="android:resource" />
-
         <!-- Disable Firebase Auto-Init and Analytics when google-services is not configured -->
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
