@@ -75,14 +75,6 @@ fun BannerAd(
                 AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     this.adUnitId = adUnitId
-                    adListener = object : com.google.android.gms.ads.AdListener() {
-                        override fun onAdLoaded() {
-                            Log.d("AdMob", "Banner ad loaded successfully")
-                        }
-                        override fun onAdFailedToLoad(loadAdError: com.google.android.gms.ads.LoadAdError) {
-                            Log.d("AdMob", "Banner ad failed to load: ${loadAdError.message}")
-                        }
-                    }
                     loadAd(AdRequest.Builder().build())
                 }
             }
@@ -417,29 +409,14 @@ object InterstitialAdHelper {
     }
 
     /**
-     * Schedules the first interstitial ad to appear 10 seconds after app start / setup.
+     * Prepares/pre-loads the interstitial ad safely without unexpected popups on startup.
      */
     fun scheduleAppLaunchAd(
         activity: Activity,
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID
     ) {
         if (BillingManager.isAdsRemovedQuick(activity)) return
-        // Pre-load the ad in advance so it is cached and ready when 10 seconds expire
         loadAd(activity, adUnitId)
-
-        val timeAlreadyElapsed = SystemClock.elapsedRealtime() - appStartTimeMs
-        val delay = (INITIAL_DELAY_MS - timeAlreadyElapsed).coerceAtLeast(1000L)
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                if (!activity.isFinishing && !activity.isDestroyed && canShowAd()) {
-                    Log.d("AdMob", "10 seconds initial delay elapsed; presenting 1st interstitial ad.")
-                    showAd(activity)
-                }
-            } catch (e: Exception) {
-                Log.e("AdMob", "Error showing delayed launch ad: ${e.message}")
-            }
-        }, delay)
     }
 
     @Deprecated("Use scheduleAppLaunchAd to respect 1-minute setup and quiet period")
@@ -471,21 +448,19 @@ object InterstitialAdHelper {
  */
 object RewardedAdHelper {
     private var rewardedAd: RewardedAd? = null
-    private var rewardedInterstitialAd: RewardedInterstitialAd? = null
+    private var isLoading = false
 
     fun loadAd(
         context: Context,
-        rewardedAdUnitId: String = AdConstants.REWARDED_AD_UNIT_ID,
-        rewardedInterstitialAdUnitId: String = AdConstants.REWARDED_INTERSTITIAL_AD_UNIT_ID
+        rewardedAdUnitId: String = AdConstants.REWARDED_AD_UNIT_ID
     ) {
-        if (BillingManager.isAdsRemovedQuick(context)) {
-            rewardedAd = null
-            rewardedInterstitialAd = null
+        if (BillingManager.isAdsRemovedQuick(context) || isLoading || rewardedAd != null) {
             return
         }
+        isLoading = true
         val adRequest = AdRequest.Builder().build()
 
-        // Load standard Rewarded Ad
+        // Load single Rewarded Ad on demand
         RewardedAd.load(
             context,
             rewardedAdUnitId,
@@ -494,29 +469,13 @@ object RewardedAdHelper {
                 override fun onAdLoaded(ad: RewardedAd) {
                     Log.d("AdMob", "Rewarded ad loaded successfully")
                     rewardedAd = ad
+                    isLoading = false
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     Log.d("AdMob", "Rewarded ad failed to load: ${error.message}")
                     rewardedAd = null
-                }
-            }
-        )
-
-        // Load Rewarded Interstitial Ad
-        RewardedInterstitialAd.load(
-            context,
-            rewardedInterstitialAdUnitId,
-            adRequest,
-            object : RewardedInterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                    Log.d("AdMob", "Rewarded Interstitial ad loaded successfully")
-                    rewardedInterstitialAd = ad
-                }
-
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    Log.d("AdMob", "Rewarded Interstitial ad failed to load: ${loadAdError.message}")
-                    rewardedInterstitialAd = null
+                    isLoading = false
                 }
             }
         )
@@ -527,22 +486,15 @@ object RewardedAdHelper {
             onRewardEarned?.invoke()
             return
         }
-        if (rewardedAd != null) {
-            rewardedAd?.show(activity, OnUserEarnedRewardListener { rewardItem ->
+        val ad = rewardedAd
+        if (ad != null) {
+            ad.show(activity, OnUserEarnedRewardListener { rewardItem ->
                 Log.d("AdMob", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
                 onRewardEarned?.invoke()
             })
             rewardedAd = null
-            loadAd(activity)
-        } else if (rewardedInterstitialAd != null) {
-            rewardedInterstitialAd?.show(activity, OnUserEarnedRewardListener { rewardItem ->
-                Log.d("AdMob", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
-                onRewardEarned?.invoke()
-            })
-            rewardedInterstitialAd = null
-            loadAd(activity)
         } else {
-            Log.d("AdMob", "Neither rewarded ad nor rewarded interstitial ad is ready yet. Reloading...")
+            Log.d("AdMob", "Rewarded ad not cached yet, loading on demand.")
             onRewardEarned?.invoke()
             loadAd(activity)
         }
