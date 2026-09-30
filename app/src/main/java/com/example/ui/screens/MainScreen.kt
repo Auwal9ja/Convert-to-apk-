@@ -1302,6 +1302,8 @@ fun LibraryTab(
             }
             items(categories) { category ->
                 val emoji = when (category) {
+                    "Bedtime & Night Sunnah" -> "🌙"
+                    "Addu'o'i na Ijaba" -> "⚡"
                     "Morning Adhkar" -> "🌅"
                     "Evening Adhkar" -> "🌆"
                     "Morning & Evening" -> "☀️"
@@ -2760,6 +2762,8 @@ fun HomeTab(
                         Spacer(modifier = Modifier.height(6.dp))
                         val quickPills = when (selectedLanguage) {
                             "Hausa" -> listOf(
+                                "🌙 Barci & Sunnah" to "Bedtime & Night Sunnah",
+                                "⚡ Addu'o'in Ijaba" to "Addu'o'i na Ijaba",
                                 "🌅 Safe" to "Morning Adhkar",
                                 "🌆 Yamma" to "Evening Adhkar",
                                 "🤲 Istighfari" to "Repentance & Seeking Forgiveness",
@@ -2773,6 +2777,8 @@ fun HomeTab(
                                 "🌧️ Ruwa & Iska" to "Rain & Wind"
                             )
                             "Arabic" -> listOf(
+                                "🌙 أذكار وسنن النوم" to "Bedtime & Night Sunnah",
+                                "⚡ أدعية الإجابة" to "Addu'o'i na Ijaba",
                                 "🌅 الصباح" to "Morning Adhkar",
                                 "🌆 المساء" to "Evening Adhkar",
                                 "🤲 الاستغفار" to "Repentance & Seeking Forgiveness",
@@ -2785,6 +2791,8 @@ fun HomeTab(
                                 "🍽️ الطعام" to "Eating & Drinking"
                             )
                             "Yoruba" -> listOf(
+                                "🌙 Azkar Sísùn & Sunnah" to "Bedtime & Night Sunnah",
+                                "⚡ Àdúà Ìtẹ́wọ́gbà" to "Addu'o'i na Ijaba",
                                 "🌅 Owurọ̀" to "Morning Adhkar",
                                 "🌆 Irọlẹ́" to "Evening Adhkar",
                                 "🤲 Ironupiwada" to "Repentance & Seeking Forgiveness",
@@ -2796,6 +2804,8 @@ fun HomeTab(
                                 "💍 Igbeyawo" to "Marriage & Family"
                             )
                             "Igbo" -> listOf(
+                                "🌙 Azkar Ụra & Sunnah" to "Bedtime & Night Sunnah",
+                                "⚡ Ekpere A Na-aza" to "Addu'o'i na Ijaba",
                                 "🌅 Ụtụtụ" to "Morning Adhkar",
                                 "🌆 Anyasị" to "Evening Adhkar",
                                 "🤲 Nchegharị" to "Repentance & Seeking Forgiveness",
@@ -2807,6 +2817,8 @@ fun HomeTab(
                                 "💍 Ezinụlọ" to "Marriage & Family"
                             )
                             else -> listOf(
+                                "🌙 Bedtime & Sunnah" to "Bedtime & Night Sunnah",
+                                "⚡ Answered Prayers" to "Addu'o'i na Ijaba",
                                 "🌅 Morning" to "Morning Adhkar",
                                 "🌆 Evening" to "Evening Adhkar",
                                 "🤲 Istighfar" to "Repentance & Seeking Forgiveness",
@@ -3101,6 +3113,30 @@ fun HomeTab(
 
             val categoriesList = listOf(
                 CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Bedtime & Night Sunnah", selectedLanguage),
+                    dbCategory = "Bedtime & Night Sunnah",
+                    emoji = "🌙",
+                    gradient = listOf(Color(0xFF4F46E5), Color(0xFF312E81)),
+                    duaCount = allDuas.count { it.category.equals("Bedtime & Night Sunnah", ignoreCase = true) }.let { if (it > 0) it else 19 },
+                    subtitle = getCategorySubtitle("Bedtime & Night Sunnah", selectedLanguage),
+                    accentColor = Color(0xFF6366F1),
+                    badgeBgColor = Color(0xFFE0E7FF),
+                    badgeTextColor = Color(0xFF3730A3),
+                    iconVector = Icons.Default.Bedtime
+                ),
+                CategoryGridItem(
+                    title = AppLocalizer.getCategoryName("Addu'o'i na Ijaba", selectedLanguage),
+                    dbCategory = "Addu'o'i na Ijaba",
+                    emoji = "⚡",
+                    gradient = listOf(Color(0xFF2563EB), Color(0xFF1D4ED8)),
+                    duaCount = allDuas.count { it.category.equals("Addu'o'i na Ijaba", ignoreCase = true) }.let { if (it > 0) it else 15 },
+                    subtitle = getCategorySubtitle("Addu'o'i na Ijaba", selectedLanguage),
+                    accentColor = Color(0xFF2563EB),
+                    badgeBgColor = Color(0xFFDBEAFE),
+                    badgeTextColor = Color(0xFF1E40AF),
+                    iconVector = Icons.Default.Bolt
+                ),
+                CategoryGridItem(
                     title = AppLocalizer.getCategoryName("Morning Adhkar", selectedLanguage),
                     dbCategory = "Morning Adhkar",
                     emoji = "🌅",
@@ -3387,18 +3423,6 @@ fun HomeTab(
                     badgeBgColor = Color(0xFFD1FAE5),
                     badgeTextColor = Color(0xFF065F46),
                     iconVector = Icons.Default.Star
-                ),
-                CategoryGridItem(
-                    title = AppLocalizer.getCategoryName("Addu'o'i na Ijaba", selectedLanguage),
-                    dbCategory = "Addu'o'i na Ijaba",
-                    emoji = "⚡",
-                    gradient = listOf(Color(0xFF2563EB), Color(0xFF1D4ED8)),
-                    duaCount = allDuas.count { it.category.equals("Addu'o'i na Ijaba", ignoreCase = true) }.let { if (it > 0) it else 17 },
-                    subtitle = getCategorySubtitle("Addu'o'i na Ijaba", selectedLanguage),
-                    accentColor = Color(0xFF2563EB),
-                    badgeBgColor = Color(0xFFDBEAFE),
-                    badgeTextColor = Color(0xFF1E40AF),
-                    iconVector = Icons.Default.Bolt
                 )
             )
 
@@ -4040,7 +4064,8 @@ fun getCategorySubtitle(category: String, language: String): String {
             "Repentance & Seeking Forgiveness" -> "Koma ga Mai Rahama"
             "40 Rabbana Duas" -> "Addu'o'i daga Alkur'ani Mai Girma"
             "Asma'ul Husna" -> "Kyakkyawan Sunayen Allah 99"
-            "Addu'o'i na Ijaba" -> "Addu'o'in da aka fi amsawa"
+            "Addu'o'i na Ijaba" -> "Addu'o'in da aka fi amsawa da Ismul A'zam"
+            "Bedtime & Night Sunnah" -> "Suratul Mulk, tasbihi 100 da sunnonin barci"
             else -> "Nemi yardar Allah a koda yaushe"
         }
         "Arabic" -> when (category) {
@@ -4066,6 +4091,7 @@ fun getCategorySubtitle(category: String, language: String): String {
             "40 Rabbana Duas" -> "أدعية مباركة من الذكر الحكيم"
             "Asma'ul Husna" -> "أسماء الله الحسنى ومعانيها"
             "Addu'o'i na Ijaba" -> "أوقات وأدعية استجابة الدعاء"
+            "Bedtime & Night Sunnah" -> "سورة الملك والتسبيح المئة وسنن النوم"
             else -> "أدعية وأذكار حصن المسلم"
         }
         else -> when (category) {
@@ -4091,6 +4117,7 @@ fun getCategorySubtitle(category: String, language: String): String {
             "40 Rabbana Duas" -> "Supplications from the Holy Quran"
             "Asma'ul Husna" -> "The 99 Beautiful Names of Allah"
             "Addu'o'i na Ijaba" -> "Special answered prayers"
+            "Bedtime & Night Sunnah" -> "Surah Al-Mulk, 100 Tasbeeh & Bedtime Sunnah"
             else -> "Establish your daily shield"
         }
     }

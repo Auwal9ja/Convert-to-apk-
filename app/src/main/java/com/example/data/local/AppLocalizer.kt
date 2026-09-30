@@ -33,6 +33,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Addu'o'in Rabbana 40 na Alƙur'ani"
                 "Asma'ul Husna" -> "Asma'ul Husna (Sunayen Allah 99)"
                 "Addu'o'i na Ijaba" -> "Addu'o'i na Samun Karɓa (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Addu'o'i, Azkar & Ibadun Sunnah Kafin Barci"
                 else -> category
             }
             "Yoruba" -> when (category) {
@@ -62,6 +63,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Àwọn Àdúà Rabbana 40"
                 "Asma'ul Husna" -> "Asma'ul Husna (Àwọn Orúkọ Allāhu)"
                 "Addu'o'i na Ijaba" -> "Àwọn Àdúà Ìtẹ́wọ́gbà (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Àwọn Azkar àti Ìṣe Sunnah Ṣáájú Sísùn"
                 else -> category
             }
             "Igbo" -> when (category) {
@@ -91,6 +93,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Ekpere Rabbana 40"
                 "Asma'ul Husna" -> "Asma'ul Husna (Aha 99 nke Chineke)"
                 "Addu'o'i na Ijaba" -> "Ekpere A Na-aza Ngwa Ngwa"
+                "Bedtime & Night Sunnah" -> "Azkar na Omume Sunnah Tupu Ụra"
                 else -> category
             }
             "Spanish" -> when (category) {
@@ -120,6 +123,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "40 Súplicas de Rabbana"
                 "Asma'ul Husna" -> "Los 99 Nombres de Allah"
                 "Addu'o'i na Ijaba" -> "Súplicas de Respuesta Rápida (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Adhkar y Actos de la Sunnah Antes de Dormir"
                 else -> category
             }
             "French" -> when (category) {
@@ -149,6 +153,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "40 Invocations Rabbana"
                 "Asma'ul Husna" -> "Les 99 Noms d'Allah (Asma'ul Husna)"
                 "Addu'o'i na Ijaba" -> "Invocations Exaucées (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Adhkar et Actes Prophétiques Avant de Dormir"
                 else -> category
             }
             "Arabic" -> when (category) {
@@ -178,6 +183,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "٤٠ دعاء ربنا من القرآن"
                 "Asma'ul Husna" -> "أسماء الله الحسنى (٩٩ اسماً)"
                 "Addu'o'i na Ijaba" -> "أدعية الإجابة والاسم الأعظم"
+                "Bedtime & Night Sunnah" -> "أذكار وسنن النوم المباركة (الملك والتسبيح)"
                 else -> category
             }
             "Urdu" -> when (category) {
@@ -207,6 +213,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "قرآن کے 40 ربنا دعائیں"
                 "Asma'ul Husna" -> "اسمائے حسنیٰ (اللہ کے 99 نام)"
                 "Addu'o'i na Ijaba" -> "قبولیت کی دعائیں اور اسم اعظم"
+                "Bedtime & Night Sunnah" -> "سونے کے مسنون اذکار و اعمال اور سورۃ الملک"
                 else -> category
             }
             "Chinese" -> when (category) {
@@ -236,9 +243,11 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "古兰经40段主啊祈祷词"
                 "Asma'ul Husna" -> "真主的九十九个尊名"
                 "Addu'o'i na Ijaba" -> "必蒙应答之祈祷"
+                "Bedtime & Night Sunnah" -> "睡前圣行赞念与祈祷 (包含大能章与百遍赞念)"
                 else -> category
             }
             else -> when (category) {
+                "Bedtime & Night Sunnah" -> "Bedtime Adhkar & Sunnah Acts"
                 "Addu'o'i na Ijaba" -> "Answered Prayers (Ijaba)"
                 "Asma'ul Husna" -> "99 Names of Allah (Asma'ul Husna)"
                 "40 Rabbana Duas" -> "40 Rabbana Duas (Quran)"

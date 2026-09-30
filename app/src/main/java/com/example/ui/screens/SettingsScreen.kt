@@ -52,6 +52,7 @@ import com.example.data.local.AppLocalizer
 import com.example.audio.AthanPlayer
 import android.speech.tts.TextToSpeech
 import java.util.Locale
+import kotlinx.coroutines.launch
 import com.example.util.CalculationMethod
 import com.example.util.JuristicMethod
 import com.example.util.PrayerTimeManager
@@ -2903,4 +2904,6 @@ fun PrayerTimesAndAthanSettingsSection(
         }
     }
 }
+
+
 

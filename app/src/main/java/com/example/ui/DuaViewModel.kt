@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -110,6 +111,13 @@ class DuaViewModel(
         )
 
     val categories: StateFlow<List<String>> = repository.categories
+        .map { list ->
+            val priority = listOf("Bedtime & Night Sunnah", "Addu'o'i na Ijaba", "Morning Adhkar", "Evening Adhkar")
+            list.sortedWith(compareBy({ 
+                val idx = priority.indexOf(it)
+                if (idx != -1) idx else 999 
+            }, { it }))
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
