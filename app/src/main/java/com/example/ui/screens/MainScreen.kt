@@ -88,7 +88,6 @@ import java.util.Calendar
 
 // Play Store redirection link for downloading more apps from developer
 const val MORE_APPS_PLAYSTORE_URL = "https://play.google.com/store/apps/developer?id=Asas+De+Global+Ltd"
-const val COMPANY_WEBSITE_URL = "https://www.najahtech.com"
 
 fun openMoreAppsStore(context: Context, playStoreUrl: String = MORE_APPS_PLAYSTORE_URL) {
     try {
@@ -106,17 +105,6 @@ fun openMoreAppsStore(context: Context, playStoreUrl: String = MORE_APPS_PLAYSTO
         } catch (_: Exception) {
             Toast.makeText(context, "Could not open Google Play Store", Toast.LENGTH_SHORT).show()
         }
-    }
-}
-
-fun openWebsite(context: Context, websiteUrl: String = COMPANY_WEBSITE_URL) {
-    try {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(websiteUrl)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
-    } catch (_: Exception) {
-        Toast.makeText(context, "Could not open website", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -1209,6 +1197,16 @@ fun LibraryTab(
     completedDuas: Set<Int>,
     isDarkTheme: Boolean = false
 ) {
+    var showSurahAlMulkReader by remember { mutableStateOf(false) }
+
+    if (showSurahAlMulkReader) {
+        com.example.ui.components.SurahAlMulkReaderDialog(
+            speaker = speaker,
+            selectedLanguage = selectedLanguage,
+            onDismiss = { showSurahAlMulkReader = false }
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Hero Banner
         Box(
@@ -1408,6 +1406,26 @@ fun LibraryTab(
                                 textFontSize = textFontSize
                             )
                         }
+                    } else if (selectedCategory?.equals("Sleeping & Waking Up", ignoreCase = true) == true && searchQuery.isEmpty()) {
+                        item {
+                            val playingArabicId by speaker.isPlaying.collectAsStateWithLifecycle()
+                            val isPlayingMulk = playingArabicId == 5
+                            com.example.ui.components.SurahAlMulkHeroBanner(
+                                selectedLanguage = selectedLanguage,
+                                onOpenReader = { showSurahAlMulkReader = true },
+                                onPlaySurah = {
+                                    val mulkDua = duas.find { it.id == 5 }
+                                    if (mulkDua != null) {
+                                        if (isPlayingMulk) {
+                                            speaker.stop()
+                                        } else {
+                                            speaker.speakArabic(mulkDua.id, mulkDua.arabic)
+                                        }
+                                    }
+                                },
+                                isPlaying = isPlayingMulk
+                            )
+                        }
                     }
                     items(duas, key = { it.id }) { dua ->
                         DuaItemCard(
@@ -1422,9 +1440,11 @@ fun LibraryTab(
                             isTarget = targetDuaId == dua.id,
                             onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
                             getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                            getDuaDetails = { d, lang -> viewModel.getLocalizedDuaDetails(d, lang) },
                             onFavoriteToggle = {
                                 viewModel.toggleFavorite(dua.id, dua.isFavorite)
-                            }
+                            },
+                            onOpenMulkReader = { showSurahAlMulkReader = true }
                         )
                     }
                 }
@@ -1519,6 +1539,7 @@ fun FavoritesTab(
                             isDarkTheme = isDarkTheme,
                             onCompleteToggle = { viewModel.toggleCompleted(dua.id) },
                             getTranslation = { d, lang -> viewModel.getTranslationAndReference(d, lang) },
+                            getDuaDetails = { d, lang -> viewModel.getLocalizedDuaDetails(d, lang) },
                             onFavoriteToggle = {
                                 viewModel.toggleFavorite(dua.id, dua.isFavorite)
                             }
@@ -1823,9 +1844,15 @@ fun DuaItemCard(
     isTarget: Boolean = false,
     onCompleteToggle: () -> Unit = {},
     getTranslation: suspend (DuaEntity, String) -> Pair<String, String>,
-    onFavoriteToggle: () -> Unit
+    getDuaDetails: (suspend (DuaEntity, String) -> com.example.data.repository.LocalizedDuaDetails)? = null,
+    onFavoriteToggle: () -> Unit,
+    onOpenMulkReader: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
+
+    var titleText by remember(dua.id, selectedLanguage) {
+        mutableStateOf(AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage))
+    }
 
     var translationText by remember(dua.id, selectedLanguage) {
         val initial = DuaTranslationLocalization.getLocalizedTranslation(
@@ -1866,16 +1893,30 @@ fun DuaItemCard(
         } else {
             DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
         }
+        val staticTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
 
         translationText = localTrans
         referenceText = localRef
+        titleText = staticTitle
 
-        if (selectedLanguage != "English" && localTrans == dua.translation) {
+        val needsDynamic = (dua.id > 359) ||
+            (selectedLanguage != "English" && localTrans == dua.translation) ||
+            (selectedLanguage == "Hausa" && dua.translationHausa.isBlank() && dua.translation.isNotBlank()) ||
+            (selectedLanguage != "Hausa" && selectedLanguage != "English" && localTrans == dua.translation)
+
+        if (needsDynamic) {
             isTranslating = true
             try {
-                val result = getTranslation(dua, selectedLanguage)
-                translationText = result.first
-                referenceText = result.second
+                if (getDuaDetails != null) {
+                    val details = getDuaDetails(dua, selectedLanguage)
+                    titleText = details.title
+                    translationText = details.translation
+                    referenceText = details.reference
+                } else {
+                    val result = getTranslation(dua, selectedLanguage)
+                    translationText = result.first
+                    referenceText = result.second
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -1954,12 +1995,100 @@ fun DuaItemCard(
 
             // Supplication Title
             Text(
-                text = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage),
+                text = titleText,
                 fontSize = 18.sp,
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            if (dua.id == 5) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFD4AF37).copy(alpha = 0.15f),
+                    border = BorderStroke(1.dp, Color(0xFFD4AF37).copy(alpha = 0.6f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOpenMulkReader?.invoke() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("📖", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Bude Cikakken Karatun Ayoyi 1-30" else "Open Full 30 Ayahs Reader",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFFB45309)
+                                )
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Yanayin Mushaf & Aya-Aya tare da Fassarar Hausa" else "Mushaf & Ayah-by-Ayah with English translation",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.ArrowForwardIos,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFFB45309)
+                        )
+                    }
+                }
+            } else if (dua.id == 58) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOpenMulkReader?.invoke() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("📿", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Bude Allon Tasbihin Barci (33-33-34)" else "Open Bedtime Tasbih Counter (33-33-34)",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Subhanallah 33, Alhamdulillah 33, Allahu Akbar 34",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.ArrowForwardIos,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -2106,8 +2235,7 @@ fun DuaItemCard(
                 Row {
                     IconButton(
                         onClick = {
-                            val localizedTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
-                            val shareBody = "${localizedTitle}\n\n${dua.arabic}\n\n${translationText}\n\nRef: ${referenceText}"
+                            val shareBody = "${titleText}\n\n${dua.arabic}\n\n${translationText}\n\nRef: ${referenceText}"
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, shareBody)
@@ -3505,78 +3633,6 @@ fun HomeTab(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                 contentDescription = "Open Play Store",
-                                tint = goldAccent,
-                                modifier = Modifier.size(15.dp)
-                            )
-                        }
-                    }
-
-                    // Option 2: Company Website (Najah Tech - Web & App Development CTA)
-                    Surface(
-                        onClick = { openWebsite(context) },
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (isDarkTheme) Color(0xFF0C1F1B) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-                        border = BorderStroke(0.8.dp, goldAccent.copy(alpha = 0.35f)),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp, vertical = 7.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(goldAccent.copy(alpha = 0.18f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Code,
-                                    contentDescription = "Web & App Development",
-                                    tint = goldAccent,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = "Najah Tech",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = textPrimary
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .background(goldAccent.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                                            .padding(horizontal = 5.dp, vertical = 1.dp)
-                                    ) {
-                                        Text(
-                                            text = "Web & App Dev",
-                                            fontSize = 9.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = goldAccent
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(1.dp))
-                                Text(
-                                    text = if (selectedLanguage == "Hausa") "Kuna son Website ko Mobile App? Tuntube mu a www.najahtech.com" else "Need a custom Website or Mobile App? Contact us at www.najahtech.com",
-                                    fontSize = 10.5.sp,
-                                    color = textSecondary,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    lineHeight = 13.sp
-                                )
-                            }
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                contentDescription = "Visit Website",
                                 tint = goldAccent,
                                 modifier = Modifier.size(15.dp)
                             )
@@ -5436,78 +5492,6 @@ fun SettingsDialog(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                 contentDescription = "Open Play Store",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(15.dp)
-                            )
-                        }
-                    }
-
-                    // Company Website Compact Option (Najah Tech - Web & App Development CTA)
-                    Surface(
-                        onClick = { openWebsite(context) },
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-                        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp, vertical = 7.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Code,
-                                    contentDescription = "Web & App Development",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = "Najah Tech",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(4.dp))
-                                            .padding(horizontal = 5.dp, vertical = 1.dp)
-                                    ) {
-                                        Text(
-                                            text = "Web & App Dev",
-                                            fontSize = 9.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(1.dp))
-                                Text(
-                                    text = if (selectedLanguage == "Hausa") "Kuna son Website ko Mobile App? Tuntube mu a www.najahtech.com" else "Need a custom Website or Mobile App? Contact us at www.najahtech.com",
-                                    fontSize = 10.5.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    lineHeight = 13.sp
-                                )
-                            }
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                contentDescription = "Open Website",
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(15.dp)
                             )

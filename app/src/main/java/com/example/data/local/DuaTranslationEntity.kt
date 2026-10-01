@@ -7,5 +7,6 @@ data class DuaTranslationEntity(
     val duaId: Int,
     val language: String,
     val translation: String,
-    val reference: String
+    val reference: String,
+    val title: String = ""
 )

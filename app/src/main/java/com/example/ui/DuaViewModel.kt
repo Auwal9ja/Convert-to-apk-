@@ -69,6 +69,34 @@ class DuaViewModel(
                 (category == "Marriage & Family" && (it.category == "Family & Marriage" || it.category == "Marriage & Family")) ||
                 (category == "Repentance & Seeking Forgiveness" && (it.category == "Repentance & Istighfar" || it.category == "Repentance & Seeking Forgiveness"))
             }
+            if (category.equals("Sleeping & Waking Up", ignoreCase = true)) {
+                list = list.sortedWith(
+                    compareBy { dua ->
+                        when {
+                            dua.id == 5 || dua.title.contains("Mulk", ignoreCase = true) || dua.arabic.contains("تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ") -> 0
+                            dua.id == 6 || dua.title.contains("Falalar Suratul Mulk", ignoreCase = true) || dua.title.contains("Virtue of Surah Al-Mulk", ignoreCase = true) -> 1
+                            dua.id == 57 || dua.title.contains("Ladubba", ignoreCase = true) || dua.title.contains("Etiquette", ignoreCase = true) -> 2
+                            dua.id == 58 || dua.title.contains("Tasbih", ignoreCase = true) -> 3
+                            dua.id == 59 -> 4
+                            dua.id == 360 -> 5
+                            dua.id == 361 -> 6
+                            dua.id == 362 -> 7
+                            dua.id == 363 -> 8
+                            dua.id == 364 -> 9
+                            dua.id == 365 -> 10
+                            dua.id == 366 -> 11
+                            dua.id == 367 -> 12
+                            dua.id == 368 -> 13
+                            dua.id == 369 -> 14
+                            dua.id == 370 -> 15
+                            dua.id == 371 -> 16
+                            dua.id == 372 -> 17
+                            dua.id == 373 -> 18
+                            else -> 100 + dua.id
+                        }
+                    }
+                )
+            }
         }
         if (query.isNotEmpty()) {
             val q = query.trim()
@@ -167,6 +195,10 @@ class DuaViewModel(
 
     suspend fun getTranslationAndReference(dua: DuaEntity, language: String): Pair<String, String> {
         return repository.getTranslationAndReference(dua, language)
+    }
+
+    suspend fun getLocalizedDuaDetails(dua: DuaEntity, language: String): com.example.data.repository.LocalizedDuaDetails {
+        return repository.getLocalizedDuaDetails(dua, language)
     }
 
     fun toggleFavorite(id: Int, isCurrentlyFavorite: Boolean) {
