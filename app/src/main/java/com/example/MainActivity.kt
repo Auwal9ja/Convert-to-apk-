@@ -49,6 +49,10 @@ class MainActivity : ComponentActivity() {
     // Initialize Google Mobile Ads SDK safely in background
     lifecycleScope.launch(Dispatchers.IO) {
       try {
+        val requestConfig = com.google.android.gms.ads.RequestConfiguration.Builder()
+          .setTagForChildDirectedTreatment(com.google.android.gms.ads.RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+          .build()
+        MobileAds.setRequestConfiguration(requestConfig)
         MobileAds.initialize(applicationContext) {}
       } catch (e: Exception) {
         Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
@@ -63,9 +67,15 @@ class MainActivity : ComponentActivity() {
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
 
-    // Initialize In-App Update Manager & check for background updates cleanly
+    // Initialize In-App Update Manager & check for background updates cleanly (only on release / non-debug)
     inAppUpdateManager = InAppUpdateManager(this)
-    inAppUpdateManager.checkForUpdates(isManual = false)
+    if (!BuildConfig.DEBUG) {
+      try {
+        inAppUpdateManager.checkForUpdates(isManual = false)
+      } catch (e: Exception) {
+        Log.w("MainActivity", "Background in-app update check ignored: ${e.message}")
+      }
+    }
 
     // Initialize database, repository, and ViewModel using constructor injection
     val database = DuaDatabase.getDatabase(this)
