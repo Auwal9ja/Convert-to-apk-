@@ -52,7 +52,6 @@ import com.example.data.local.AppLocalizer
 import com.example.audio.AthanPlayer
 import android.speech.tts.TextToSpeech
 import java.util.Locale
-import kotlinx.coroutines.launch
 import com.example.util.CalculationMethod
 import com.example.util.JuristicMethod
 import com.example.util.PrayerTimeManager
@@ -259,7 +258,8 @@ fun SettingsScreen(
             selectedLanguage = selectedLanguage,
             onDismiss = { showAboutDialog = false },
             onOpenPrivacyPolicy = { openPrivacyPolicy(context) },
-            onOpenContact = { openContactUsEmail(context) }
+            onOpenContact = { openContactUsEmail(context) },
+            onOpenWebsite = { openWebsite(context) }
         )
     }
 
@@ -1101,6 +1101,56 @@ fun SettingsScreen(
                                 )
                             }
                         }
+
+                        // Najah Tech Web & App Development Services
+                        Surface(
+                            onClick = { openWebsite(context) },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.tertiary),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Language,
+                                        contentDescription = "Website",
+                                        tint = MaterialTheme.colorScheme.onTertiary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = if (selectedLanguage == "Hausa") "Ayyukan Yanar Gizo & Manhajoji" else "Custom Web & Mobile Apps",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = if (selectedLanguage == "Hausa") "Najah Tech - Kwararru wajen Gina Manhajoji" else "Najah Tech - Web & App Development",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                    contentDescription = "Open",
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -1809,7 +1859,8 @@ fun AboutAppDialog(
     selectedLanguage: String,
     onDismiss: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
-    onOpenContact: () -> Unit
+    onOpenContact: () -> Unit,
+    onOpenWebsite: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -1913,6 +1964,11 @@ fun AboutAppDialog(
                                 text = "Email: najahtechng@gmail.com",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Web: www.najahtech.com",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -2847,6 +2903,4 @@ fun PrayerTimesAndAthanSettingsSection(
         }
     }
 }
-
-
 

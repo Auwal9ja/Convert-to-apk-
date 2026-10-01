@@ -20,6 +20,8 @@ import com.example.data.repository.DuaRepository
 import com.example.receiver.OneSignalHelper
 import com.example.ui.DuaViewModel
 import com.example.ui.DuaViewModelFactory
+import com.example.ui.components.InterstitialAdHelper
+import com.example.ui.components.RewardedAdHelper
 import com.example.ui.screens.MainScreen
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.InAppUpdateManager
@@ -47,8 +49,10 @@ class MainActivity : ComponentActivity() {
     // Initialize Google Mobile Ads SDK safely
     try {
       MobileAds.initialize(this) {}
+      InterstitialAdHelper.scheduleAppLaunchAd(this)
+      RewardedAdHelper.loadAd(this)
     } catch (e: Exception) {
-      Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+      Log.w("MainActivity", "MobileAds initialization or loading error: ${e.message}")
     }
 
     // Ensure notification channels & exact alarms are scheduled if enabled

@@ -21,7 +21,7 @@ class ExampleRobolectricTest {
   fun `read string from context`() {
     val context = ApplicationProvider.getApplicationContext<Context>()
     val appName = context.getString(R.string.app_name)
-    assertEquals("Zakiru", appName)
+    assertEquals("Zakiru Muslim", appName)
   }
 
   @Test
@@ -29,11 +29,11 @@ class ExampleRobolectricTest {
     val seedDuas = DuaDatabaseSeeder.getSeedDuas()
     assertTrue(seedDuas.isNotEmpty())
     
-    // Check that we have categories like Morning Adhkar, Evening Adhkar, Ruqyah, and 40 Rabbana Duas
+    // Check that we have categories like Morning & Evening, Ruqyah, and 40 Rabbana Duas
     val categories = seedDuas.map { it.category }.toSet()
-    assertTrue(categories.contains("Morning Adhkar"))
-    assertTrue(categories.contains("Evening Adhkar"))
+    assertTrue(categories.contains("Morning & Evening"))
     assertTrue(categories.contains("Sleeping & Waking Up"))
+    assertTrue(categories.contains("Travel & Home"))
     assertTrue(categories.contains("Ruqyah"))
     assertTrue(categories.contains("40 Rabbana Duas"))
   }
