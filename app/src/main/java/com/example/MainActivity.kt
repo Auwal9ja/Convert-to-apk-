@@ -25,6 +25,8 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.util.InAppUpdateManager
 import com.example.util.UpdateState
 import com.google.android.gms.ads.MobileAds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   private var viewModel: DuaViewModel? = null
@@ -44,11 +46,13 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Google Mobile Ads SDK safely
-    try {
-      MobileAds.initialize(this) {}
-    } catch (e: Exception) {
-      Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+    // Initialize Google Mobile Ads SDK safely in background
+    lifecycleScope.launch(Dispatchers.IO) {
+      try {
+        MobileAds.initialize(applicationContext) {}
+      } catch (e: Exception) {
+        Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+      }
     }
 
     // Ensure notification channels & exact alarms are scheduled if enabled
