@@ -1197,6 +1197,16 @@ fun LibraryTab(
     completedDuas: Set<Int>,
     isDarkTheme: Boolean = false
 ) {
+    var showSurahAlMulkReader by remember { mutableStateOf(false) }
+
+    if (showSurahAlMulkReader) {
+        com.example.ui.components.SurahAlMulkReaderDialog(
+            speaker = speaker,
+            selectedLanguage = selectedLanguage,
+            onDismiss = { showSurahAlMulkReader = false }
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Hero Banner
         Box(
@@ -1396,6 +1406,26 @@ fun LibraryTab(
                                 textFontSize = textFontSize
                             )
                         }
+                    } else if (selectedCategory?.equals("Sleeping & Waking Up", ignoreCase = true) == true && searchQuery.isEmpty()) {
+                        item {
+                            val playingArabicId by speaker.isPlaying.collectAsStateWithLifecycle()
+                            val isPlayingMulk = playingArabicId == 5
+                            com.example.ui.components.SurahAlMulkHeroBanner(
+                                selectedLanguage = selectedLanguage,
+                                onOpenReader = { showSurahAlMulkReader = true },
+                                onPlaySurah = {
+                                    val mulkDua = duas.find { it.id == 5 }
+                                    if (mulkDua != null) {
+                                        if (isPlayingMulk) {
+                                            speaker.stop()
+                                        } else {
+                                            speaker.speakArabic(mulkDua.id, mulkDua.arabic)
+                                        }
+                                    }
+                                },
+                                isPlaying = isPlayingMulk
+                            )
+                        }
                     }
                     items(duas, key = { it.id }) { dua ->
                         DuaItemCard(
@@ -1413,7 +1443,8 @@ fun LibraryTab(
                             getDuaDetails = { d, lang -> viewModel.getLocalizedDuaDetails(d, lang) },
                             onFavoriteToggle = {
                                 viewModel.toggleFavorite(dua.id, dua.isFavorite)
-                            }
+                            },
+                            onOpenMulkReader = { showSurahAlMulkReader = true }
                         )
                     }
                 }
@@ -1814,7 +1845,8 @@ fun DuaItemCard(
     onCompleteToggle: () -> Unit = {},
     getTranslation: suspend (DuaEntity, String) -> Pair<String, String>,
     getDuaDetails: (suspend (DuaEntity, String) -> com.example.data.repository.LocalizedDuaDetails)? = null,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onOpenMulkReader: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -1969,6 +2001,94 @@ fun DuaItemCard(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            if (dua.id == 5) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFFD4AF37).copy(alpha = 0.15f),
+                    border = BorderStroke(1.dp, Color(0xFFD4AF37).copy(alpha = 0.6f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOpenMulkReader?.invoke() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("📖", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Bude Cikakken Karatun Ayoyi 1-30" else "Open Full 30 Ayahs Reader",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFFB45309)
+                                )
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Yanayin Mushaf & Aya-Aya tare da Fassarar Hausa" else "Mushaf & Ayah-by-Ayah with English translation",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.ArrowForwardIos,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFFB45309)
+                        )
+                    }
+                }
+            } else if (dua.id == 58) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOpenMulkReader?.invoke() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("📿", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Bude Allon Tasbihin Barci (33-33-34)" else "Open Bedtime Tasbih Counter (33-33-34)",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Subhanallah 33, Alhamdulillah 33, Allahu Akbar 34",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        Icon(
+                            Icons.Default.ArrowForwardIos,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
