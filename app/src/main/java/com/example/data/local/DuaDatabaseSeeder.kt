@@ -2869,6 +2869,6 @@ object DuaDatabaseSeeder {
                 translationIgbo = "Chineke, meere Onye Amụma anyị Muhammad ebere ma nye ya udo (ugboro 10 n'anyasị).",
                 reference = "At-Tabarani, Sahih At-Targhib 1/273. Recited 10 times in the evening."
             )
-        ) + AsmaulHusnaData.getAsmaulHusnaDuas() + AnsweredDuasData.getAnsweredDuas() + BedtimeSunnahData.getBedtimeSunnahDuas()
+        ) + AsmaulHusnaData.getAsmaulHusnaDuas() + AnsweredDuasData.getAnsweredDuas()
     }
 }
