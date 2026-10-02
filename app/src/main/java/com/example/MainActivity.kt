@@ -25,8 +25,6 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.util.InAppUpdateManager
 import com.example.util.UpdateState
 import com.google.android.gms.ads.MobileAds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   private var viewModel: DuaViewModel? = null
@@ -46,17 +44,11 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Google Mobile Ads SDK safely in background
-    lifecycleScope.launch(Dispatchers.IO) {
-      try {
-        val requestConfig = com.google.android.gms.ads.RequestConfiguration.Builder()
-          .setTagForChildDirectedTreatment(com.google.android.gms.ads.RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
-          .build()
-        MobileAds.setRequestConfiguration(requestConfig)
-        MobileAds.initialize(applicationContext) {}
-      } catch (e: Exception) {
-        Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
-      }
+    // Initialize Google Mobile Ads SDK safely
+    try {
+      MobileAds.initialize(this) {}
+    } catch (e: Exception) {
+      Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
     }
 
     // Ensure notification channels & exact alarms are scheduled if enabled
@@ -67,15 +59,9 @@ class MainActivity : ComponentActivity() {
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
 
-    // Initialize In-App Update Manager & check for background updates cleanly (only on release / non-debug)
+    // Initialize In-App Update Manager & check for background updates cleanly
     inAppUpdateManager = InAppUpdateManager(this)
-    if (!BuildConfig.DEBUG) {
-      try {
-        inAppUpdateManager.checkForUpdates(isManual = false)
-      } catch (e: Exception) {
-        Log.w("MainActivity", "Background in-app update check ignored: ${e.message}")
-      }
-    }
+    inAppUpdateManager.checkForUpdates(isManual = false)
 
     // Initialize database, repository, and ViewModel using constructor injection
     val database = DuaDatabase.getDatabase(this)

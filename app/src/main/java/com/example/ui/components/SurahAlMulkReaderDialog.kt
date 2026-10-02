@@ -272,7 +272,7 @@ fun SurahAlMulkReaderDialog(
                                 if (isPlayingSurah) {
                                     speaker.stop()
                                 } else {
-                                    speaker.speakArabic(5, SleepingAndWakingData.fullSurahAlMulkArabic)
+                                    speaker.playArabic(5, SleepingAndWakingData.fullSurahAlMulkArabic)
                                 }
                             },
                             modifier = Modifier.testTag("action_play_mulk_dialog")
@@ -519,7 +519,7 @@ fun SurahAlMulkAyahByAyahList(
                             // Play Ayah
                             IconButton(
                                 onClick = {
-                                    speaker.speakArabic(1000 + ayah.number, ayah.arabic)
+                                    speaker.playArabic(1000 + ayah.number, ayah.arabic)
                                 },
                                 modifier = Modifier.size(36.dp)
                             ) {
