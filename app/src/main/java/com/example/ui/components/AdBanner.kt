@@ -75,13 +75,7 @@ fun BannerAd(
                 AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     this.adUnitId = adUnitId
-                    // Disable hardware acceleration on AdView to avoid MESA rendernode errors in emulators/cloud environments
-                    setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
-                    try {
-                        loadAd(AdRequest.Builder().build())
-                    } catch (e: Exception) {
-                        Log.w("BannerAd", "Ad load warning: ${e.message}")
-                    }
+                    loadAd(AdRequest.Builder().build())
                 }
             }
         )

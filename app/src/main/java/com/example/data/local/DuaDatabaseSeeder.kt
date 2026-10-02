@@ -53,6 +53,32 @@ object DuaDatabaseSeeder {
                 reference = "Abu Dawud 4/318, At-Tirmidhi 5/465."
             ),
 
+            // Sleeping & Waking Up
+            DuaEntity(
+                id = 5,
+                category = "Sleeping & Waking Up",
+                title = "Before Sleeping",
+                arabic = "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+                transliteration = "Bismika-llahumma amutu wa ahya.",
+                translation = "In Your Name, O Allah, I die and I live.",
+                translationHausa = "Da sunanKa ya Allah nake mutuwa kuma nake rayuwa.",
+                translationYoruba = "Pẹlu orukọ Rẹ Allāhu ni mo n ku ti mo si n di alaaye.",
+                translationIgbo = "N'aha Gị Chineke ka m na-anwụ ma na-adị ndụ.",
+                reference = "Al-Bukhari (Fathul-Bari 11/113), Muslim 4/2083."
+            ),
+            DuaEntity(
+                id = 6,
+                category = "Sleeping & Waking Up",
+                title = "Upon Waking Up",
+                arabic = "الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ",
+                transliteration = "Alhamdu lillahil-ladhi 'afani fi jasadi, wa radda 'alayya ruhi, wa adhina li bidhikrih.",
+                translation = "Praise is to Allah Who gave strength to my body and returned my soul to me and permitted me to remember Him.",
+                translationHausa = "Godiya ta tabbata ga Allah wanda Ya ba wa jikina lafiya, Ya mayar mini da raina, kuma Ya ba ni izinin ambatonSa.",
+                translationYoruba = "Ọpẹ ni fun Allāhu ti o fun ara mi ni ilera, ti o si da ẹmi mi pada fun mi, ti o si gba mi laaye lati ranti Rẹ.",
+                translationIgbo = "Otuto dịrị Chineke Onye nyere ahụ m ume na ike, weghachiri mkpụrụ obi m n'ime m ma kwe ka m cheta aha Ya.",
+                reference = "At-Tirmidhi 5/473."
+            ),
+
             // Prayers & Mosque
             DuaEntity(
                 id = 7,
@@ -781,6 +807,42 @@ object DuaDatabaseSeeder {
                 translationYoruba = "Gbogbo ki-n-ni, sọláàti ati ohun mimọ ni fun Allāhu.",
                 translationIgbo = "Ekele niile, ekpere na okwu dị asọ dịrị Chineke.",
                 reference = "Al-Bukhari 1/13, Muslim 1/301. Hisnul Muslim Chapter 23."
+            ),
+            DuaEntity(
+                id = 57,
+                category = "Sleeping & Waking Up",
+                title = "Turning Over During Sleep",
+                arabic = "لَا إِلَهَ إِلَّا اللَّهُ الْوَاحِدُ الْقَهَّارُ، رَبُّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الْعَزِيزُ الْغَفَّارُ",
+                transliteration = "La ilaha illallahul-Wahidul-Qahhar, Rabbus-samawati wal-ardi wa ma baynahumal-'Azizul-Ghaffar.",
+                translation = "There is no deity except Allah, the One, the Irresistible, Lord of the heavens and the earth and all between them.",
+                translationHausa = "Babu abin bautawa da gaskiya sai Allah, Guda Daya, Mai rinjaye, Ubangijin sammai da kasa da abin da ke tsakaninsu, Mafi mabuwayi, Mai yawan gafara.",
+                translationYoruba = "Ko si ọba miran afi Allāhu ti o wa Nikan, Onijakadi, Oluwa awọn sanma ati ilẹ.",
+                translationIgbo = "Ọ dịghị onye kwesịrị ofufe ma ọ bụghị Chineke, Onye Naanị Ya, Onyenwe eluigwe na ụwa.",
+                reference = "An-Nasa'i, Al-Hakim 1/540. Hisnul Muslim Chapter 29."
+            ),
+            DuaEntity(
+                id = 58,
+                category = "Sleeping & Waking Up",
+                title = "When Disturbed or Unable to Sleep",
+                arabic = "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ",
+                transliteration = "A'udhu bikalimatil-lahit-tammati min ghadabihi wa 'iqabihi, wa sharri 'ibadihi, wa min hamazatish-shayatini wa an yahdurun.",
+                translation = "I seek refuge in the perfect words of Allah from His anger and His punishment, from the evil of His slaves, and from the whisperings of devils.",
+                translationHausa = "Ina neman tsari da cikakkun kalmomin Allah daga fushinSa da ukubarSa, da sharrin bayinSa, da daga fizgar shaidanu da halartarsu kusa da ni.",
+                translationYoruba = "Mo wa isadi pẹlu awọn ọrọ Allāhu t'o peye lọwọ ibinu Rẹ ati iyasi Rẹ.",
+                translationIgbo = "Ana m achọ ebe mgbaba n'okwu Chineke zuru oke pụọ n'iwe Ya na ahụhụ Ya.",
+                reference = "Abu Dawud 4/12, At-Tirmidhi 3/171. Hisnul Muslim Chapter 30."
+            ),
+            DuaEntity(
+                id = 59,
+                category = "Sleeping & Waking Up",
+                title = "After Having a Bad Dream",
+                arabic = "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ وَمِنْ شَرِّ هَذِهِ الرَّؤْيَا",
+                transliteration = "A'udhu billahi minash-shaytani wa min sharri hadhihir-ru'ya.",
+                translation = "I seek refuge in Allah from Satan and from the evil of this dream.",
+                translationHausa = "Ina neman tsari da Allah daga Shaidan da kuma daga sharrin wannan mafarki. (Sai ya yi tofi ta hagu sau 3, ya juya daya bangaren).",
+                translationYoruba = "Mo wa isadi pẹlu Allāhu lọwọ satani ati lọwọ aburu ala yi.",
+                translationIgbo = "Ana m achọ ebe mgbaba n'aka Chineke pụọ n'aka Setan na n'ihe ọjọọ nke nrọ a.",
+                reference = "Muslim 4/1772-1773. Hisnul Muslim Chapter 31."
             ),
             DuaEntity(
                 id = 60,
@@ -2807,6 +2869,6 @@ object DuaDatabaseSeeder {
                 translationIgbo = "Chineke, meere Onye Amụma anyị Muhammad ebere ma nye ya udo (ugboro 10 n'anyasị).",
                 reference = "At-Tabarani, Sahih At-Targhib 1/273. Recited 10 times in the evening."
             )
-        ) + AsmaulHusnaData.getAsmaulHusnaDuas() + AnsweredDuasData.getAnsweredDuas() + SleepingAndWakingData.getSleepingAndWakingDuas()
+        ) + AsmaulHusnaData.getAsmaulHusnaDuas() + AnsweredDuasData.getAnsweredDuas() + BedtimeSunnahData.getBedtimeSunnahDuas()
     }
 }

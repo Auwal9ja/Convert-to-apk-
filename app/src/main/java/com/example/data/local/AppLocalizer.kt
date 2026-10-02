@@ -33,6 +33,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Addu'o'in Rabbana 40 na Alƙur'ani"
                 "Asma'ul Husna" -> "Asma'ul Husna (Sunayen Allah 99)"
                 "Addu'o'i na Ijaba" -> "Addu'o'i na Samun Karɓa (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Addu'o'i, Azkar & Ibadun Sunnah Kafin Barci"
                 else -> category
             }
             "Yoruba" -> when (category) {
@@ -62,6 +63,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Àwọn Àdúà Rabbana 40"
                 "Asma'ul Husna" -> "Asma'ul Husna (Àwọn Orúkọ Allāhu)"
                 "Addu'o'i na Ijaba" -> "Àwọn Àdúà Ìtẹ́wọ́gbà (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Àwọn Azkar àti Ìṣe Sunnah Ṣáájú Sísùn"
                 else -> category
             }
             "Igbo" -> when (category) {
@@ -91,6 +93,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "Ekpere Rabbana 40"
                 "Asma'ul Husna" -> "Asma'ul Husna (Aha 99 nke Chineke)"
                 "Addu'o'i na Ijaba" -> "Ekpere A Na-aza Ngwa Ngwa"
+                "Bedtime & Night Sunnah" -> "Azkar na Omume Sunnah Tupu Ụra"
                 else -> category
             }
             "Spanish" -> when (category) {
@@ -120,6 +123,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "40 Súplicas de Rabbana"
                 "Asma'ul Husna" -> "Los 99 Nombres de Allah"
                 "Addu'o'i na Ijaba" -> "Súplicas de Respuesta Rápida (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Adhkar y Actos de la Sunnah Antes de Dormir"
                 else -> category
             }
             "French" -> when (category) {
@@ -149,6 +153,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "40 Invocations Rabbana"
                 "Asma'ul Husna" -> "Les 99 Noms d'Allah (Asma'ul Husna)"
                 "Addu'o'i na Ijaba" -> "Invocations Exaucées (Ijaba)"
+                "Bedtime & Night Sunnah" -> "Adhkar et Actes Prophétiques Avant de Dormir"
                 else -> category
             }
             "Arabic" -> when (category) {
@@ -178,6 +183,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "٤٠ دعاء ربنا من القرآن"
                 "Asma'ul Husna" -> "أسماء الله الحسنى (٩٩ اسماً)"
                 "Addu'o'i na Ijaba" -> "أدعية الإجابة والاسم الأعظم"
+                "Bedtime & Night Sunnah" -> "أذكار وسنن النوم المباركة (الملك والتسبيح)"
                 else -> category
             }
             "Urdu" -> when (category) {
@@ -207,6 +213,7 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "قرآن کے 40 ربنا دعائیں"
                 "Asma'ul Husna" -> "اسمائے حسنیٰ (اللہ کے 99 نام)"
                 "Addu'o'i na Ijaba" -> "قبولیت کی دعائیں اور اسم اعظم"
+                "Bedtime & Night Sunnah" -> "سونے کے مسنون اذکار و اعمال اور سورۃ الملک"
                 else -> category
             }
             "Chinese" -> when (category) {
@@ -236,9 +243,11 @@ object AppLocalizer {
                 "40 Rabbana Duas" -> "古兰经40段主啊祈祷词"
                 "Asma'ul Husna" -> "真主的九十九个尊名"
                 "Addu'o'i na Ijaba" -> "必蒙应答之祈祷"
+                "Bedtime & Night Sunnah" -> "睡前圣行赞念与祈祷 (包含大能章与百遍赞念)"
                 else -> category
             }
             else -> when (category) {
+                "Bedtime & Night Sunnah" -> "Bedtime Adhkar & Sunnah Acts"
                 "Addu'o'i na Ijaba" -> "Answered Prayers (Ijaba)"
                 "Asma'ul Husna" -> "99 Names of Allah (Asma'ul Husna)"
                 "40 Rabbana Duas" -> "40 Rabbana Duas (Quran)"
@@ -1700,8 +1709,8 @@ object AppLocalizer {
         2 -> "Sayyidul Istighfar (Master Forgiveness)"
         3 -> "Protection from Harm"
         4 -> "Satisfaction with Islam & Allah"
-        5 -> "Surah Al-Mulk (Full Recitation Before Sleep - Ayahs 1-30)"
-        6 -> "Virtues of Surah Al-Mulk Before Sleep (Protection from Grave)"
+        5 -> "Before Sleeping"
+        6 -> "Upon Waking Up"
         7 -> "Entering the Mosque"
         8 -> "Leaving the Mosque"
         10 -> "Before Eating"
@@ -1750,9 +1759,9 @@ object AppLocalizer {
         54 -> "Between the Two Prostrations"
         55 -> "Sujud of Qur'anic Recitation"
         56 -> "Tashahhud (Tahiyya)"
-        57 -> "Sunnah Etiquettes of Sleeping"
-        58 -> "Bedtime Tasbih (Subhanallah 33, Alhamdulillah 33, Allahu Akbar 34)"
-        59 -> "Bedtime Supplication (Bismika Rabbi Wada'tu Janbi)"
+        57 -> "Turning Over During Sleep"
+        58 -> "When Disturbed or Unable to Sleep"
+        59 -> "After Having a Bad Dream"
         60 -> "Qunut in Witr Prayer"
         61 -> "After Salam in Witr Prayer"
         62 -> "Expiation for a Gathering (Kaffaratul Majlis)"
@@ -1953,20 +1962,6 @@ object AppLocalizer {
         357 -> "Hasbunallahu wa Ni'mal Wakeel: Sufficient is Allah in Times of Fear"
         358 -> "Dua for Beneficial Knowledge, Pure Sustenance & Accepted Deeds"
         359 -> "Dua for Divine Protection and Victory Over Enemies & Schemes"
-        360 -> "Bedtime Supplication (Bismika Allahumma Amutu wa Ahya)"
-        361 -> "Submission to Allah Before Sleep (Dua of Al-Bara)"
-        362 -> "Protection from Punishment on the Day of Resurrection (3 times)"
-        363 -> "Ayat al-Kursi Before Sleep (Protection from Satan)"
-        364 -> "Last Two Verses of Surah Al-Baqarah (Sufficiency for the Night)"
-        365 -> "The Three Quls (Al-Mu'awwidhat) Before Sleep"
-        366 -> "Gratitude for Food, Drink, and Shelter"
-        367 -> "Grand Supplication of the Lord of Heavens & Earth"
-        368 -> "When Startled, Afraid, or Unable to Sleep"
-        369 -> "Upon Having a Bad Dream or Nightmare"
-        370 -> "When Turning Over in Bed at Night"
-        371 -> "Upon Waking Up at Night (Supplication for Acceptance)"
-        372 -> "Upon Waking Up (Praise for Life after Sleep)"
-        373 -> "Upon Waking Up (Health in Body and Return of Soul)"
         else -> null
     }
 
@@ -1975,8 +1970,8 @@ object AppLocalizer {
         2 -> "Sayyidul Istighfar (Jagoran Neman Gafara)"
         3 -> "Addu'ar Tsari Daga Cuta da Sharrin Halitta"
         4 -> "Yarda da Musulunci da Allah"
-        5 -> "Suratul Mulk (Karatun Kafin Barci - Ayoyi 1-30)"
-        6 -> "Falalar Suratul Mulk Kafin Barci (Kariya daga Azabar Kabari)"
+        5 -> "Addu'ar Kafin Barci"
+        6 -> "Addu'ar Tashi Daga Barci"
         7 -> "Addu'ar Shiga Masallaci"
         8 -> "Addu'ar Fita Daga Masallaci"
         10 -> "Addu'ar Kafin Cin Abinci"
@@ -2025,9 +2020,9 @@ object AppLocalizer {
         54 -> "Addu'ar Zama Tsakanin Sujjada Biyu"
         55 -> "Addu'ar Sujjadar Tilawil Qur'ani"
         56 -> "Tahiyya (Tashahhud)"
-        57 -> "Ladubban Kwanciya Barci a Sunnah"
-        58 -> "Tasbihin Kwanciya Barci (Subhanallah 33, Alhamdulillah 33, Allahu Akbar 34)"
-        59 -> "Addu'ar Kwanciya Barci (Bismika Rabbi Wada'tu Janbi)"
+        57 -> "Addu'a Yayin Juyawa a Cikin Barci"
+        58 -> "Addu'ar Wanda Ya Razana a Barci ko Kasa Barci"
+        59 -> "Addu'ar Wanda Ya Yi Mafarki Mara Kyau"
         60 -> "Addu'ar Kunutin Wutiri"
         61 -> "Addu'ar Bayan Sallama Daga Wutiri"
         62 -> "Addu'ar Tashi Daga Majalisa (Kaffaratul Majlis)"
@@ -2228,20 +2223,6 @@ object AppLocalizer {
         357 -> "Hasbunallahu wa Ni'mal Wakeel: Isarwar Allah Yayin Tsoro da Makiya"
         358 -> "Addu'ar Neman Ilmi Mai Amfani, Arziki Mai Albarka da Karɓar Aiki"
         359 -> "Addu'ar Neman Kariya da Samun Nasara a Kan Maƙiya"
-        360 -> "Addu'ar Kwanciya Barci (Bismika Allahumma Amutu wa Ahya)"
-        361 -> "Addu'ar Mika Wuya Kafin Barci (Mutuwa a kan Musulunci)"
-        362 -> "Neman Tsari daga Azabar Ranar Tashin Alkiyama (Sau 3)"
-        363 -> "Ayatul Kursiyyi Kafin Barci (Garkuwa daga Shaidan)"
-        364 -> "Ayoyi Biyu na Ƙarshen Suratul Baqarah (Amanar-Rasul)"
-        365 -> "Al-Mu'awwidhat (Ikhlas, Falaq, Nas) Kafin Barci"
-        366 -> "Godiya ga Allah da Ya Ciyar da Mu kuma Ya Ba Mu Masauki"
-        367 -> "Babbar Addu'ar Barci ta Ubangijin Sammai da Ƙasa"
-        368 -> "Addu'ar Lokacin Firgita Cikin Barci ko Rashin Barci"
-        369 -> "Abin da Ake Fada Bayan Mummunan Mafarki"
-        370 -> "Addu'ar Mai Juyawa a kan Gado Cikin Dare"
-        371 -> "Addu'ar Wanda Ya Farka Cikin Dare (Tahajjud)"
-        372 -> "Addu'ar Tashi daga Barci (Alhamdu Lillahilladhi Ahyana)"
-        373 -> "Addu'ar Tashi daga Barci (Lafiyar Jiki da Mayar da Rai)"
         else -> null
     }
 
