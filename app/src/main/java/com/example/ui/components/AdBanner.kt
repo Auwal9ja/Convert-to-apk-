@@ -75,14 +75,6 @@ fun BannerAd(
                 AdView(ctx).apply {
                     setAdSize(AdSize.BANNER)
                     this.adUnitId = adUnitId
-                    adListener = object : com.google.android.gms.ads.AdListener() {
-                        override fun onAdLoaded() {
-                            Log.d("AdMob", "Banner ad loaded successfully")
-                        }
-                        override fun onAdFailedToLoad(loadAdError: com.google.android.gms.ads.LoadAdError) {
-                            Log.d("AdMob", "Banner ad failed to load: ${loadAdError.message}")
-                        }
-                    }
                     loadAd(AdRequest.Builder().build())
                 }
             }
