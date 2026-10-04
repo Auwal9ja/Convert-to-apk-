@@ -59,13 +59,32 @@ jobs:
 
           echo "Confirmation: Active Java major version ($JAVA_MAJOR) is 17 or newer."
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | sdkmanager --licenses || true
+
+      - name: Prepare environment and configuration files
+        run: |
+          if [ -f "./.env.example" ] && [ ! -f "./.env" ]; then
+            echo "Creating .env from .env.example..."
+            cp ./.env.example ./.env
+          fi
+
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: Create temporary debug keystore
+      - name: Create or restore debug keystore
         run: |
+          if [ -f "./debug.keystore.base64" ]; then
+            echo "Restoring debug.keystore from debug.keystore.base64..."
+            base64 -d ./debug.keystore.base64 > ./debug.keystore
+          fi
+
           if [ -f "./debug.keystore" ]; then
             echo "Debug keystore already exists at ./debug.keystore."
           else
