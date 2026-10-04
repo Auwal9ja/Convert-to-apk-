@@ -52,6 +52,7 @@ import com.example.util.PrayerTimeItem
 import com.example.util.PrayerTimeManager
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PrayerTimesHeaderCard(
     scheduleInfo: PrayerScheduleInfo,
@@ -142,20 +143,20 @@ fun PrayerTimesHeaderCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .heightIn(min = 190.dp)
             ) {
                 // High-resolution mosque at dusk with golden crescent moon and palm trees
                 Image(
                     painter = painterResource(id = R.drawable.img_home_hero_bg_1789824178609),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.matchParentSize()
                 )
 
                 // Deep gradient overlay for clean contrast and authentic evening look
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .matchParentSize()
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
@@ -169,10 +170,10 @@ fun PrayerTimesHeaderCard(
 
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 18.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     // Calligraphy: ❖ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ❖
                     Row(
@@ -183,39 +184,44 @@ fun PrayerTimesHeaderCard(
                         Text(
                             text = "❖",
                             color = Color(0xFFFDE68A).copy(alpha = 0.85f),
-                            fontSize = 18.sp
+                            fontSize = 16.sp
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
                             fontFamily = QuranFontFamily,
-                            fontSize = 24.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFFFFBEB),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "❖",
                             color = Color(0xFFFDE68A).copy(alpha = 0.85f),
-                            fontSize = 18.sp
+                            fontSize = 16.sp
                         )
                     }
 
                     // Gregorian Date: e.g. "Monday, September 21, 2026"
                     Text(
                         text = if (scheduleInfo.gregorianDateStr.isNotBlank()) scheduleInfo.gregorianDateStr else "Monday, September 21, 2026",
-                        fontSize = 14.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.95f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
-                    // Two Pills: Hijri Date & Location
-                    Row(
+                    // Two Pills: Hijri Date & Location (Responsive with FlowRow so it never clips or pushes off-screen)
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        maxItemsInEachRow = 2
                     ) {
                         // Left: Hijri Date Pill
                         Surface(
@@ -224,21 +230,23 @@ fun PrayerTimesHeaderCard(
                             border = BorderStroke(1.dp, Color(0xFF1B596A))
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.DateRange,
                                     contentDescription = null,
                                     tint = Color(0xFFFDE68A),
-                                    modifier = Modifier.size(15.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                                 Text(
                                     text = if (scheduleInfo.hijriDateStr.isNotBlank()) scheduleInfo.hijriDateStr else "9 Rabi'ul Akhir 1448 AH",
-                                    fontSize = 12.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color.White
+                                    color = Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -252,7 +260,7 @@ fun PrayerTimesHeaderCard(
                             modifier = Modifier.testTag("location_pill_btn")
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
@@ -260,16 +268,18 @@ fun PrayerTimesHeaderCard(
                                     imageVector = Icons.Default.LocationOn,
                                     contentDescription = "Location",
                                     tint = Color(0xFFFDE68A),
-                                    modifier = Modifier.size(15.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                                 val locationLabel = if (scheduleInfo.cityName.isNotBlank()) {
                                     if (scheduleInfo.countryName.isNotBlank()) "${scheduleInfo.cityName}, ${scheduleInfo.countryName}" else scheduleInfo.cityName
                                 } else "Katsina, Nigeria"
                                 Text(
                                     text = "$locationLabel ▾",
-                                    fontSize = 12.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color.White
+                                    color = Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -306,7 +316,8 @@ fun PrayerTimesHeaderCard(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f, fill = false)
                     ) {
                         Text(text = "🕌", fontSize = 18.sp)
                         Text(
@@ -320,9 +331,11 @@ fun PrayerTimesHeaderCard(
                                 "Urdu" -> "نماز کے اوقات"
                                 else -> "Prayer Times"
                             },
-                            fontSize = 18.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDarkTheme) Color.White else Color(0xFF0F261E)
+                            color = if (isDarkTheme) Color.White else Color(0xFF0F261E),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
@@ -335,9 +348,9 @@ fun PrayerTimesHeaderCard(
                         modifier = Modifier.testTag("btn_alarms_athan_config")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
                                 text = when (selectedLanguage) {
@@ -349,9 +362,10 @@ fun PrayerTimesHeaderCard(
                                     "Igbo" -> "Mkpọsa"
                                     else -> "Alarms"
                                 },
-                                fontSize = 13.sp,
+                                fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFF065F46)
+                                color = if (isDarkTheme) Color(0xFFFDE047) else Color(0xFF065F46),
+                                maxLines = 1
                             )
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -403,22 +417,27 @@ fun PrayerTimesHeaderCard(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.weight(1f, fill = false)
                         ) {
                             Text(text = "⏳", fontSize = 14.sp)
                             Text(
                                 text = "$prefixText $nextName",
-                                fontSize = 13.sp,
+                                fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                                color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
 
                         Text(
                             text = "$nextTime ($sauraText)",
-                            fontSize = 12.5.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFF047857)
+                            color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFF047857),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -479,7 +498,7 @@ fun PrayerTimesHeaderCard(
                                 },
                                 modifier = Modifier
                                     .width(76.dp)
-                                    .height(108.dp)
+                                    .defaultMinSize(minHeight = 108.dp)
                                     .clickable {
                                         if (prayer.id != "SUNRISE") {
                                             val next = !prayer.isAlarmEnabled
@@ -497,22 +516,22 @@ fun PrayerTimesHeaderCard(
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .fillMaxSize()
+                                        .fillMaxWidth()
                                         .padding(vertical = 8.dp, horizontal = 4.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.SpaceBetween
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     // Emoji icon
                                     Text(
                                         text = prayer.emoji,
-                                        fontSize = 20.sp,
+                                        fontSize = 19.sp,
                                         textAlign = TextAlign.Center
                                     )
 
                                     // Name
                                     Text(
                                         text = shortName,
-                                        fontSize = 12.sp,
+                                        fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = if (isCurrent) {
                                             if (isDarkTheme) Color(0xFF34D399) else Color(0xFF065F46)
@@ -527,7 +546,7 @@ fun PrayerTimesHeaderCard(
                                     // Time
                                     Text(
                                         text = prayer.formattedTime,
-                                        fontSize = 11.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
                                         color = if (isCurrent) {
                                             if (isDarkTheme) Color(0xFF34D399) else Color(0xFF065F46)
@@ -545,11 +564,20 @@ fun PrayerTimesHeaderCard(
                                             color = Color(0xFF10B981)
                                         ) {
                                             Text(
-                                                text = "Current",
+                                                text = when (selectedLanguage) {
+                                                    "Hausa" -> "Yanzu"
+                                                    "Arabic" -> "الآن"
+                                                    "French" -> "Actuel"
+                                                    "Spanish" -> "Actual"
+                                                    "Yoruba" -> "Lọwọlọwọ"
+                                                    "Igbo" -> "Ugbu a"
+                                                    else -> "Current"
+                                                },
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF022C22),
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.5.dp),
+                                                maxLines = 1
                                             )
                                         }
                                     } else {

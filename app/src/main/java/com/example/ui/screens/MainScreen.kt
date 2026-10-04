@@ -610,45 +610,90 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = selectedTab == 0,
                         onClick = { navigateToTab(0) },
+                        alwaysShowLabel = true,
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text(AppLocalizer.getString("home", selectedLanguage), fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                        label = {
+                            Text(
+                                text = AppLocalizer.getString("home", selectedLanguage),
+                                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 10.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = navItemColors,
                         modifier = Modifier.testTag("nav_home")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 1,
                         onClick = { navigateToTab(1) },
+                        alwaysShowLabel = true,
                         icon = { Icon(Icons.Default.Book, contentDescription = "Library") },
-                        label = { Text(AppLocalizer.getString("library", selectedLanguage), fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                        label = {
+                            Text(
+                                text = AppLocalizer.getString("library", selectedLanguage),
+                                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 10.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = navItemColors,
                         modifier = Modifier.testTag("nav_book")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 2,
                         onClick = { navigateToTab(2) },
+                        alwaysShowLabel = true,
                         icon = { Icon(Icons.Default.Explore, contentDescription = "Qibla") },
-                        label = { Text(AppLocalizer.getString("qibla", selectedLanguage), fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                        label = {
+                            Text(
+                                text = AppLocalizer.getString("qibla", selectedLanguage),
+                                fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 10.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = navItemColors,
                         modifier = Modifier.testTag("nav_qibla")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 3,
                         onClick = { navigateToTab(3) },
+                        alwaysShowLabel = true,
                         icon = {
                             Icon(
                                 imageVector = if (selectedTab == 3) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorites"
                             )
                         },
-                        label = { Text(AppLocalizer.getString("favorites", selectedLanguage), fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
+                        label = {
+                            Text(
+                                text = AppLocalizer.getString("favorites", selectedLanguage),
+                                fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 10.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = navItemColors,
                         modifier = Modifier.testTag("nav_favorites")
                     )
                     NavigationBarItem(
                         selected = selectedTab == 4,
                         onClick = { navigateToTab(4) },
+                        alwaysShowLabel = true,
                         icon = { Icon(Icons.Default.TouchApp, contentDescription = "Tasbeeh") },
-                        label = { Text(AppLocalizer.getString("tasbeeh", selectedLanguage), fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal) },
+                        label = {
+                            Text(
+                                text = AppLocalizer.getString("tasbeeh", selectedLanguage),
+                                fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 10.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         colors = navItemColors,
                         modifier = Modifier.testTag("nav_tasbeeh")
                     )
@@ -2578,7 +2623,7 @@ fun HomeTab(
             modifier = Modifier
                 .fillMaxSize()
                 .background(if (isDarkTheme) Color(0xFF061826) else Color(0xFFF4F7F5)),
-            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 24.dp),
+            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (!isBannerDismissed && (updateState is UpdateState.UpdateAvailable || updateState is UpdateState.Downloading || updateState is UpdateState.Downloaded)) {
@@ -2622,16 +2667,33 @@ fun HomeTab(
                     Box(
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Decorative Mosque Watermark in background right
-                        Image(
-                            painter = painterResource(id = R.drawable.img_mint_mosque_card_1789936526358),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .size(160.dp)
-                                .alpha(0.18f)
-                        )
+                        // Seamless fading mosque illustration watermark with no sharp cutoff or split edge
+                        val progressCardBg = if (isDarkTheme) Color(0xFF0A2B24) else Color(0xFFE8F6F0)
+                        Box(
+                            modifier = Modifier.matchParentSize()
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_mint_mosque_card_1789936526358),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .alpha(if (isDarkTheme) 0.18f else 0.22f)
+                            )
+                            // Smooth horizontal gradient scrim blending the card's background color seamlessly
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            0.0f to progressCardBg,
+                                            0.42f to progressCardBg,
+                                            0.72f to progressCardBg.copy(alpha = 0.55f),
+                                            1.0f to Color.Transparent
+                                        )
+                                    )
+                            )
+                        }
 
                         Row(
                             modifier = Modifier
@@ -2667,7 +2729,9 @@ fun HomeTab(
                                     text = "$displayCompleted / $displayTotal",
                                     color = if (isDarkTheme) Color.White else Color(0xFF0F261E),
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = when (selectedLanguage) {
@@ -2680,7 +2744,9 @@ fun HomeTab(
                                     },
                                     color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF437060),
                                     fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
 
@@ -3839,7 +3905,8 @@ fun ZakiruNightMosqueHeader(
             // Left: Logo Badge & ZAKIRU Title + Subtitle
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f, fill = false)
             ) {
                 ZakiruLogoBadge()
 
@@ -3847,9 +3914,11 @@ fun ZakiruNightMosqueHeader(
                     Text(
                         text = "ZAKIRU",
                         color = if (isDarkTheme) Color.White else Color(0xFF064E3B),
-                        fontSize = 20.sp,
+                        fontSize = 19.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.sp
+                        letterSpacing = 1.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = when (selectedLanguage) {
@@ -3861,8 +3930,10 @@ fun ZakiruNightMosqueHeader(
                             else -> "Your Daily Muslim Companion"
                         },
                         color = if (isDarkTheme) Color(0xFF90B5C6) else Color(0xFF2E6B56),
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Normal
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -3870,7 +3941,7 @@ fun ZakiruNightMosqueHeader(
             // Right: Actions (Language, VIP, Dark Mode, Settings)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 val actionBtnBg = if (isDarkTheme) Color(0xFF0F2C3A) else Color.White
                 val actionBtnBorder = if (isDarkTheme) Color(0xFF1E485B) else Color(0xFFCCE4DA)
