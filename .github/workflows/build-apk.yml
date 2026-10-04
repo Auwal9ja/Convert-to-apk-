@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -59,18 +59,34 @@ jobs:
 
           echo "Confirmation: Active Java major version ($JAVA_MAJOR) is 17 or newer."
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Accept Android SDK licenses
         run: |
-          yes | sdkmanager --licenses || true
+          echo "Checking Android SDK in runner environment..."
+          if [ -n "$ANDROID_HOME" ]; then
+            echo "ANDROID_HOME is set to: $ANDROID_HOME"
+          fi
+          SDKMANAGER_BIN=""
+          if [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            SDKMANAGER_BIN="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          elif command -v sdkmanager >/dev/null 2>&1; then
+            SDKMANAGER_BIN="sdkmanager"
+          fi
+
+          if [ -n "$SDKMANAGER_BIN" ]; then
+            echo "Accepting licenses using: $SDKMANAGER_BIN"
+            yes | "$SDKMANAGER_BIN" --licenses || true
+          else
+            echo "Notice: sdkmanager binary not found; relying on pre-installed licenses."
+          fi
 
       - name: Prepare environment and configuration files
         run: |
           if [ -f "./.env.example" ] && [ ! -f "./.env" ]; then
             echo "Creating .env from .env.example..."
             cp ./.env.example ./.env
+          fi
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew || true
           fi
 
       - name: Set up Gradle 9.3.1
