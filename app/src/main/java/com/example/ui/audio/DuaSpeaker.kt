@@ -187,6 +187,10 @@ class DuaSpeaker(private val context: Context) : TextToSpeech.OnInitListener {
             .trim()
     }
 
+    fun playArabic(id: Int, text: String, customRate: Float = 0.78f) {
+        speakArabic(id, text, customRate)
+    }
+
     fun speakArabic(id: Int, text: String, customRate: Float = 0.78f) {
         if (tts == null) {
             initTts()

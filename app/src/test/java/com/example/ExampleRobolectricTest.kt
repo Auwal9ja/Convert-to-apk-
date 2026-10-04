@@ -56,5 +56,38 @@ class ExampleRobolectricTest {
     assertNotNull(ref2)
     assertTrue(ref2!!.contains("Al-Bukhari"))
   }
+
+  @Test
+  fun `verify Surah Al-Mulk and sleep category data`() {
+    val seedDuas = DuaDatabaseSeeder.getSeedDuas()
+    val sleepDuas = seedDuas.filter { it.category == "Sleeping & Waking Up" }
+    assertTrue(sleepDuas.isNotEmpty())
+
+    // Verify Surah Al-Mulk is first
+    val firstSleepDua = sleepDuas.first()
+    assertEquals(5, firstSleepDua.id)
+    assertTrue(firstSleepDua.title.contains("Mulk"))
+    assertTrue(firstSleepDua.arabic.contains("تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ"))
+
+    // Verify all 30 ayahs in SleepingAndWakingData
+    assertEquals(30, com.example.data.local.SleepingAndWakingData.surahAlMulkAyahs.size)
+
+    // Verify Falalar Suratul Mulk
+    val virtuesDua = sleepDuas.find { it.id == 6 }
+    assertNotNull(virtuesDua)
+    assertTrue(virtuesDua!!.title.contains("Falalar Suratul Mulk"))
+    assertTrue(virtuesDua.translationHausa.contains("ceto") || virtuesDua.translationHausa.contains("kabari"))
+
+    // Verify Ladubban Kwanciya Barci
+    val etiquettesDua = sleepDuas.find { it.id == 57 }
+    assertNotNull(etiquettesDua)
+    assertTrue(etiquettesDua!!.title.contains("Ladubban"))
+
+    // Verify Tasbihin Kwanciya Barci (Subhanallah 33, Alhamdulillah 33, Allahu Akbar 34)
+    val tasbihDua = sleepDuas.find { it.id == 58 }
+    assertNotNull(tasbihDua)
+    assertTrue(tasbihDua!!.title.contains("Tasbihin"))
+    assertTrue(tasbihDua.arabic.contains("سُبْحَانَ اللَّهِ"))
+  }
 }
 

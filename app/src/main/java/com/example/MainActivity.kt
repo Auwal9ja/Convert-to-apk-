@@ -15,19 +15,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import com.example.data.local.DuaDatabase
 import com.example.data.repository.DuaRepository
 import com.example.receiver.OneSignalHelper
 import com.example.ui.DuaViewModel
 import com.example.ui.DuaViewModelFactory
-import com.example.ui.components.InterstitialAdHelper
-import com.example.ui.components.RewardedAdHelper
 import com.example.ui.screens.MainScreen
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.InAppUpdateManager
 import com.example.util.UpdateState
 import com.google.android.gms.ads.MobileAds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   private var viewModel: DuaViewModel? = null
@@ -47,13 +46,17 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Google Mobile Ads SDK safely
-    try {
-      MobileAds.initialize(this) {}
-      InterstitialAdHelper.scheduleAppLaunchAd(this)
-      RewardedAdHelper.loadAd(this)
-    } catch (e: Exception) {
-      Log.w("MainActivity", "MobileAds initialization or loading error: ${e.message}")
+    // Initialize Google Mobile Ads SDK safely in background
+    lifecycleScope.launch(Dispatchers.IO) {
+      try {
+        val requestConfig = com.google.android.gms.ads.RequestConfiguration.Builder()
+          .setTagForChildDirectedTreatment(com.google.android.gms.ads.RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+          .build()
+        MobileAds.setRequestConfiguration(requestConfig)
+        MobileAds.initialize(applicationContext) {}
+      } catch (e: Exception) {
+        Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+      }
     }
 
     // Ensure notification channels & exact alarms are scheduled if enabled
@@ -64,18 +67,15 @@ class MainActivity : ComponentActivity() {
     // Request push notification permission for OneSignal & daily reminders
     OneSignalHelper.requestPushPermission(fallbackToSettings = false)
 
-    // Background Cloud Sync check if enabled
-    if (com.example.data.remote.CloudSyncManager.isAutoSyncEnabled(this)) {
-      lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-        try {
-          com.example.data.remote.CloudSyncManager.syncWithRemote(this@MainActivity)
-        } catch (_: Exception) {}
+    // Initialize In-App Update Manager & check for background updates cleanly (only on release / non-debug)
+    inAppUpdateManager = InAppUpdateManager(this)
+    if (!BuildConfig.DEBUG) {
+      try {
+        inAppUpdateManager.checkForUpdates(isManual = false)
+      } catch (e: Exception) {
+        Log.w("MainActivity", "Background in-app update check ignored: ${e.message}")
       }
     }
-
-    // Initialize In-App Update Manager & check for background updates cleanly
-    inAppUpdateManager = InAppUpdateManager(this)
-    inAppUpdateManager.checkForUpdates(isManual = false)
 
     // Initialize database, repository, and ViewModel using constructor injection
     val database = DuaDatabase.getDatabase(this)

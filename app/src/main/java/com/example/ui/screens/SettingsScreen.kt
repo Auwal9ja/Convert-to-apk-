@@ -259,8 +259,7 @@ fun SettingsScreen(
             selectedLanguage = selectedLanguage,
             onDismiss = { showAboutDialog = false },
             onOpenPrivacyPolicy = { openPrivacyPolicy(context) },
-            onOpenContact = { openContactUsEmail(context) },
-            onOpenWebsite = { openWebsite(context) }
+            onOpenContact = { openContactUsEmail(context) }
         )
     }
 
@@ -735,18 +734,7 @@ fun SettingsScreen(
                 FullMandatoryAdhkarSection(context = context, selectedLanguage = selectedLanguage)
             }
 
-            // 5. CLOUD SYNC & WEB ADMIN CONTENT UPDATER
-            item {
-                SettingsSectionCard(
-                    title = if (selectedLanguage == "Hausa") "Sabuntawa Daga Yanar Gizo (Cloud Sync)" else "Cloud Sync & Web Admin",
-                    icon = Icons.Default.CloudSync,
-                    subtitle = if (selectedLanguage == "Hausa") "Saukar da sabbin Azkar da gyare-gyare daga Web Admin" else "Sync newly published Duas and Azkar from Web Admin"
-                ) {
-                    CloudSyncSettingsCard(context = context, selectedLanguage = selectedLanguage)
-                }
-            }
-
-            // 6. APP UPDATES (PLAY STORE)
+            // 5. APP UPDATES (PLAY STORE)
             item {
                 SettingsSectionCard(
                     title = if (selectedLanguage == "Hausa") "Sabunta Manhaja" else "App Updates",
@@ -1109,56 +1097,6 @@ fun SettingsScreen(
                                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                     contentDescription = "Open",
                                     tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-
-                        // Najah Tech Web & App Development Services
-                        Surface(
-                            onClick = { openWebsite(context) },
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.tertiary),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Language,
-                                        contentDescription = "Website",
-                                        tint = MaterialTheme.colorScheme.onTertiary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = if (selectedLanguage == "Hausa") "Ayyukan Yanar Gizo & Manhajoji" else "Custom Web & Mobile Apps",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = if (selectedLanguage == "Hausa") "Najah Tech - Kwararru wajen Gina Manhajoji" else "Najah Tech - Web & App Development",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                    contentDescription = "Open",
-                                    tint = MaterialTheme.colorScheme.tertiary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -1871,8 +1809,7 @@ fun AboutAppDialog(
     selectedLanguage: String,
     onDismiss: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
-    onOpenContact: () -> Unit,
-    onOpenWebsite: () -> Unit
+    onOpenContact: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -1976,11 +1913,6 @@ fun AboutAppDialog(
                                 text = "Email: najahtechng@gmail.com",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = "Web: www.najahtech.com",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -2916,168 +2848,5 @@ fun PrayerTimesAndAthanSettingsSection(
     }
 }
 
-@Composable
-fun CloudSyncSettingsCard(
-    context: Context,
-    selectedLanguage: String
-) {
-    val coroutineScope = rememberCoroutineScope()
-    var isSyncing by remember { mutableStateOf(false) }
-    var syncStatusText by remember { mutableStateOf<String?>(null) }
-    var isAutoSync by remember { mutableStateOf(com.example.data.remote.CloudSyncManager.isAutoSyncEnabled(context)) }
-    var showEndpointDialog by remember { mutableStateOf(false) }
-    var endpointUrl by remember { mutableStateOf(com.example.data.remote.CloudSyncManager.getEndpoint(context)) }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        // Switch for automatic background updates
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (selectedLanguage == "Hausa") "Duba Sabuntawa ta atomatik" else "Auto-Sync with Web Admin",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = if (selectedLanguage == "Hausa") "Duba sabbin addu'o'i da azkar a bango" else "Check and download new content automatically",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Switch(
-                checked = isAutoSync,
-                onCheckedChange = { checked ->
-                    isAutoSync = checked
-                    com.example.data.remote.CloudSyncManager.setAutoSyncEnabled(context, checked)
-                }
-            )
-        }
-
-        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-        // Manual Sync Button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    if (isSyncing) return@Button
-                    isSyncing = true
-                    syncStatusText = if (selectedLanguage == "Hausa") "Ana haɗawa da yanar gizo..." else "Connecting to cloud..."
-                    coroutineScope.launch {
-                        val result = com.example.data.remote.CloudSyncManager.syncWithRemote(context)
-                        isSyncing = false
-                        syncStatusText = result.message
-                        Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !isSyncing,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                if (isSyncing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (selectedLanguage == "Hausa") "Ana Sabuntawa..." else "Syncing...", fontSize = 13.sp)
-                } else {
-                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (selectedLanguage == "Hausa") "Sabunta Du'a Yanzu" else "Sync Content Now",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            OutlinedButton(
-                onClick = { showEndpointDialog = true },
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.Settings, contentDescription = "Endpoint Settings", modifier = Modifier.size(16.dp))
-            }
-        }
-
-        if (!syncStatusText.isNullOrBlank()) {
-            Text(
-                text = syncStatusText ?: "",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-
-    if (showEndpointDialog) {
-        Dialog(onDismissRequest = { showEndpointDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = if (selectedLanguage == "Hausa") "Saitin Server (Web Admin URL)" else "Web Admin Sync Server",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = if (selectedLanguage == "Hausa") 
-                            "Sanya URL na shafin Admin ko Firebase REST API domin karɓar sabbin Azkar:" 
-                            else "Enter the Web Admin API / Cloud JSON endpoint to fetch new Azkar from:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    OutlinedTextField(
-                        value = endpointUrl,
-                        onValueChange = { endpointUrl = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        label = { Text("API / Cloud Endpoint URL") }
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(onClick = { showEndpointDialog = false }) {
-                            Text(if (selectedLanguage == "Hausa") "Soke" else "Cancel")
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(
-                            onClick = {
-                                com.example.data.remote.CloudSyncManager.setEndpoint(context, endpointUrl)
-                                showEndpointDialog = false
-                                Toast.makeText(context, "An adana URL ✓", Toast.LENGTH_SHORT).show()
-                            },
-                            shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Text(if (selectedLanguage == "Hausa") "Ajiye" else "Save")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 
