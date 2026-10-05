@@ -704,11 +704,9 @@ fun PrayerTimesHeaderCard(
                             Text(text = "📱", fontSize = 11.sp)
                             Text(
                                 text = when (selectedLanguage) {
-                                    "Hausa" -> "Ƙara Widget"
-                                    "Arabic" -> "إضافة ويدجت"
-                                    "French" -> "+ Widget"
-                                    "Spanish" -> "+ Widget"
-                                    else -> "+ Widget"
+                                    "Hausa" -> "Widget (Addu'a / Azkar)"
+                                    "Arabic" -> "ويدجت (أذكار / أدعية)"
+                                    else -> "Widget (Dua / Azkar)"
                                 },
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,

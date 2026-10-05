@@ -8,17 +8,26 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.Toast
 import com.example.MainActivity
 import com.example.R
-import com.example.util.PrayerScheduleInfo
 import com.example.util.PrayerTimeManager
+import com.example.util.WidgetContentManager
+import com.example.util.WidgetContentType
 
 /**
- * AppWidgetProvider for Zakiru Prayer Times & Daily Schedule Home Screen Widget.
- * Displays real-time prayer schedule, Hijri date, location, next prayer countdown,
- * and 6 prayer times with dynamic highlighting and 1-tap refresh.
+ * AppWidgetProvider for Zakiru Islamic Home Screen Widget.
+ * Can display:
+ * 1. Addu'o'i (Daily authentic Du'as)
+ * 2. Azkar (Morning & Evening Adhkar, Tasbeeh)
+ * 3. Surah & Quranic Ayahs (Ayatul Kursi, Suratul Mulk, etc.)
+ * 4. Prayer Times & Next Salah countdown
+ * 5. Combined Mode (Prayer countdown ribbon + Addu'a/Azkar/Surah)
+ *
+ * User can switch what they want to display from Settings, in-app dialog,
+ * or cycle items directly from the widget via the Next (🔀) and Category buttons!
  */
 class PrayerWidgetProvider : AppWidgetProvider() {
 
@@ -33,6 +42,21 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
         val action = intent.action ?: return
         when (action) {
+            ACTION_NEXT_WIDGET_CONTENT -> {
+                val nextItem = WidgetContentManager.nextItem(context)
+                updateAllWidgets(context)
+                try {
+                    val toastMsg = "${nextItem.title} ✓"
+                    Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {}
+            }
+            ACTION_CYCLE_WIDGET_MODE -> {
+                val newMode = WidgetContentManager.toggleNextCategory(context)
+                updateAllWidgets(context)
+                try {
+                    Toast.makeText(context, "An canza tsari: ${newMode.titleHa} ✓", Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {}
+            }
             ACTION_REFRESH_WIDGET,
             ACTION_PRAYER_TIMES_UPDATED,
             Intent.ACTION_TIME_CHANGED,
@@ -40,13 +64,13 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 updateAllWidgets(context)
                 if (action == ACTION_REFRESH_WIDGET) {
                     try {
-                        Toast.makeText(context, "Lokutan Sallah sun sabunta ✓", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Widget ya sabunta ✓", Toast.LENGTH_SHORT).show()
                     } catch (_: Exception) {}
                 }
             }
             ACTION_WIDGET_PINNED -> {
                 try {
-                    Toast.makeText(context, "An sanya Widget a Allon Waya cikin nasara! 🕌", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "An sanya Widget a Allon Waya cikin nasara! 📱", Toast.LENGTH_LONG).show()
                 } catch (_: Exception) {}
             }
         }
@@ -57,9 +81,11 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         const val ACTION_REFRESH_WIDGET = "com.example.ACTION_REFRESH_WIDGET"
         const val ACTION_PRAYER_TIMES_UPDATED = "com.example.ACTION_PRAYER_TIMES_UPDATED"
         const val ACTION_WIDGET_PINNED = "com.example.ACTION_WIDGET_PINNED"
+        const val ACTION_NEXT_WIDGET_CONTENT = "com.example.ACTION_NEXT_WIDGET_CONTENT"
+        const val ACTION_CYCLE_WIDGET_MODE = "com.example.ACTION_CYCLE_WIDGET_MODE"
 
         /**
-         * Refreshes all active Zakiru widgets currently placed on the device launcher.
+         * Refreshes all active Zakiru widgets placed on the launcher.
          */
         fun updateAllWidgets(context: Context) {
             try {
@@ -89,8 +115,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         }
 
         /**
-         * Directly prompts the Android Launcher to pin the Zakiru Prayer Times Widget to Home Screen.
-         * Returns true if pinning request was accepted/launched, false if not supported.
+         * Directly prompts the Android Launcher to pin the Zakiru Widget to Home Screen.
          */
         fun requestPinWidget(context: Context): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -113,12 +138,24 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         }
 
         /**
-         * Binds latest prayer times and localized data to RemoteViews layout.
+         * Builds and populates the RemoteViews according to user-selected display mode.
          */
         fun updateWidgetViews(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             try {
                 val views = RemoteViews(context.packageName, R.layout.widget_prayer_times)
+                val contentType = WidgetContentManager.getSelectedContentType(context)
+                val currentItem = WidgetContentManager.getCurrentItem(context)
                 val schedule = PrayerTimeManager.getTodaySchedule(context, "Hausa")
+
+                // App Title / Category Badge
+                val headerTitle = when (contentType) {
+                    WidgetContentType.ADDUA -> "🤲 Zakiru • Addu'a"
+                    WidgetContentType.AZKAR -> "📿 Zakiru • Azkar"
+                    WidgetContentType.SURAH -> "📖 Zakiru • Surah"
+                    WidgetContentType.PRAYER_TIMES -> "🕌 Zakiru • Lokutan Sallah"
+                    WidgetContentType.COMBINED -> "🌟 Zakiru • Sallah & Addu'a"
+                }
+                views.setTextViewText(R.id.widget_app_title, headerTitle)
 
                 // Location display
                 val locationText = if (schedule.cityName.isNotBlank() && schedule.cityName != PrayerTimeManager.DEFAULT_CITY) {
@@ -133,7 +170,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 val hijriText = if (schedule.hijriDateStr.isNotBlank()) schedule.hijriDateStr else "1448 AH"
                 views.setTextViewText(R.id.widget_hijri_date, hijriText)
 
-                // Next prayer ribbon
+                // Next prayer info
                 val nextPrayer = schedule.nextPrayer
                 val nextPrayerName = nextPrayer?.nameHa ?: "Azahar"
                 val nextPrayerTime = nextPrayer?.formattedTime ?: ""
@@ -142,58 +179,84 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_next_prayer_title, "⏳ Mai zuwa: $nextPrayerName • $nextPrayerTime")
                 views.setTextViewText(R.id.widget_next_prayer_countdown, if (remainingStr.isNotBlank()) "saura $remainingStr" else "Cikin lokaci")
 
-                // Map prayer items
-                val prayerMap = schedule.prayers.associateBy { it.id }
-
-                // 1. Fajr
-                prayerMap["FAJR"]?.let { fajr ->
-                    views.setTextViewText(R.id.widget_fajr_name, fajr.nameHa)
-                    views.setTextViewText(R.id.widget_fajr_time, fajr.formattedTime)
-                    val bgRes = if (fajr.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_fajr_container, "setBackgroundResource", bgRes)
+                // Dynamic visibility based on selected mode
+                when (contentType) {
+                    WidgetContentType.PRAYER_TIMES -> {
+                        views.setViewVisibility(R.id.widget_hero_card, View.VISIBLE)
+                        views.setViewVisibility(R.id.widget_prayers_row, View.VISIBLE)
+                        views.setViewVisibility(R.id.widget_islamic_content_section, View.GONE)
+                    }
+                    WidgetContentType.COMBINED -> {
+                        views.setViewVisibility(R.id.widget_hero_card, View.VISIBLE)
+                        views.setViewVisibility(R.id.widget_prayers_row, View.GONE)
+                        views.setViewVisibility(R.id.widget_islamic_content_section, View.VISIBLE)
+                    }
+                    WidgetContentType.ADDUA,
+                    WidgetContentType.AZKAR,
+                    WidgetContentType.SURAH -> {
+                        views.setViewVisibility(R.id.widget_hero_card, View.GONE)
+                        views.setViewVisibility(R.id.widget_prayers_row, View.GONE)
+                        views.setViewVisibility(R.id.widget_islamic_content_section, View.VISIBLE)
+                    }
                 }
 
-                // 2. Sunrise
-                prayerMap["SUNRISE"]?.let { sunrise ->
-                    views.setTextViewText(R.id.widget_sunrise_name, sunrise.nameHa)
-                    views.setTextViewText(R.id.widget_sunrise_time, sunrise.formattedTime)
-                    val bgRes = if (sunrise.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_sunrise_container, "setBackgroundResource", bgRes)
+                // If content section is visible, bind Dua/Azkar/Surah content
+                if (contentType != WidgetContentType.PRAYER_TIMES) {
+                    views.setTextViewText(R.id.widget_content_title, currentItem.title)
+                    views.setTextViewText(R.id.widget_content_arabic, currentItem.arabic)
+                    views.setTextViewText(R.id.widget_content_translation, currentItem.translation)
+                    views.setTextViewText(R.id.widget_content_reference, currentItem.reference)
                 }
 
-                // 3. Dhuhr
-                prayerMap["DHUHR"]?.let { dhuhr ->
-                    views.setTextViewText(R.id.widget_dhuhr_name, dhuhr.nameHa)
-                    views.setTextViewText(R.id.widget_dhuhr_time, dhuhr.formattedTime)
-                    val bgRes = if (dhuhr.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_dhuhr_container, "setBackgroundResource", bgRes)
+                // If prayer row is visible, bind prayer times
+                if (contentType == WidgetContentType.PRAYER_TIMES) {
+                    val prayerMap = schedule.prayers.associateBy { it.id }
+
+                    // Fajr
+                    prayerMap["FAJR"]?.let {
+                        views.setTextViewText(R.id.widget_fajr_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_fajr_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_fajr_container, "setBackgroundResource", bgRes)
+                    }
+                    // Sunrise
+                    prayerMap["SUNRISE"]?.let {
+                        views.setTextViewText(R.id.widget_sunrise_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_sunrise_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_sunrise_container, "setBackgroundResource", bgRes)
+                    }
+                    // Dhuhr
+                    prayerMap["DHUHR"]?.let {
+                        views.setTextViewText(R.id.widget_dhuhr_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_dhuhr_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_dhuhr_container, "setBackgroundResource", bgRes)
+                    }
+                    // Asr
+                    prayerMap["ASR"]?.let {
+                        views.setTextViewText(R.id.widget_asr_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_asr_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_asr_container, "setBackgroundResource", bgRes)
+                    }
+                    // Maghrib
+                    prayerMap["MAGHRIB"]?.let {
+                        views.setTextViewText(R.id.widget_maghrib_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_maghrib_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_maghrib_container, "setBackgroundResource", bgRes)
+                    }
+                    // Isha
+                    prayerMap["ISHA"]?.let {
+                        views.setTextViewText(R.id.widget_isha_name, it.nameHa)
+                        views.setTextViewText(R.id.widget_isha_time, it.formattedTime)
+                        val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
+                        views.setInt(R.id.widget_isha_container, "setBackgroundResource", bgRes)
+                    }
                 }
 
-                // 4. Asr
-                prayerMap["ASR"]?.let { asr ->
-                    views.setTextViewText(R.id.widget_asr_name, asr.nameHa)
-                    views.setTextViewText(R.id.widget_asr_time, asr.formattedTime)
-                    val bgRes = if (asr.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_asr_container, "setBackgroundResource", bgRes)
-                }
-
-                // 5. Maghrib
-                prayerMap["MAGHRIB"]?.let { maghrib ->
-                    views.setTextViewText(R.id.widget_maghrib_name, maghrib.nameHa)
-                    views.setTextViewText(R.id.widget_maghrib_time, maghrib.formattedTime)
-                    val bgRes = if (maghrib.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_maghrib_container, "setBackgroundResource", bgRes)
-                }
-
-                // 6. Isha
-                prayerMap["ISHA"]?.let { isha ->
-                    views.setTextViewText(R.id.widget_isha_name, isha.nameHa)
-                    views.setTextViewText(R.id.widget_isha_time, isha.formattedTime)
-                    val bgRes = if (isha.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
-                    views.setInt(R.id.widget_isha_container, "setBackgroundResource", bgRes)
-                }
-
-                // Tap on entire widget opens app directly
+                // Click on root opens MainActivity
                 val appOpenIntent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
@@ -205,7 +268,31 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.widget_root, appOpenPendingIntent)
 
-                // Refresh button click triggers ACTION_REFRESH_WIDGET
+                // Click on Next button cycles to next Dua/Azkar/Surah
+                val nextContentIntent = Intent(context, PrayerWidgetProvider::class.java).apply {
+                    action = ACTION_NEXT_WIDGET_CONTENT
+                }
+                val nextContentPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    appWidgetId + 3000,
+                    nextContentIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_btn_next, nextContentPendingIntent)
+
+                // Click on header title cycles category mode
+                val cycleModeIntent = Intent(context, PrayerWidgetProvider::class.java).apply {
+                    action = ACTION_CYCLE_WIDGET_MODE
+                }
+                val cycleModePendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    appWidgetId + 4000,
+                    cycleModeIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_app_title, cycleModePendingIntent)
+
+                // Click on Refresh button refreshes widget
                 val refreshIntent = Intent(context, PrayerWidgetProvider::class.java).apply {
                     action = ACTION_REFRESH_WIDGET
                 }
@@ -217,7 +304,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.widget_btn_refresh, refreshPendingIntent)
 
-                // Commit the update to AppWidgetManager
+                // Commit update
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
                 Log.e(TAG, "Error building widget views: ${e.message}", e)

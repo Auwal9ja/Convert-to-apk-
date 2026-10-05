@@ -1981,16 +1981,127 @@ fun HomeScreenWidgetSettingsSection(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var pinRequested by remember { mutableStateOf(false) }
+    var selectedMode by remember { mutableStateOf(com.example.util.WidgetContentManager.getSelectedContentType(context)) }
+    var currentItem by remember { mutableStateOf(com.example.util.WidgetContentManager.getCurrentItem(context)) }
     val schedule = remember { PrayerTimeManager.getTodaySchedule(context, selectedLanguage) }
 
     SettingsSectionCard(
-        title = if (selectedLanguage == "Hausa") "Widget na Allon Waya" else "Home Screen Widget",
+        title = if (selectedLanguage == "Hausa") "Widget na Allon Waya (Addu'a, Azkar, Surah)" else "Home Screen Widget (Dua, Azkar, Surah)",
         icon = Icons.Default.Widgets,
-        subtitle = if (selectedLanguage == "Hausa") "Lokutan Sallah 5, rana da kirgen sauran lokaci a babban allon wayarka" else "Live 5 prayer times, sunrise, and countdown right on your phone's home screen"
+        subtitle = if (selectedLanguage == "Hausa") "Zaɓi abin da kake son widget ya nuna a allonka: Addu'a, Azkar, Surah, ko Lokutan Sallah" else "Choose what to display on your home screen: Duas, Adhkar, Surahs, or Prayer Times"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            // Content Type Selector Row
+            Text(
+                text = if (selectedLanguage == "Hausa") "ABIN DA WIDGET ZAI NUNA:" else "DISPLAY MODE:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF10B981)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                com.example.util.WidgetContentType.values().take(3).forEach { mode ->
+                    val isSel = mode == selectedMode
+                    Surface(
+                        onClick = {
+                            selectedMode = mode
+                            com.example.util.WidgetContentManager.setSelectedContentType(context, mode)
+                            currentItem = com.example.util.WidgetContentManager.getCurrentItem(context)
+                            com.example.receiver.PrayerWidgetProvider.updateAllWidgets(context)
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isSel) {
+                            if (isDarkTheme) Color(0xFF0D423A) else Color(0xFFD1FAE5)
+                        } else {
+                            if (isDarkTheme) Color(0xFF0A2934) else Color(0xFFF1F5F9)
+                        },
+                        border = BorderStroke(
+                            if (isSel) 1.5.dp else 1.dp,
+                            if (isSel) Color(0xFF10B981) else if (isDarkTheme) Color(0xFF164756) else Color(0xFFCBD5E1)
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(text = mode.icon, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") mode.titleHa.substringBefore(" (") else mode.titleEn.substringBefore(" "),
+                                fontSize = 11.sp,
+                                fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSel) {
+                                    if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                                } else {
+                                    if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF475569)
+                                },
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                com.example.util.WidgetContentType.values().drop(3).forEach { mode ->
+                    val isSel = mode == selectedMode
+                    Surface(
+                        onClick = {
+                            selectedMode = mode
+                            com.example.util.WidgetContentManager.setSelectedContentType(context, mode)
+                            currentItem = com.example.util.WidgetContentManager.getCurrentItem(context)
+                            com.example.receiver.PrayerWidgetProvider.updateAllWidgets(context)
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        color = if (isSel) {
+                            if (isDarkTheme) Color(0xFF0D423A) else Color(0xFFD1FAE5)
+                        } else {
+                            if (isDarkTheme) Color(0xFF0A2934) else Color(0xFFF1F5F9)
+                        },
+                        border = BorderStroke(
+                            if (isSel) 1.5.dp else 1.dp,
+                            if (isSel) Color(0xFF10B981) else if (isDarkTheme) Color(0xFF164756) else Color(0xFFCBD5E1)
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(text = mode.icon, fontSize = 14.sp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (selectedLanguage == "Hausa") mode.titleHa.substringBefore(" (") else mode.titleEn.substringBefore(" "),
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSel) {
+                                    if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                                } else {
+                                    if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF475569)
+                                },
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+
             // Widget interactive preview
-            com.example.ui.components.WidgetPreviewCard(schedule = schedule, selectedLanguage = selectedLanguage)
+            com.example.ui.components.WidgetPreviewCard(
+                schedule = schedule,
+                selectedLanguage = selectedLanguage,
+                mode = selectedMode,
+                item = currentItem
+            )
 
             // Pin / Add to Home Screen button
             Button(
@@ -2030,8 +2141,6 @@ fun HomeScreenWidgetSettingsSection(
                         text = when (selectedLanguage) {
                             "Hausa" -> if (pinRequested) "An Nemi Sanyawa ✓ (Sake Sanyawa)" else "📱 Sanya Widget a Allon Waya"
                             "Arabic" -> if (pinRequested) "تم الطلب ✓" else "📱 إضافة الويدجت للشاشة الرئيسية"
-                            "French" -> if (pinRequested) "Ajouté ✓" else "📱 Ajouter le Widget à l'écran d'accueil"
-                            "Spanish" -> if (pinRequested) "Añadido ✓" else "📱 Añadir Widget a Pantalla de Inicio"
                             else -> if (pinRequested) "Pin Requested ✓" else "📱 Add Widget to Home Screen"
                         },
                         fontSize = 13.5.sp,
@@ -2041,7 +2150,7 @@ fun HomeScreenWidgetSettingsSection(
                 }
             }
 
-            // How to add manually guide button
+            // Configure items and manual guide button
             OutlinedButton(
                 onClick = { showDialog = true },
                 modifier = Modifier.fillMaxWidth(),
@@ -2052,12 +2161,12 @@ fun HomeScreenWidgetSettingsSection(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = Icons.Default.Tune,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = if (selectedLanguage == "Hausa") "Bayanin Yadda Ake Sanyawa da Kanka (Guide)" else "How to Add Manually (Guide)",
+                        text = if (selectedLanguage == "Hausa") "Zaɓi Addu'o'i / Azkar da Bayani (Configure)" else "Select Duas, Azkar & Guide",
                         fontSize = 12.5.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -2069,7 +2178,11 @@ fun HomeScreenWidgetSettingsSection(
     if (showDialog) {
         com.example.ui.components.AddWidgetDialog(
             selectedLanguage = selectedLanguage,
-            onDismissRequest = { showDialog = false }
+            onDismissRequest = {
+                showDialog = false
+                selectedMode = com.example.util.WidgetContentManager.getSelectedContentType(context)
+                currentItem = com.example.util.WidgetContentManager.getCurrentItem(context)
+            }
         )
     }
 }
