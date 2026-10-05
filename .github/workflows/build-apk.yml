@@ -25,26 +25,54 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Configure Android SDK and licenses
+      - name: Configure Android SDK environment
         run: |
-          echo "=== Android SDK Configuration ==="
-          if [ -z "$ANDROID_HOME" ] && [ -n "$ANDROID_SDK_ROOT" ]; then
-            export ANDROID_HOME="$ANDROID_SDK_ROOT"
-          fi
-          echo "ANDROID_HOME: $ANDROID_HOME"
-          if [ -n "$ANDROID_HOME" ]; then
-            echo "sdk.dir=$ANDROID_HOME" > local.properties
-            echo "Created local.properties with sdk.dir=$ANDROID_HOME"
+          echo "=== Configuring Android SDK Environment ==="
+          
+          # Detect Android SDK directory
+          SDK_DIR=""
+          if [ -d "/usr/local/lib/android/sdk" ]; then
+            SDK_DIR="/usr/local/lib/android/sdk"
+          elif [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
+            SDK_DIR="$ANDROID_HOME"
+          elif [ -n "$ANDROID_SDK_ROOT" ] && [ -d "$ANDROID_SDK_ROOT" ]; then
+            SDK_DIR="$ANDROID_SDK_ROOT"
           fi
 
+          echo "Discovered Android SDK path: $SDK_DIR"
+
+          if [ -z "$SDK_DIR" ]; then
+            echo "Error: Android SDK directory not found in standard paths!"
+            exit 1
+          fi
+
+          # Set environment variables for current step and subsequent steps
+          export ANDROID_HOME="$SDK_DIR"
+          export ANDROID_SDK_ROOT="$SDK_DIR"
+          echo "ANDROID_HOME=$SDK_DIR" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_DIR" >> "$GITHUB_ENV"
+
+          # Add command line tools to PATH
+          if [ -d "$SDK_DIR/cmdline-tools/latest/bin" ]; then
+            echo "$SDK_DIR/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+            export PATH="$SDK_DIR/cmdline-tools/latest/bin:$PATH"
+          fi
+          if [ -d "$SDK_DIR/platform-tools" ]; then
+            echo "$SDK_DIR/platform-tools" >> "$GITHUB_PATH"
+            export PATH="$SDK_DIR/platform-tools:$PATH"
+          fi
+
+          # Create local.properties in project root for Gradle
+          echo "sdk.dir=$SDK_DIR" > local.properties
+          echo "Confirmed: local.properties created with sdk.dir=$SDK_DIR"
+
+          # Accept SDK licenses if sdkmanager is present
           if command -v sdkmanager >/dev/null 2>&1; then
-            echo "Accepting licenses with sdkmanager..."
-            yes | sdkmanager --licenses || true
-          elif [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+            echo "Accepting Android SDK licenses via sdkmanager..."
+            yes | sdkmanager --licenses 2>/dev/null || true
+          elif [ -x "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" ]; then
+            echo "Accepting Android SDK licenses via cmdline-tools sdkmanager..."
+            yes | "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
           fi
 
       - name: Verify Java environment
