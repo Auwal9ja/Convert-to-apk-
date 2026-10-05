@@ -188,5 +188,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
         // Reschedule future prayer alarms
         PrayerTimeManager.reschedulePrayerAlarms(context)
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
     }
 }

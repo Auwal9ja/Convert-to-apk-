@@ -71,6 +71,7 @@ fun PrayerTimesHeaderCard(
     var showLocationDialog by remember { mutableStateOf(false) }
     var isDetectingLocation by remember { mutableStateOf(false) }
     var showCalculationMethodDialog by remember { mutableStateOf(false) }
+    var showAddWidgetDialog by remember { mutableStateOf(false) }
     var currentCalcMethod by remember { mutableStateOf(PrayerTimeManager.getCalculationMethod(context)) }
 
     fun startGpsDetection() {
@@ -640,46 +641,80 @@ fun PrayerTimesHeaderCard(
                     }
                 }
 
-                // Calculation Method quick badge & switcher
-                Surface(
-                    onClick = { showCalculationMethodDialog = true },
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (isDarkTheme) Color(0xFF092934) else Color(0xFFE8F6F0),
-                    border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF154857) else Color(0xFFBFE5D6)),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .testTag("btn_calc_method_quick_switch")
+                // Calculation Method & Add Widget Action Buttons
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    // 1. Calculation Method quick badge & switcher
+                    Surface(
+                        onClick = { showCalculationMethodDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isDarkTheme) Color(0xFF092934) else Color(0xFFE8F6F0),
+                        border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF154857) else Color(0xFFBFE5D6)),
+                        modifier = Modifier.testTag("btn_calc_method_quick_switch")
                     ) {
-                        Text(text = "📐", fontSize = 11.sp)
-                        val shortMethodName = when (currentCalcMethod) {
-                            CalculationMethod.MUSLIM_PRO -> "Muslim Pro (Tsoho / Default)"
-                            CalculationMethod.EGYPTIAN -> "Egyptian General Authority"
-                            CalculationMethod.MUSLIM_WORLD_LEAGUE -> "Muslim World League"
-                            CalculationMethod.UMM_AL_QURA -> "Umm Al-Qura (Makkah)"
-                            CalculationMethod.KARACHI -> "Karachi (Pakistan)"
-                            CalculationMethod.NORTH_AMERICA -> "ISNA (North America)"
-                            CalculationMethod.DUBAI -> "Dubai Standard"
-                            CalculationMethod.KUWAIT -> "Kuwait"
-                            CalculationMethod.QATAR -> "Qatar"
-                            CalculationMethod.TEHRAN -> "Tehran"
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(text = "📐", fontSize = 11.sp)
+                            val shortMethodName = when (currentCalcMethod) {
+                                CalculationMethod.MUSLIM_PRO -> "Muslim Pro (Tsoho)"
+                                CalculationMethod.EGYPTIAN -> "Egyptian General Authority"
+                                CalculationMethod.MUSLIM_WORLD_LEAGUE -> "Muslim World League"
+                                CalculationMethod.UMM_AL_QURA -> "Umm Al-Qura (Makkah)"
+                                CalculationMethod.KARACHI -> "Karachi (Pakistan)"
+                                CalculationMethod.NORTH_AMERICA -> "ISNA (North America)"
+                                CalculationMethod.DUBAI -> "Dubai Standard"
+                                CalculationMethod.KUWAIT -> "Kuwait"
+                                CalculationMethod.QATAR -> "Qatar"
+                                CalculationMethod.TEHRAN -> "Tehran"
+                            }
+                            Text(
+                                text = shortMethodName,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Change Calculation Method",
+                                tint = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46),
+                                modifier = Modifier.size(14.dp)
+                            )
                         }
-                        Text(
-                            text = shortMethodName,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = "Change Calculation Method",
-                            tint = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46),
-                            modifier = Modifier.size(14.dp)
-                        )
+                    }
+
+                    // 2. Add Home Screen Widget Button
+                    Surface(
+                        onClick = { showAddWidgetDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isDarkTheme) Color(0xFF0C2B38) else Color(0xFFE0F2FE),
+                        border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF185D73) else Color(0xFFBAE6FD)),
+                        modifier = Modifier.testTag("btn_add_home_screen_widget")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(text = "📱", fontSize = 11.sp)
+                            Text(
+                                text = when (selectedLanguage) {
+                                    "Hausa" -> "Ƙara Widget"
+                                    "Arabic" -> "إضافة ويدجت"
+                                    "French" -> "+ Widget"
+                                    "Spanish" -> "+ Widget"
+                                    else -> "+ Widget"
+                                },
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isDarkTheme) Color(0xFF38BDF8) else Color(0xFF0284C7)
+                            )
+                        }
                     }
                 }
             }
@@ -927,6 +962,16 @@ fun PrayerTimesHeaderCard(
                 }
             }
         }
+    }
+
+    // =========================================================================
+    // Home Screen Widget Setup & Pinning Dialog
+    // =========================================================================
+    if (showAddWidgetDialog) {
+        AddWidgetDialog(
+            selectedLanguage = selectedLanguage,
+            onDismissRequest = { showAddWidgetDialog = false }
+        )
     }
 }
 

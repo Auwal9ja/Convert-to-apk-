@@ -18,6 +18,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.receiver.PrayerAlarmReceiver
+import com.example.receiver.PrayerWidgetProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
@@ -103,6 +104,9 @@ object PrayerTimeManager {
             .apply()
 
         _scheduleUpdateFlow.value = System.currentTimeMillis()
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
 
         // Reschedule alarms for new location
         try {
@@ -132,6 +136,9 @@ object PrayerTimeManager {
             .putBoolean("has_custom_calculation_method", true)
             .apply()
         _scheduleUpdateFlow.value = System.currentTimeMillis()
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
         reschedulePrayerAlarms(context)
     }
 
@@ -147,6 +154,9 @@ object PrayerTimeManager {
     fun setJuristicMethod(context: Context, method: JuristicMethod) {
         getPreferences(context).edit().putString("juristic_method", method.name).apply()
         _scheduleUpdateFlow.value = System.currentTimeMillis()
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
         reschedulePrayerAlarms(context)
     }
 
@@ -157,6 +167,9 @@ object PrayerTimeManager {
     fun setHijriOffset(context: Context, offset: Int) {
         getPreferences(context).edit().putInt("hijri_offset", offset).apply()
         _scheduleUpdateFlow.value = System.currentTimeMillis()
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
     }
 
     fun isPrayerAlarmEnabled(context: Context, prayerId: String): Boolean {
@@ -167,6 +180,9 @@ object PrayerTimeManager {
     fun setPrayerAlarmEnabled(context: Context, prayerId: String, enabled: Boolean) {
         getPreferences(context).edit().putBoolean("alarm_enabled_$prayerId", enabled).apply()
         _scheduleUpdateFlow.value = System.currentTimeMillis()
+        try {
+            PrayerWidgetProvider.updateAllWidgets(context)
+        } catch (_: Exception) {}
         reschedulePrayerAlarms(context)
     }
 

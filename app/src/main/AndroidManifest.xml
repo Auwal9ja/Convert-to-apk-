@@ -157,6 +157,24 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- Zakiru Prayer Times & Daily Schedule Home Screen Widget -->
+        <receiver
+            android:name=".receiver.PrayerWidgetProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/widget_prayer_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.ACTION_REFRESH_WIDGET" />
+                <action android:name="com.example.ACTION_PRAYER_TIMES_UPDATED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/prayer_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

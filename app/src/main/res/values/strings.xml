@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Zakiru</string>
+    <string name="widget_prayer_name">Zakiru • Lokutan Sallah</string>
+    <string name="widget_prayer_description">Allon nuna lokutan sallah 5, rana, da kirgen sauran lokaci kai tsaye a allon wayarka.</string>
     <string name="reference_and_virtue">Reference &amp; Virtue</string>
     <string name="google_app_id" translatable="false">1:000000000000:android:0000000000000000000000</string>
 </resources>

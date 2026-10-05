@@ -729,7 +729,16 @@ fun SettingsScreen(
                 )
             }
 
-            // 4. SCHEDULED ADHKAR (MANDATORY SESSIONS)
+            // 4. HOME SCREEN WIDGET (WIDGET NA ALLON WAYA)
+            item {
+                HomeScreenWidgetSettingsSection(
+                    context = context,
+                    selectedLanguage = selectedLanguage,
+                    isDarkTheme = isDarkTheme
+                )
+            }
+
+            // 5. SCHEDULED ADHKAR (MANDATORY SESSIONS)
             item {
                 FullMandatoryAdhkarSection(context = context, selectedLanguage = selectedLanguage)
             }
@@ -1961,6 +1970,107 @@ fun AboutAppDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun HomeScreenWidgetSettingsSection(
+    context: Context,
+    selectedLanguage: String,
+    isDarkTheme: Boolean
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    var pinRequested by remember { mutableStateOf(false) }
+    val schedule = remember { PrayerTimeManager.getTodaySchedule(context, selectedLanguage) }
+
+    SettingsSectionCard(
+        title = if (selectedLanguage == "Hausa") "Widget na Allon Waya" else "Home Screen Widget",
+        icon = Icons.Default.Widgets,
+        subtitle = if (selectedLanguage == "Hausa") "Lokutan Sallah 5, rana da kirgen sauran lokaci a babban allon wayarka" else "Live 5 prayer times, sunrise, and countdown right on your phone's home screen"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            // Widget interactive preview
+            com.example.ui.components.WidgetPreviewCard(schedule = schedule, selectedLanguage = selectedLanguage)
+
+            // Pin / Add to Home Screen button
+            Button(
+                onClick = {
+                    val success = com.example.receiver.PrayerWidgetProvider.requestPinWidget(context)
+                    if (success) {
+                        pinRequested = true
+                        Toast.makeText(
+                            context,
+                            if (selectedLanguage == "Hausa") "Duba allonka don amincewa da sanya Widget 📱" else "Please confirm pinning on your home screen 📱",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        showDialog = true
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("btn_settings_pin_widget"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF00796B)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = if (pinRequested) Icons.Default.CheckCircle else Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = when (selectedLanguage) {
+                            "Hausa" -> if (pinRequested) "An Nemi Sanyawa ✓ (Sake Sanyawa)" else "📱 Sanya Widget a Allon Waya"
+                            "Arabic" -> if (pinRequested) "تم الطلب ✓" else "📱 إضافة الويدجت للشاشة الرئيسية"
+                            "French" -> if (pinRequested) "Ajouté ✓" else "📱 Ajouter le Widget à l'écran d'accueil"
+                            "Spanish" -> if (pinRequested) "Añadido ✓" else "📱 Añadir Widget a Pantalla de Inicio"
+                            else -> if (pinRequested) "Pin Requested ✓" else "📱 Add Widget to Home Screen"
+                        },
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            // How to add manually guide button
+            OutlinedButton(
+                onClick = { showDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Bayanin Yadda Ake Sanyawa da Kanka (Guide)" else "How to Add Manually (Guide)",
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+    }
+
+    if (showDialog) {
+        com.example.ui.components.AddWidgetDialog(
+            selectedLanguage = selectedLanguage,
+            onDismissRequest = { showDialog = false }
+        )
     }
 }
 
