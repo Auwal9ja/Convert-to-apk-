@@ -5,6 +5,7 @@ import java.util.Date
 import kotlin.math.*
 
 enum class CalculationMethod(val displayName: String, val fajrAngle: Double, val ishaAngle: Double, val ishaMinutes: Double = 0.0) {
+    MUSLIM_PRO("Muslim Pro (Standard / MWL - Fajr 18°, Isha 17°)", 18.0, 17.0),
     EGYPTIAN("Egyptian General Authority (Egypt, Africa, Nigeria)", 19.5, 17.5),
     MUSLIM_WORLD_LEAGUE("Muslim World League (MWL)", 18.0, 17.0),
     UMM_AL_QURA("Umm Al-Qura (Makkah, Saudi Arabia)", 18.5, 0.0, 90.0),
@@ -49,7 +50,7 @@ object PrayerTimesCalculator {
         longitude: Double,
         timezone: Double = calendar.timeZone.getOffset(calendar.timeInMillis) / 3600000.0,
         elevationMeters: Double = 0.0,
-        method: CalculationMethod = CalculationMethod.EGYPTIAN,
+        method: CalculationMethod = CalculationMethod.MUSLIM_PRO,
         juristic: JuristicMethod = JuristicMethod.SHAFI_MALIKI_HANBALI,
         highLatRule: HigherLatitudeRule = HigherLatitudeRule.MID_NIGHT
     ): PrayerTimesResult {

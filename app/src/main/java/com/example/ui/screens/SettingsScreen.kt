@@ -2476,12 +2476,21 @@ fun PrayerTimesAndAthanSettingsSection(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = method.displayName,
-                                        fontSize = 13.sp,
-                                        fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
-                                        modifier = Modifier.weight(1f)
-                                    )
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = method.displayName,
+                                            fontSize = 13.sp,
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                        if (method == CalculationMethod.MUSLIM_PRO) {
+                                            Text(
+                                                text = if (selectedLanguage == "Hausa") "★ Tsarin Asali (Default)" else "★ Default Method",
+                                                fontSize = 10.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
                                     if (isSel) {
                                         Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
                                     }

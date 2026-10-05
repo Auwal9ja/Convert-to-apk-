@@ -16,6 +16,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +49,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.example.R
 import com.example.ui.theme.QuranFontFamily
+import com.example.util.CalculationMethod
 import com.example.util.PrayerScheduleInfo
 import com.example.util.PrayerTimeItem
 import com.example.util.PrayerTimeManager
@@ -67,6 +70,8 @@ fun PrayerTimesHeaderCard(
     val scrollState = rememberScrollState()
     var showLocationDialog by remember { mutableStateOf(false) }
     var isDetectingLocation by remember { mutableStateOf(false) }
+    var showCalculationMethodDialog by remember { mutableStateOf(false) }
+    var currentCalcMethod by remember { mutableStateOf(PrayerTimeManager.getCalculationMethod(context)) }
 
     fun startGpsDetection() {
         isDetectingLocation = true
@@ -634,6 +639,49 @@ fun PrayerTimesHeaderCard(
                         )
                     }
                 }
+
+                // Calculation Method quick badge & switcher
+                Surface(
+                    onClick = { showCalculationMethodDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isDarkTheme) Color(0xFF092934) else Color(0xFFE8F6F0),
+                    border = BorderStroke(1.dp, if (isDarkTheme) Color(0xFF154857) else Color(0xFFBFE5D6)),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .testTag("btn_calc_method_quick_switch")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = "📐", fontSize = 11.sp)
+                        val shortMethodName = when (currentCalcMethod) {
+                            CalculationMethod.MUSLIM_PRO -> "Muslim Pro (Tsoho / Default)"
+                            CalculationMethod.EGYPTIAN -> "Egyptian General Authority"
+                            CalculationMethod.MUSLIM_WORLD_LEAGUE -> "Muslim World League"
+                            CalculationMethod.UMM_AL_QURA -> "Umm Al-Qura (Makkah)"
+                            CalculationMethod.KARACHI -> "Karachi (Pakistan)"
+                            CalculationMethod.NORTH_AMERICA -> "ISNA (North America)"
+                            CalculationMethod.DUBAI -> "Dubai Standard"
+                            CalculationMethod.KUWAIT -> "Kuwait"
+                            CalculationMethod.QATAR -> "Qatar"
+                            CalculationMethod.TEHRAN -> "Tehran"
+                        }
+                        Text(
+                            text = shortMethodName,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Change Calculation Method",
+                            tint = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF065F46),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
             }
         }
 
@@ -778,6 +826,104 @@ fun PrayerTimesHeaderCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp
                     )
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // Calculation Method Selection Dialog (Muslim Pro as Default, switchable)
+    // =========================================================================
+    if (showCalculationMethodDialog) {
+        Dialog(onDismissRequest = { showCalculationMethodDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(22.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 520.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Hanyar Lissafin Lokutan Sallah" else "Prayer Calculation Method",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        IconButton(onClick = { showCalculationMethodDialog = false }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(18.dp))
+                        }
+                    }
+
+                    Text(
+                        text = if (selectedLanguage == "Hausa")
+                            "Muslim Pro ita ce hanyar lissafi ta asali (Default: Fajr 18°, Isha 17°). Zaka iya zaɓar kowace hanya da kake so a ƙasa:"
+                        else
+                            "Muslim Pro is the default calculation method (Fajr 18°, Isha 17°). You can choose any other method below:",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(CalculationMethod.values().toList()) { method ->
+                            val isSel = currentCalcMethod == method
+                            Surface(
+                                onClick = {
+                                    currentCalcMethod = method
+                                    PrayerTimeManager.setCalculationMethod(context, method)
+                                    onScheduleUpdated()
+                                    showCalculationMethodDialog = false
+                                    Toast.makeText(
+                                        context,
+                                        if (selectedLanguage == "Hausa") "An saita: ${method.displayName}" else "Selected: ${method.displayName}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSel) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                border = BorderStroke(1.dp, if (isSel) MaterialTheme.colorScheme.primary else Color.Transparent),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = method.displayName,
+                                            fontSize = 13.sp,
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                        if (method == CalculationMethod.MUSLIM_PRO) {
+                                            Text(
+                                                text = if (selectedLanguage == "Hausa") "★ Tsarin Asali (Default)" else "★ Default Method",
+                                                fontSize = 10.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                    if (isSel) {
+                                        Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -113,16 +113,24 @@ object PrayerTimeManager {
     }
 
     fun getCalculationMethod(context: Context): CalculationMethod {
-        val name = getPreferences(context).getString("calculation_method", CalculationMethod.EGYPTIAN.name)
+        val prefs = getPreferences(context)
+        val hasCustomMethod = prefs.getBoolean("has_custom_calculation_method", false)
+        if (!hasCustomMethod) {
+            return CalculationMethod.MUSLIM_PRO
+        }
+        val name = prefs.getString("calculation_method", CalculationMethod.MUSLIM_PRO.name)
         return try {
-            CalculationMethod.valueOf(name ?: CalculationMethod.EGYPTIAN.name)
+            CalculationMethod.valueOf(name ?: CalculationMethod.MUSLIM_PRO.name)
         } catch (_: Exception) {
-            CalculationMethod.EGYPTIAN
+            CalculationMethod.MUSLIM_PRO
         }
     }
 
     fun setCalculationMethod(context: Context, method: CalculationMethod) {
-        getPreferences(context).edit().putString("calculation_method", method.name).apply()
+        getPreferences(context).edit()
+            .putString("calculation_method", method.name)
+            .putBoolean("has_custom_calculation_method", true)
+            .apply()
         _scheduleUpdateFlow.value = System.currentTimeMillis()
         reschedulePrayerAlarms(context)
     }
