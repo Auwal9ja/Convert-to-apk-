@@ -1980,6 +1980,7 @@ fun HomeScreenWidgetSettingsSection(
     isDarkTheme: Boolean
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var showFullDuaListPicker by remember { mutableStateOf(false) }
     var pinRequested by remember { mutableStateOf(false) }
     var selectedMode by remember { mutableStateOf(com.example.util.WidgetContentManager.getSelectedContentType(context)) }
     var currentItem by remember { mutableStateOf(com.example.util.WidgetContentManager.getCurrentItem(context)) }
@@ -2150,6 +2151,29 @@ fun HomeScreenWidgetSettingsSection(
                 }
             }
 
+            // Browse All Duas and Azkar Button
+            FilledTonalButton(
+                onClick = { showFullDuaListPicker = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FormatListBulleted,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "📋 Zaɓi daga Dukkan Addu'o'i & Azkar (Duka)" else "📋 Browse & Select from All Duas & Azkar",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             // Configure items and manual guide button
             OutlinedButton(
                 onClick = { showDialog = true },
@@ -2166,13 +2190,28 @@ fun HomeScreenWidgetSettingsSection(
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = if (selectedLanguage == "Hausa") "Zaɓi Addu'o'i / Azkar da Bayani (Configure)" else "Select Duas, Azkar & Guide",
+                        text = if (selectedLanguage == "Hausa") "Yadda Ake Saita a Allon Waya (Guide)" else "Widget Guide & Setup",
                         fontSize = 12.5.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             }
         }
+    }
+
+    if (showFullDuaListPicker) {
+        com.example.ui.components.SelectDuaForWidgetDialog(
+            selectedLanguage = selectedLanguage,
+            onItemSelected = { item ->
+                currentItem = item
+                selectedMode = item.type
+            },
+            onDismissRequest = {
+                showFullDuaListPicker = false
+                selectedMode = com.example.util.WidgetContentManager.getSelectedContentType(context)
+                currentItem = com.example.util.WidgetContentManager.getCurrentItem(context)
+            }
+        )
     }
 
     if (showDialog) {

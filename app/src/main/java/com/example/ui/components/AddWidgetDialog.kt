@@ -18,7 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Widgets
@@ -62,6 +64,7 @@ fun AddWidgetDialog(
 
     var selectedMode by remember { mutableStateOf(WidgetContentManager.getSelectedContentType(context)) }
     var currentItem by remember { mutableStateOf(WidgetContentManager.getCurrentItem(context)) }
+    var showFullListPicker by remember { mutableStateOf(false) }
     val schedule = remember { PrayerTimeManager.getTodaySchedule(context, selectedLanguage) }
 
     Dialog(
@@ -311,7 +314,67 @@ fun AddWidgetDialog(
                     }
                 }
 
-                // 3. LIVE INTERACTIVE PREVIEW
+                // 3. BROWSE ALL DUAS & AZKAR FROM DATABASE
+                Surface(
+                    onClick = { showFullListPicker = true },
+                    shape = RoundedCornerShape(13.dp),
+                    color = if (isDark) Color(0xFF09313E) else Color(0xFFE0F2FE),
+                    border = BorderStroke(1.2.dp, if (isDark) Color(0xFF1B6A7E) else Color(0xFF7DD3FC)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("btn_browse_all_duas_for_widget")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 13.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF0284C7).copy(alpha = 0.25f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FormatListBulleted,
+                                    contentDescription = null,
+                                    tint = Color(0xFF38BDF8),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "📋 Zaɓi daga Dukkan Addu'o'i & Azkar" else "📋 Browse & Pick from All Duas & Azkar",
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color.White else Color(0xFF0369A1)
+                                )
+                                Text(
+                                    text = if (selectedLanguage == "Hausa") "Bincika duk wata addu'a ko zikiri ka sanya a widget" else "Search & choose any specific Dua or Azkar",
+                                    fontSize = 11.sp,
+                                    color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                )
+                            }
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Open",
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                // 4. LIVE INTERACTIVE PREVIEW
                 Text(
                     text = when (selectedLanguage) {
                         "Hausa" -> "KIRAR WIDGET A ALLONKA"
@@ -435,6 +498,21 @@ fun AddWidgetDialog(
                 }
             }
         }
+    }
+
+    if (showFullListPicker) {
+        SelectDuaForWidgetDialog(
+            selectedLanguage = selectedLanguage,
+            onItemSelected = { item ->
+                currentItem = item
+                selectedMode = item.type
+            },
+            onDismissRequest = {
+                showFullListPicker = false
+                currentItem = WidgetContentManager.getCurrentItem(context)
+                selectedMode = WidgetContentManager.getSelectedContentType(context)
+            }
+        )
     }
 }
 

@@ -31,6 +31,13 @@ object WidgetContentManager {
     private const val KEY_CONTENT_TYPE = "key_widget_content_type"
     private const val KEY_CURRENT_INDEX_PREFIX = "key_widget_index_"
     private const val KEY_SPECIFIC_ITEM_ID = "key_widget_specific_item"
+    private const val KEY_CUSTOM_ACTIVE = "key_widget_custom_active"
+    private const val KEY_CUSTOM_ID = "key_widget_custom_id"
+    private const val KEY_CUSTOM_TYPE = "key_widget_custom_type"
+    private const val KEY_CUSTOM_TITLE = "key_widget_custom_title"
+    private const val KEY_CUSTOM_ARABIC = "key_widget_custom_arabic"
+    private const val KEY_CUSTOM_TRANSLATION = "key_widget_custom_translation"
+    private const val KEY_CUSTOM_REFERENCE = "key_widget_custom_reference"
 
     // 1. Curated Addu'o'i (Du'as)
     val duasList = listOf(
@@ -248,6 +255,21 @@ object WidgetContentManager {
      * Returns the currently active WidgetItem to display based on current selection/index.
      */
     fun getCurrentItem(context: Context): WidgetItem {
+        // 1. Check if user selected a custom Dua from the full database list
+        if (getPrefs(context).getBoolean(KEY_CUSTOM_ACTIVE, false)) {
+            val title = getPrefs(context).getString(KEY_CUSTOM_TITLE, "") ?: ""
+            val arabic = getPrefs(context).getString(KEY_CUSTOM_ARABIC, "") ?: ""
+            val translation = getPrefs(context).getString(KEY_CUSTOM_TRANSLATION, "") ?: ""
+            val reference = getPrefs(context).getString(KEY_CUSTOM_REFERENCE, "") ?: ""
+            val typeStr = getPrefs(context).getString(KEY_CUSTOM_TYPE, WidgetContentType.ADDUA.id)
+            val type = WidgetContentType.values().firstOrNull { it.id == typeStr } ?: WidgetContentType.ADDUA
+            val id = getPrefs(context).getString(KEY_CUSTOM_ID, "custom") ?: "custom"
+
+            if (title.isNotBlank() && arabic.isNotBlank()) {
+                return WidgetItem(id, type, title, arabic, translation, reference)
+            }
+        }
+
         val type = getSelectedContentType(context)
         val items = getItemsForCategory(type)
         if (items.isEmpty()) {
@@ -269,6 +291,9 @@ object WidgetContentManager {
      * Cycles to the next item within the active category (e.g. Next Dua / Next Zikr / Next Surah).
      */
     fun nextItem(context: Context): WidgetItem {
+        // Clear custom locking when user explicitly clicks Next / Shuffle
+        getPrefs(context).edit().putBoolean(KEY_CUSTOM_ACTIVE, false).apply()
+
         val type = getSelectedContentType(context)
         val items = getItemsForCategory(type)
         if (items.isEmpty()) {
@@ -289,6 +314,7 @@ object WidgetContentManager {
      * Toggles to the next content category (Addua -> Azkar -> Surah -> Prayer Times -> Combined).
      */
     fun toggleNextCategory(context: Context): WidgetContentType {
+        getPrefs(context).edit().putBoolean(KEY_CUSTOM_ACTIVE, false).apply()
         val current = getSelectedContentType(context)
         val all = WidgetContentType.values()
         val next = all[(current.ordinal + 1) % all.size]
@@ -301,6 +327,70 @@ object WidgetContentManager {
      */
     fun setSelectedItem(context: Context, item: WidgetItem) {
         setSelectedContentType(context, item.type)
-        getPrefs(context).edit().putString(KEY_SPECIFIC_ITEM_ID, item.id).apply()
+        getPrefs(context).edit()
+            .putBoolean(KEY_CUSTOM_ACTIVE, false)
+            .putString(KEY_SPECIFIC_ITEM_ID, item.id)
+            .apply()
+    }
+
+    /**
+     * Sets a custom DuaEntity chosen from the full database list as the active widget item.
+     */
+    fun setCustomDuaEntity(context: Context, dua: com.example.data.local.DuaEntity, language: String): WidgetItem {
+        val translated = when (language) {
+            "Hausa" -> if (dua.translationHausa.isNotBlank()) dua.translationHausa else dua.translation
+            "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
+            "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
+            else -> dua.translation
+        }
+
+        val type = when {
+            dua.category.contains("Morning", ignoreCase = true) ||
+            dua.category.contains("Evening", ignoreCase = true) ||
+            dua.category.contains("Post-Salah", ignoreCase = true) ||
+            dua.category.contains("Tasbih", ignoreCase = true) -> WidgetContentType.AZKAR
+
+            dua.category.contains("Quran", ignoreCase = true) ||
+            dua.category.contains("Rabbana", ignoreCase = true) ||
+            dua.category.contains("Surah", ignoreCase = true) -> WidgetContentType.SURAH
+
+            else -> WidgetContentType.ADDUA
+        }
+
+        val icon = when (type) {
+            WidgetContentType.AZKAR -> "📿"
+            WidgetContentType.SURAH -> "📖"
+            else -> "🤲"
+        }
+
+        val item = WidgetItem(
+            id = "db_${dua.id}",
+            type = type,
+            title = "$icon ${dua.title}",
+            arabic = dua.arabic,
+            translation = translated,
+            reference = if (dua.reference.isNotBlank()) "★ ${dua.reference}" else "★ ${dua.category}"
+        )
+
+        getPrefs(context).edit()
+            .putBoolean(KEY_CUSTOM_ACTIVE, true)
+            .putString(KEY_CUSTOM_ID, item.id)
+            .putString(KEY_CUSTOM_TYPE, item.type.id)
+            .putString(KEY_CUSTOM_TITLE, item.title)
+            .putString(KEY_CUSTOM_ARABIC, item.arabic)
+            .putString(KEY_CUSTOM_TRANSLATION, item.translation)
+            .putString(KEY_CUSTOM_REFERENCE, item.reference)
+            .putString(KEY_CONTENT_TYPE, item.type.id)
+            .apply()
+
+        return item
+    }
+
+    fun isCustomSelected(context: Context): Boolean {
+        return getPrefs(context).getBoolean(KEY_CUSTOM_ACTIVE, false)
+    }
+
+    fun getSelectedCustomId(context: Context): String? {
+        return if (isCustomSelected(context)) getPrefs(context).getString(KEY_CUSTOM_ID, null) else null
     }
 }
