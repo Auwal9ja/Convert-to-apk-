@@ -18,6 +18,11 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
+    <!-- Prevent AdServices measurement service binding errors when service is not installed/running -->
+    <uses-permission
+        android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+        tools:node="remove" />
+
     <!-- Queries declaration for Text-to-Speech (TTS), Email (Gmail / Mailto), and Web on Android 11+ (API 30+) -->
     <queries>
         <intent>

@@ -58,8 +58,8 @@ fun BannerAd(
     val context = LocalContext.current
     val isAdsRemoved by BillingManager.getInstance(context).isAdsRemoved.collectAsStateWithLifecycle()
 
-    if (isAdsRemoved) {
-        // Ads removed via Subscription or Lifetime In-App Purchase
+    if (isAdsRemoved || com.example.util.DeviceUtils.isEmulator) {
+        // Ads removed via Subscription or running in emulator
         return
     }
 
@@ -159,7 +159,7 @@ object InterstitialAdHelper {
         adUnitId: String = AdConstants.INTERSTITIAL_AD_UNIT_ID,
         fallbackToSample: Boolean = true
     ) {
-        if (BillingManager.isAdsRemovedQuick(context) || adsShownThisSession >= MAX_ADS_PER_SESSION) {
+        if (com.example.util.DeviceUtils.isEmulator || BillingManager.isAdsRemovedQuick(context) || adsShownThisSession >= MAX_ADS_PER_SESSION) {
             mInterstitialAd = null
             return
         }
@@ -460,7 +460,7 @@ object RewardedAdHelper {
         context: Context,
         rewardedAdUnitId: String = AdConstants.REWARDED_AD_UNIT_ID
     ) {
-        if (BillingManager.isAdsRemovedQuick(context) || isLoading || rewardedAd != null) {
+        if (com.example.util.DeviceUtils.isEmulator || BillingManager.isAdsRemovedQuick(context) || isLoading || rewardedAd != null) {
             return
         }
         isLoading = true

@@ -46,16 +46,20 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Google Mobile Ads SDK safely in background
+    // Initialize Google Mobile Ads SDK safely in background (only on physical devices)
     lifecycleScope.launch(Dispatchers.IO) {
-      try {
-        val requestConfig = com.google.android.gms.ads.RequestConfiguration.Builder()
-          .setTagForChildDirectedTreatment(com.google.android.gms.ads.RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
-          .build()
-        MobileAds.setRequestConfiguration(requestConfig)
-        MobileAds.initialize(applicationContext) {}
-      } catch (e: Exception) {
-        Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+      if (!com.example.util.DeviceUtils.isEmulator) {
+        try {
+          val requestConfig = com.google.android.gms.ads.RequestConfiguration.Builder()
+            .setTagForChildDirectedTreatment(com.google.android.gms.ads.RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+            .build()
+          MobileAds.setRequestConfiguration(requestConfig)
+          MobileAds.initialize(applicationContext) {}
+        } catch (e: Exception) {
+          Log.w("MainActivity", "MobileAds initialization error: ${e.message}")
+        }
+      } else {
+        Log.d("MainActivity", "Skipping MobileAds initialization in emulator environment")
       }
     }
 
