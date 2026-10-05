@@ -3847,14 +3847,14 @@ fun ZakiruNightMosqueHeader(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(180.dp)
             )
 
             // Gradient overlay for smooth transition into deep midnight blue/navy background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(180.dp)
                     .background(
                         Brush.verticalGradient(
                             listOf(
@@ -3866,26 +3866,26 @@ fun ZakiruNightMosqueHeader(
                     )
             )
         } else {
-            // Morning mosque background image with warm dawn light
+            // Morning mosque background image with warm dawn light and crescent moon
             Image(
-                painter = painterResource(id = R.drawable.welcome_mosque_bg_1789987490127),
+                painter = painterResource(id = R.drawable.daylight_mosque_sky_1791161967162),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(180.dp)
             )
 
             // Gradient overlay for smooth transition into light/white background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(180.dp)
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                Color(0x20FFFFFF),
-                                Color(0x90F4F7F5),
+                                Color(0x10FFFFFF),
+                                Color(0x75F4F7F5),
                                 Color(0xFFF4F7F5)
                             )
                         )
@@ -3893,20 +3893,71 @@ fun ZakiruNightMosqueHeader(
             )
         }
 
+        val context = LocalContext.current
+        val prefs = remember { context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE) }
+        var userName by remember { mutableStateOf(prefs.getString("user_name", "Auwal") ?: "Auwal") }
+        var showNameEditDialog by remember { mutableStateOf(false) }
+
+        if (showNameEditDialog) {
+            var tempName by remember { mutableStateOf(userName) }
+            AlertDialog(
+                onDismissRequest = { showNameEditDialog = false },
+                title = {
+                    Text(
+                        text = if (selectedLanguage == "Hausa") "Saita Sunanka" else "Set Your Name",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Column {
+                        Text(
+                            text = if (selectedLanguage == "Hausa") "Shigar da sunanka domin gaisuwa a babban shafi:" else "Enter your name for personalized greeting:",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = tempName,
+                            onValueChange = { tempName = it },
+                            singleLine = true,
+                            label = { Text("Sunanka / Name") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val saved = if (tempName.trim().isNotBlank()) tempName.trim() else "Auwal"
+                            userName = saved
+                            prefs.edit().putString("user_name", saved).apply()
+                            showNameEditDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005C42))
+                    ) {
+                        Text("Ajiye / Save", color = Color.White)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNameEditDialog = false }) {
+                        Text("Soke / Cancel")
+                    }
+                }
+            )
+        }
+
         // Top Content
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Left: Logo Badge & ZAKIRU Title + Subtitle
+            // Row 1: Logo Badge & ZAKIRU Title + Subtitle with green & gold dash
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(1f, fill = false)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ZakiruLogoBadge()
 
@@ -3914,7 +3965,7 @@ fun ZakiruNightMosqueHeader(
                     Text(
                         text = "ZAKIRU",
                         color = if (isDarkTheme) Color.White else Color(0xFF064E3B),
-                        fontSize = 19.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 1.sp,
                         maxLines = 1,
@@ -3922,27 +3973,84 @@ fun ZakiruNightMosqueHeader(
                     )
                     Text(
                         text = when (selectedLanguage) {
-                            "Hausa" -> "Mataimakin Musulmi na Kullum"
-                            "Arabic" -> "رفيقك اليومي للأذكار"
-                            "Yoruba" -> "Oluranlọwọ Musulumi Ojoojumọ"
-                            "Igbo" -> "Onye Inyeaka Ndị Alakụba Kwa Ụbọchị"
-                            "French" -> "Votre Compagnon Musulman Quotidien"
-                            else -> "Your Daily Muslim Companion"
+                            "Hausa" -> "Mataimakin Musulmi na Kowa"
+                            "Arabic" -> "رفيق كل مسلم"
+                            "Yoruba" -> "Oluranlọwọ Musulumi Fun Gbogbo Eniyan"
+                            "Igbo" -> "Onye Inyeaka Ndị Alakụba Nile"
+                            "French" -> "Le Compagnon de Chaque Musulman"
+                            else -> "Muslim Companion for Everyone"
                         },
                         color = if (isDarkTheme) Color(0xFF90B5C6) else Color(0xFF2E6B56),
-                        fontSize = 11.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Normal,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(18.dp)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color(0xFF0D9488))
+                        )
+                        Box(
+                            modifier = Modifier
+                                .width(8.dp)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(Color(0xFFF59E0B))
+                        )
+                    }
                 }
             }
 
-            // Right: Actions (Language, VIP, Dark Mode, Settings)
+            // Row 2: Greeting on Left + Actions on Right (Language, VIP, Theme, Settings)
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Greeting (Clickable to change name)
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .clickable { showNameEditDialog = true }
+                ) {
+                    Text(
+                        text = "Assalamu Alaikum, $userName",
+                        color = if (isDarkTheme) Color.White else Color(0xFF0A2B24),
+                        fontSize = 16.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = when (selectedLanguage) {
+                            "Hausa" -> "May Allah ya albarkaci ranar ka 🤲"
+                            "Arabic" -> "بارك الله في يومك 🤲"
+                            "Yoruba" -> "Ki Ọlọrun bukun ọjọ rẹ 🤲"
+                            "Igbo" -> "Ka Chineke gọzie ụbọchị gị 🤲"
+                            "French" -> "Qu'Allah bénisse votre journée 🤲"
+                            else -> "May Allah bless your day 🤲"
+                        },
+                        color = if (isDarkTheme) Color(0xFFA7F3D0) else Color(0xFF4A6B60),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // Right: Actions (Language, VIP, Dark Mode, Settings)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
                 val actionBtnBg = if (isDarkTheme) Color(0xFF0F2C3A) else Color.White
                 val actionBtnBorder = if (isDarkTheme) Color(0xFF1E485B) else Color(0xFFCCE4DA)
                 val actionBtnTint = if (isDarkTheme) Color.White else Color(0xFF064E3B)
@@ -4105,6 +4213,7 @@ fun ZakiruNightMosqueHeader(
             }
         }
     }
+}
 }
 
 @Composable

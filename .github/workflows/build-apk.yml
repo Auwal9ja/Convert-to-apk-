@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
@@ -24,6 +24,28 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configure Android SDK and licenses
+        run: |
+          echo "=== Android SDK Configuration ==="
+          if [ -z "$ANDROID_HOME" ] && [ -n "$ANDROID_SDK_ROOT" ]; then
+            export ANDROID_HOME="$ANDROID_SDK_ROOT"
+          fi
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          if [ -n "$ANDROID_HOME" ]; then
+            echo "sdk.dir=$ANDROID_HOME" > local.properties
+            echo "Created local.properties with sdk.dir=$ANDROID_HOME"
+          fi
+
+          if command -v sdkmanager >/dev/null 2>&1; then
+            echo "Accepting licenses with sdkmanager..."
+            yes | sdkmanager --licenses || true
+          elif [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          fi
 
       - name: Verify Java environment
         run: |
@@ -59,31 +81,13 @@ jobs:
 
           echo "Confirmation: Active Java major version ($JAVA_MAJOR) is 17 or newer."
 
-      - name: Accept Android SDK licenses
-        run: |
-          echo "Checking Android SDK in runner environment..."
-          if [ -n "$ANDROID_HOME" ]; then
-            echo "ANDROID_HOME is set to: $ANDROID_HOME"
-          fi
-          SDKMANAGER_BIN=""
-          if [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            SDKMANAGER_BIN="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          elif command -v sdkmanager >/dev/null 2>&1; then
-            SDKMANAGER_BIN="sdkmanager"
-          fi
-
-          if [ -n "$SDKMANAGER_BIN" ]; then
-            echo "Accepting licenses using: $SDKMANAGER_BIN"
-            yes | "$SDKMANAGER_BIN" --licenses || true
-          else
-            echo "Notice: sdkmanager binary not found; relying on pre-installed licenses."
-          fi
-
       - name: Prepare environment and configuration files
         run: |
           if [ -f "./.env.example" ] && [ ! -f "./.env" ]; then
             echo "Creating .env from .env.example..."
             cp ./.env.example ./.env
+          elif [ ! -f "./.env" ]; then
+            touch ./.env
           fi
           if [ -f "./gradlew" ]; then
             chmod +x ./gradlew || true
@@ -128,7 +132,12 @@ jobs:
 
       - name: Build debug APK
         id: build_apk
-        run: gradle :app:assembleDebug --stacktrace --no-daemon
+        run: |
+          if [ -x "./gradlew" ]; then
+            ./gradlew :app:assembleDebug --stacktrace --no-daemon
+          else
+            gradle :app:assembleDebug --stacktrace --no-daemon
+          fi
 
       - name: Verify debug APK
         run: |
