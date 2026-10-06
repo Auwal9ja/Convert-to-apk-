@@ -34,7 +34,7 @@ class DuaRepository(private val duaDao: DuaDao, private val externalScope: Corou
     suspend fun getLocalizedDuaDetails(dua: DuaEntity, language: String): LocalizedDuaDetails = withContext(Dispatchers.IO) {
         // 1. Title Resolution from built-in static table
         val staticTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, language)
-        val hasStaticTitle = (dua.id in 1..359) && (staticTitle != dua.title || language == "English")
+        val hasStaticTitle = (dua.id in 1..400) && (staticTitle != dua.title || language == "English")
 
         // 2. Translation Resolution from built-in static table
         val builtInTranslation = DuaTranslationLocalization.getLocalizedTranslation(

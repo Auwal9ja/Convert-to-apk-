@@ -60,8 +60,9 @@ class DuaViewModel(
     val duas: StateFlow<List<DuaEntity>> = combine(
         _searchQuery,
         _selectedCategory,
+        _selectedLanguage,
         repository.allDuas
-    ) { query, category, all ->
+    ) { query, category, lang, all ->
         var list = all
         if (category != null) {
             list = list.filter { 
@@ -102,7 +103,7 @@ class DuaViewModel(
             val q = query.trim()
             list = list.filter {
                 it.title.contains(q, ignoreCase = true) ||
-                com.example.data.local.AppLocalizer.getDuaTitle(it.id, it.title, _selectedLanguage.value).contains(q, ignoreCase = true) ||
+                com.example.data.local.AppLocalizer.getDuaTitle(it.id, it.title, lang).contains(q, ignoreCase = true) ||
                 it.translation.contains(q, ignoreCase = true) ||
                 it.translationHausa.contains(q, ignoreCase = true) ||
                 it.translationYoruba.contains(q, ignoreCase = true) ||
@@ -161,7 +162,14 @@ class DuaViewModel(
                 .edit()
                 .putString("selected_language", language)
                 .apply()
+            appCtx.getSharedPreferences("tasbeeh_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("selected_language", language)
+                .apply()
             com.example.receiver.OneSignalHelper.setUserLanguageTag(language)
+            com.example.receiver.PrayerWidgetProvider.updateAllWidgets(appCtx)
+            com.example.receiver.MandatoryAdhkarManager.recoverAndRescheduleAll(appCtx, "LANGUAGE_CHANGE")
+            com.example.receiver.ReminderReceiver.rescheduleAllIfEnabled(appCtx)
         } catch (_: Exception) {}
     }
 

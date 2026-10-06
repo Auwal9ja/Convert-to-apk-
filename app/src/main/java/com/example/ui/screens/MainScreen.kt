@@ -1944,10 +1944,15 @@ fun DuaItemCard(
         referenceText = localRef
         titleText = staticTitle
 
-        val needsDynamic = (dua.id > 359) ||
-            (selectedLanguage != "English" && localTrans == dua.translation) ||
-            (selectedLanguage == "Hausa" && dua.translationHausa.isBlank() && dua.translation.isNotBlank()) ||
-            (selectedLanguage != "Hausa" && selectedLanguage != "English" && localTrans == dua.translation)
+        val hasLocalTranslation = when (selectedLanguage) {
+            "English" -> dua.translation.isNotBlank()
+            "Hausa" -> dua.translationHausa.isNotBlank() || (localTrans != dua.translation)
+            "Yoruba" -> dua.translationYoruba.isNotBlank() || (localTrans != dua.translation)
+            "Igbo" -> dua.translationIgbo.isNotBlank() || (localTrans != dua.translation)
+            else -> localTrans != dua.translation
+        }
+
+        val needsDynamic = !hasLocalTranslation && selectedLanguage != "English"
 
         if (needsDynamic) {
             isTranslating = true

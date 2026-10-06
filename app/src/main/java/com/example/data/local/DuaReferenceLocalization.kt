@@ -160,6 +160,7 @@ object DuaReferenceLocalization {
             141 -> "Madogara: Sahih Al-Bukhari 1755, Sahih Muslim 1328. Dawafin Ban-kwana (Tawaf al-Wada') kafin barin Makka."
             142 -> "Madogara: Sahih Al-Bukhari 6398, Sahih Muslim 771. Cikakkiyar addu'ar neman gafarar zunubai."
             143 -> "Madogara: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Gargadi da jan kunne a kan bid'o'i da kura-kurai a aikin Hajji."
+            380 -> "Madogara: Sahih Muslim lamba 2720. Hadisin Abu Hurairah (RA). Cikakkiyar addu'ar Annabi (ﷺ) ta neman gyaruwar addini, rayuwar duniya da lahira."
             else -> "Madogara: Al-Bukhari, Muslim da sauran ingantattun littattafan Hadisi."
         }
     }
@@ -307,6 +308,7 @@ object DuaReferenceLocalization {
             141 -> "Ìtọ́kasí: Sahih Al-Bukhari 1755, Sahih Muslim 1328. Tawaf Idagbere (Tawaf al-Wada')."
             142 -> "Ìtọ́kasí: Sahih Al-Bukhari 6398, Sahih Muslim 771. Adura pipe fun idariji ẹṣẹ gbogbo."
             143 -> "Ìtọ́kasí: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Ikilọ lodi si awọn adaṣe ati aṣiṣe ninu Hajj."
+            380 -> "Ìtọ́kasí: Sahih Muslim 2720. Hadisi Abu Hurairah (RA). Adura pipe fun atunṣe ẹsin, aye ati ọrun."
             else -> "Ìtọ́kasí: Al-Bukhari, Muslim ati awọn iwe Hadisi mimọ miran."
         }
     }
@@ -454,6 +456,7 @@ object DuaReferenceLocalization {
             141 -> "Ebe nsinyere: Sahih Al-Bukhari 1755, Sahih Muslim 1328. Tawaf al-Wada' tupu ịhapụ Makkah."
             142 -> "Ebe nsinyere: Sahih Al-Bukhari 6398, Sahih Muslim 771. Ekpere zuru oke maka mgbaghara mmehie."
             143 -> "Ebe nsinyere: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Ịdọ aka ná ntị megide ihe ọhụrụ na mmejọ na Hajj."
+            380 -> "Ebe nsinyere: Sahih Muslim 2720. Hadith Abu Hurairah (RA). Ekpere zuru oke maka imezi okpukpe, ụwa na ndụ ọzọ."
             else -> "Ebe nsinyere: Sahih Al-Bukhari, Muslim na akwụkwọ Hadith ndị ọzọ."
         }
     }
@@ -601,6 +604,7 @@ object DuaReferenceLocalization {
             141 -> "المرجع: صحيح البخاري 1755، وصحيح مسلم 1328. طواف الوداع قبل مغادرة مكة المكرمة."
             142 -> "المرجع: صحيح البخاري 6398، وصحيح مسلم 771. دعاء شامل عظيم لمغفرة ما قدم وما أخر وما أسر وما أعلن."
             143 -> "المرجع: صحيح البخاري 2697، وصحيح مسلم 1718. التحذير من البدع والمخالفات والأخطاء الشائعة في الحج والعمرة."
+            380 -> "المرجع: صحيح مسلم رقم 2720. حديث أبي هريرة رضي الله عنه. دعاء نبوي جامع لصلاح الدين والدنيا والآخرة وحسن الخاتمة."
             else -> "المرجع: صحيح البخاري وصحيح مسلم وكتب السنة المعتمدة."
         }
     }
@@ -748,6 +752,7 @@ object DuaReferenceLocalization {
             141 -> "Référence: Sahih Al-Bukhari 1755, Sahih Muslim 1328. Le Tawaf d'adieu (Tawaf Al-Wada') avant de quitter La Mecque."
             142 -> "Référence: Sahih Al-Bukhari 6398, Sahih Muslim 771. Invocation complète et majestueuse pour la rémission de tous les péchés."
             143 -> "Référence: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Mises en garde contre les innovations et erreurs courantes lors du Hajj et de la Omra."
+            380 -> "Référence: Sahih Muslim no. 2720. Hadith d'Abou Hourayrah (RA). Invocation prophétique universelle pour la droiture de la religion, d'ici-bas et de l'au-delà."
             else -> "Référence: Sahih Al-Bukhari, Sahih Muslim et recueils de hadiths authentiques."
         }
     }
@@ -895,6 +900,7 @@ object DuaReferenceLocalization {
             141 -> "Referencia: Sahih Al-Bukhari 1755, Sahih Muslim 1328. Tawaf de Despedida (Tawaf al-Wada') antes de partir de La Meca."
             142 -> "Referencia: Sahih Al-Bukhari 6398, Sahih Muslim 771. Magna súplica para el perdón absoluto de todo pecado."
             143 -> "Referencia: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Advertencias contra innovaciones y errores en el Hayy y la Umrah."
+            380 -> "Referencia: Sahih Muslim núm. 2720. Hadiz de Abu Hurairah (RA). Súplica profética integral para la rectitud de la religión, este mundo y la otra vida."
             else -> "Referencia: Sahih Al-Bukhari, Sahih Muslim y libros auténticos de Hadiz."
         }
     }
@@ -1042,6 +1048,7 @@ object DuaReferenceLocalization {
             141 -> "حوالہ: صحیح البخاری 1755، صحیح مسلم 1328۔ طواف وداع - مکہ مکرمہ سے رخصتی کا آخری طواف۔"
             142 -> "حوالہ: صحیح البخاری 6398، صحیح مسلم 771۔ اگلے پچھلے تمام گناہوں کی بخشش کی عظیم دعا۔"
             143 -> "حوالہ: صحیح البخاری 2697، صحیح مسلم 1718۔ حج اور عمرہ میں بدعات، غلطیوں اور دھکم پیل سے بچنے کی تاکید۔"
+            380 -> "حوالہ: صحیح مسلم نمبر 2720۔ حدیث ابوہریرہ رضی اللہ عنہ۔ دین، دنیا اور آخرت کی اصلاح کی نبوی جامع دعا۔"
             else -> "حوالہ: صحیح بخاری، صحیح مسلم اور دیگر کتب احادیث صحیحہ۔"
         }
     }
@@ -1189,6 +1196,7 @@ object DuaReferenceLocalization {
             141 -> "出处：布哈里圣训实录 1755，穆斯林圣训实录 1328。离麦加前之辞朝环游（Tawaf al-Wada'）。"
             142 -> "出处：布哈里圣训实录 6398，穆斯林圣训实录 771。求恕前后隐显一切罪错之宏大祈祷词。"
             143 -> "出处：布哈里圣训实录 2697，穆斯林圣训实录 1718。朝觐与副朝中当戒除之异端与常见错误警示。"
+            380 -> "出处：穆斯林圣训实录 第2720段。艾布·胡莱勒（愿主喜悦之）传述。改善宗教、今生与后世之全美先知圣训祈祷词。"
             else -> "出处：布哈里圣训实录、穆斯林圣训实录等可靠圣训集。"
         }
     }

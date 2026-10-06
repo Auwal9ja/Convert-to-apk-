@@ -104,6 +104,14 @@ object WidgetContentManager {
             arabic = "رَّبِّ زِدْنِي عِلْمًا",
             translation = "Ya Ubangijina, ka ƙara mini ilimi mai amfani.",
             reference = "★ Surah Ta-Ha: 114 • Bunkasa Ilimi"
+        ),
+        WidgetItem(
+            id = "dua_muslim_2720",
+            type = WidgetContentType.ADDUA,
+            title = "🤲 Kyautata Addini, Duniya & Lahira",
+            arabic = "اللَّهُمَّ أَصْلِحْ لِي دِينِي الَّذِي هُوَ عِصْمَةُ أَمْرِي ، وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي ، وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي ، وَاجْعَلِ الْحَيَاةَ زِيَادَةً لِي فِي كُلِّ خَيْرٍ وَاجْعَلِ الْمَوْتَ رَاحَةً لِي مِنْ كُلِّ شَرٍّ",
+            translation = "Ya Allah! Ka kyautata mini addinina wanda shi ne kariya ga al'amarina, da duniyata wadda rayuwata take a ciki, da lahirata makomata, Ka sanya rayuwa ƙarin alheri, mutuwa kuma hutu daga kowane sharri.",
+            reference = "★ Sahih Muslim: 2720 • Hadisin Abu Huraira (RA)"
         )
     )
 
@@ -337,12 +345,17 @@ object WidgetContentManager {
      * Sets a custom DuaEntity chosen from the full database list as the active widget item.
      */
     fun setCustomDuaEntity(context: Context, dua: com.example.data.local.DuaEntity, language: String): WidgetItem {
-        val translated = when (language) {
-            "Hausa" -> if (dua.translationHausa.isNotBlank()) dua.translationHausa else dua.translation
-            "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
-            "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
-            else -> dua.translation
-        }
+        val translated = com.example.data.local.DuaTranslationLocalization.getLocalizedTranslation(
+            dua.id,
+            language,
+            dua.translation,
+            dua.translationHausa,
+            dua.translationYoruba,
+            dua.translationIgbo
+        )
+
+        val localizedTitle = com.example.data.local.AppLocalizer.getDuaTitle(dua.id, dua.title, language)
+        val localizedRef = com.example.data.local.DuaReferenceLocalization.getLocalizedReference(dua.id, language) ?: dua.reference
 
         val type = when {
             dua.category.contains("Morning", ignoreCase = true) ||
@@ -366,10 +379,10 @@ object WidgetContentManager {
         val item = WidgetItem(
             id = "db_${dua.id}",
             type = type,
-            title = "$icon ${dua.title}",
+            title = "$icon $localizedTitle",
             arabic = dua.arabic,
             translation = translated,
-            reference = if (dua.reference.isNotBlank()) "★ ${dua.reference}" else "★ ${dua.category}"
+            reference = if (localizedRef.isNotBlank()) "★ $localizedRef" else "★ ${dua.category}"
         )
 
         getPrefs(context).edit()

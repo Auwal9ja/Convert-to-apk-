@@ -37,6 +37,8 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.data.local.AppLocalizer
 import com.example.data.local.DuaDatabase
 import com.example.data.local.DuaEntity
+import com.example.data.local.DuaReferenceLocalization
+import com.example.data.local.DuaTranslationLocalization
 import com.example.receiver.PrayerWidgetProvider
 import com.example.util.WidgetContentManager
 import com.example.util.WidgetItem
@@ -293,12 +295,16 @@ fun DuaWidgetPickerCard(
     isDark: Boolean,
     onSelect: () -> Unit
 ) {
-    val translatedText = when (selectedLanguage) {
-        "Hausa" -> if (dua.translationHausa.isNotBlank()) dua.translationHausa else dua.translation
-        "Yoruba" -> if (dua.translationYoruba.isNotBlank()) dua.translationYoruba else dua.translation
-        "Igbo" -> if (dua.translationIgbo.isNotBlank()) dua.translationIgbo else dua.translation
-        else -> dua.translation
-    }
+    val displayTitle = AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage)
+    val translatedText = DuaTranslationLocalization.getLocalizedTranslation(
+        dua.id,
+        selectedLanguage,
+        dua.translation,
+        dua.translationHausa,
+        dua.translationYoruba,
+        dua.translationIgbo
+    )
+    val localizedRef = DuaReferenceLocalization.getLocalizedReference(dua.id, selectedLanguage) ?: dua.reference
 
     Surface(
         onClick = onSelect,
@@ -362,7 +368,7 @@ fun DuaWidgetPickerCard(
 
             // Title
             Text(
-                text = dua.title,
+                text = displayTitle,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isDark) Color.White else Color(0xFF0F261E),
@@ -399,7 +405,7 @@ fun DuaWidgetPickerCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (dua.reference.isNotBlank()) "★ ${dua.reference}" else "★ Hisnul Muslim",
+                    text = if (localizedRef.isNotBlank()) "★ $localizedRef" else "★ Hisnul Muslim",
                     fontSize = 9.5.sp,
                     color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
                     maxLines = 1,

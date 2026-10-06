@@ -1967,6 +1967,7 @@ object AppLocalizer {
         371 -> "Upon Waking Up at Night (Supplication for Acceptance)"
         372 -> "Upon Waking Up (Praise for Life after Sleep)"
         373 -> "Upon Waking Up (Health in Body and Return of Soul)"
+        380 -> "Supplication for Rectification of Religion, Worldly Life and Hereafter (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -2242,6 +2243,7 @@ object AppLocalizer {
         371 -> "Addu'ar Wanda Ya Farka Cikin Dare (Tahajjud)"
         372 -> "Addu'ar Tashi daga Barci (Alhamdu Lillahilladhi Ahyana)"
         373 -> "Addu'ar Tashi daga Barci (Lafiyar Jiki da Mayar da Rai)"
+        380 -> "Addu'ar Kyautata Addini, Duniyarmu da Lahira (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -2462,6 +2464,7 @@ object AppLocalizer {
         216 -> "Àdúrà Ànábì fun Àánú ati Ìrọ̀rùn ninu Ìtajà ati Ríra"
         217 -> "Àdúrà San Gbèsè tabi Ìparí Ìdúnadúrà pẹlu Ọpẹ́"
         218 -> "Àdúrà Ìbùkún ninu Èso, Nǹkan Ọjà ati Ìwọ̀n"
+        380 -> "Àdúrà Àtúnṣe Ẹ̀sìn, Ayé àti Ọ̀run (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -2682,6 +2685,7 @@ object AppLocalizer {
         216 -> "Ekpere Maka Ebere na Mfe n'Ịre na Ịzụ Ahịa"
         217 -> "Ekpere Mgbe A Kwụrụ Ụgwọ ma ọ bụ Mezuo Azụmahịa"
         218 -> "Ekpere Ngọzi na Mkpụrụ Osisi na Ihe Ntụle Ahịa"
+        380 -> "Ekpere maka Imezi Okpukpe, Ụwa na Ndụ Ọzọ (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -2943,6 +2947,7 @@ object AppLocalizer {
         357 -> "حسبنا الله ونعم الوكيل: كفاية الله عند الخوف والمحن"
         358 -> "دعاء طلب العلم النافع والرزق الطيب والعمل المتقبل"
         359 -> "دعاء النصر على الأعداء والحماية من المكر والشر"
+        380 -> "دعاء صلاح الدين والدنيا والآخرة (اللهم أصلح لي ديني)"
         else -> null
     }
 
@@ -3163,6 +3168,7 @@ object AppLocalizer {
         216 -> "Prière Prophétique pour l'Indulgence dans la Vente et l'Achat"
         217 -> "Lors du Remboursement d'une Dette ou de la Conclusion d'une Vente"
         218 -> "Bénédiction sur les Fruits, Marchés et Mesures (Sa' et Moud)"
+        380 -> "Invocation pour la Rectitude de la Religion, d'ici-bas et de l'Au-delà (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -3383,6 +3389,7 @@ object AppLocalizer {
         216 -> "Súplica Profética por Indulgencia y Benevolencia en el Comercio"
         217 -> "Al Pagar una Deuda o Concluir un Negocio Justo"
         218 -> "Bendición en los Frutos, Mercados y Medidas (Sa' y Mudd)"
+        380 -> "Súplica por la Rectitud de la Religión, este Mundo y el Más Allá (Sahih Muslim 2720)"
         else -> null
     }
 
@@ -3603,6 +3610,7 @@ object AppLocalizer {
         216 -> "خرید و فروخت میں نرمی اور آسانی کی نبوی دعا"
         217 -> "قرض کی ادائیگی اور سودے کی تکمیل پر شکر کی دعا"
         218 -> "پھلوں، بازار اور پیمانوں (صاع و مد) میں برکت کی دعا"
+        380 -> "دین، دنیا اور آخرت کی درستگی کی جامع دعا (صحیح مسلم: 2720)"
         else -> null
     }
 
@@ -3823,6 +3831,7 @@ object AppLocalizer {
         216 -> "先知求宽厚交易与买卖和气之祈祷"
         217 -> "偿还债务或完成公平交易后之祈愿"
         218 -> "祈求在果品、集市与量器（萨仪与姆德）中降赐吉庆"
+        380 -> "改善宗教、今生与后世之全美祈祷词（圣训实录 穆斯林 2720）"
         else -> null
     }
 

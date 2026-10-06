@@ -145,15 +145,16 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 val views = RemoteViews(context.packageName, R.layout.widget_prayer_times)
                 val contentType = WidgetContentManager.getSelectedContentType(context)
                 val currentItem = WidgetContentManager.getCurrentItem(context)
-                val schedule = PrayerTimeManager.getTodaySchedule(context, "Hausa")
+                val selectedLanguage = com.example.data.local.AppLocalizer.getAppSelectedLanguage(context)
+                val schedule = PrayerTimeManager.getTodaySchedule(context, selectedLanguage)
 
                 // App Title / Category Badge
                 val headerTitle = when (contentType) {
-                    WidgetContentType.ADDUA -> "🤲 Zakiru • Addu'a"
-                    WidgetContentType.AZKAR -> "📿 Zakiru • Azkar"
-                    WidgetContentType.SURAH -> "📖 Zakiru • Surah"
-                    WidgetContentType.PRAYER_TIMES -> "🕌 Zakiru • Lokutan Sallah"
-                    WidgetContentType.COMBINED -> "🌟 Zakiru • Sallah & Addu'a"
+                    WidgetContentType.ADDUA -> if (selectedLanguage == "Hausa") "🤲 Zakiru • Addu'a" else if (selectedLanguage == "Arabic") "🤲 ذاكرو • أدعية" else "🤲 Zakiru • Du'a"
+                    WidgetContentType.AZKAR -> if (selectedLanguage == "Hausa") "📿 Zakiru • Azkar" else if (selectedLanguage == "Arabic") "📿 ذاكرو • أذكار" else "📿 Zakiru • Adhkar"
+                    WidgetContentType.SURAH -> if (selectedLanguage == "Hausa") "📖 Zakiru • Surah" else if (selectedLanguage == "Arabic") "📖 ذاكرو • سور" else "📖 Zakiru • Surah"
+                    WidgetContentType.PRAYER_TIMES -> if (selectedLanguage == "Hausa") "🕌 Zakiru • Lokutan Sallah" else if (selectedLanguage == "Arabic") "🕌 ذاكرو • مواقيت الصلاة" else "🕌 Zakiru • Prayer Times"
+                    WidgetContentType.COMBINED -> if (selectedLanguage == "Hausa") "🌟 Zakiru • Sallah & Addu'a" else if (selectedLanguage == "Arabic") "🌟 ذاكرو • صلاة ودعاء" else "🌟 Zakiru • Salah & Du'a"
                 }
                 views.setTextViewText(R.id.widget_app_title, headerTitle)
 
@@ -162,7 +163,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                     if (schedule.countryName.isNotBlank()) "📍 ${schedule.cityName}, ${schedule.countryName}"
                     else "📍 ${schedule.cityName}"
                 } else {
-                    "📍 Wurin Da Kake"
+                    if (selectedLanguage == "Hausa") "📍 Wurin Da Kake" else "📍 Current Location"
                 }
                 views.setTextViewText(R.id.widget_location_text, locationText)
 
@@ -172,12 +173,23 @@ class PrayerWidgetProvider : AppWidgetProvider() {
 
                 // Next prayer info
                 val nextPrayer = schedule.nextPrayer
-                val nextPrayerName = nextPrayer?.nameHa ?: "Azahar"
+                val nextPrayerName = if (nextPrayer != null) com.example.data.local.AppLocalizer.getPrayerLocalizedName(nextPrayer.id, selectedLanguage) else "Azahar"
                 val nextPrayerTime = nextPrayer?.formattedTime ?: ""
                 val remainingStr = if (schedule.timeRemainingStr.isNotBlank()) schedule.timeRemainingStr else ""
 
-                views.setTextViewText(R.id.widget_next_prayer_title, "⏳ Mai zuwa: $nextPrayerName • $nextPrayerTime")
-                views.setTextViewText(R.id.widget_next_prayer_countdown, if (remainingStr.isNotBlank()) "saura $remainingStr" else "Cikin lokaci")
+                val maiZuwaLabel = when (selectedLanguage) {
+                    "Hausa" -> "⏳ Mai zuwa"
+                    "Arabic" -> "⏳ الصلاة القادمة"
+                    else -> "⏳ Next"
+                }
+                val sauraLabel = when (selectedLanguage) {
+                    "Hausa" -> "saura $remainingStr"
+                    "Arabic" -> "متبقي $remainingStr"
+                    else -> "$remainingStr left"
+                }
+
+                views.setTextViewText(R.id.widget_next_prayer_title, "$maiZuwaLabel: $nextPrayerName • $nextPrayerTime")
+                views.setTextViewText(R.id.widget_next_prayer_countdown, if (remainingStr.isNotBlank()) sauraLabel else "✓")
 
                 // Dynamic visibility based on selected mode
                 when (contentType) {
@@ -214,42 +226,48 @@ class PrayerWidgetProvider : AppWidgetProvider() {
 
                     // Fajr
                     prayerMap["FAJR"]?.let {
-                        views.setTextViewText(R.id.widget_fajr_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_fajr_name, pName)
                         views.setTextViewText(R.id.widget_fajr_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_fajr_container, "setBackgroundResource", bgRes)
                     }
                     // Sunrise
                     prayerMap["SUNRISE"]?.let {
-                        views.setTextViewText(R.id.widget_sunrise_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_sunrise_name, pName)
                         views.setTextViewText(R.id.widget_sunrise_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_sunrise_container, "setBackgroundResource", bgRes)
                     }
                     // Dhuhr
                     prayerMap["DHUHR"]?.let {
-                        views.setTextViewText(R.id.widget_dhuhr_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_dhuhr_name, pName)
                         views.setTextViewText(R.id.widget_dhuhr_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_dhuhr_container, "setBackgroundResource", bgRes)
                     }
                     // Asr
                     prayerMap["ASR"]?.let {
-                        views.setTextViewText(R.id.widget_asr_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_asr_name, pName)
                         views.setTextViewText(R.id.widget_asr_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_asr_container, "setBackgroundResource", bgRes)
                     }
                     // Maghrib
                     prayerMap["MAGHRIB"]?.let {
-                        views.setTextViewText(R.id.widget_maghrib_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_maghrib_name, pName)
                         views.setTextViewText(R.id.widget_maghrib_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_maghrib_container, "setBackgroundResource", bgRes)
                     }
                     // Isha
                     prayerMap["ISHA"]?.let {
-                        views.setTextViewText(R.id.widget_isha_name, it.nameHa)
+                        val pName = com.example.data.local.AppLocalizer.getPrayerLocalizedName(it.id, selectedLanguage)
+                        views.setTextViewText(R.id.widget_isha_name, pName)
                         views.setTextViewText(R.id.widget_isha_time, it.formattedTime)
                         val bgRes = if (it.isNext) R.drawable.bg_widget_prayer_item_active else R.drawable.bg_widget_prayer_item
                         views.setInt(R.id.widget_isha_container, "setBackgroundResource", bgRes)

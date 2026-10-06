@@ -206,6 +206,7 @@ object DuaTranslationLocalization {
         181 -> "رَبَّنَا اكْشِفْ عَنَّا الْعَذَابَ إِنَّا مُؤْمِنُونَ (سورة الدخان: 12) - التضرع لرفع البلاء وكشف الكرب."
         182 -> "رَبَّنَا وَسِعْتَ كُلَّ شَيْءٍ رَّحْمَةً وَعِلْمًا فَاغْفِرْ لَنَا وَارْحَمْنَا وَأَنتَ أَرْحَمُ الرَّاحِمِينَ - الدعاء الجامع لخيري الدنيا والآخرة."
         183 -> "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ * الرَّحْمَٰنِ الرَّحِيمِ * مَالِكِ يَوْمِ الدِّينِ * إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ * اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ * صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ - سورة الفاتحة: الشافية، الكافية، أعظم سورة في القرآن الكريم وهي أصل الرقية الشرعية."
+        380 -> "اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي فيها معادي، واجعل الحياة زيادة لي في كل خير، واجعل الموت راحة لي من كل شر. [صحيح مسلم: 2720]."
         else -> null
     }
 
@@ -391,6 +392,7 @@ object DuaTranslationLocalization {
         181 -> "Notre Seigneur ! Éloigne de nous le châtiment. Nous sommes croyants. (Sourate Ad-Dukhan 44:12)"
         182 -> "Notre Seigneur ! Pardonne-nous et fais-nous miséricorde, accorde-nous le bien ici-bas et dans l'au-delà, car Tu es le Meilleur de ceux qui font miséricorde."
         183 -> "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux. Louange à Allah, Seigneur de l'univers. Le Tout Miséricordieux, le Très Miséricordieux, Maître du Jour de la rétribution. C'est Toi [Seul] que nous adorons, et c'est Toi [Seul] dont nous implorons secours. Guide-nous dans le droit chemin, le chemin de ceux que Tu as comblés de faveurs, non pas de ceux qui ont encouru Ta colère, ni des égarés. (Sourate Al-Fatihah - La Guérison Suprême)"
+        380 -> "Ô Allah, rectifie pour moi ma religion qui est la sauvegarde de mes affaires, rectifie pour moi ma vie d'ici-bas dans laquelle se trouve ma subsistance, et rectifie pour moi ma vie future vers laquelle est mon retour. Fais que la vie soit pour moi un surcroît de tout bien, et fais que la mort soit pour moi un soulagement de tout mal. [Sahih Muslim 2720]."
         else -> null
     }
 
@@ -576,6 +578,7 @@ object DuaTranslationLocalization {
         181 -> "¡Señor nuestro! Aparta de nosotros el tormento, pues somos creyentes. (Sura Ad-Dukhan 44:12)"
         182 -> "¡Señor nuestro! Concédenos Tu perdón y misericordia, otórganos el bien en esta vida y en la otra, pues Tú eres el Más Misericordioso."
         183 -> "En el nombre de Alá, el Compasivo, el Misericordioso. Alabado sea Alá, Señor del Universo, el Compasivo, el Misericordioso, Dueño del Día del Juicio. Solo a Ti adoramos y solo a Ti pedimos ayuda. Guíanos por el camino recto, el camino de los que has favorecido, no el de los que son motivo de ira, ni el de los extraviados. (Sura Al-Fatiha - La Curación Suprema)"
+        380 -> "¡Oh Allah! Corrige para mí mi religión, que es la salvaguarda de mis asuntos; corrige para mí este mundo, en el cual está mi sustento; y corrige para mí mi otra vida, hacia la cual es mi retorno. Haz que la vida sea para mí un incremento en todo bien, y haz que la muerte sea para mí un alivio de todo mal. [Sahih Muslim 2720]."
         else -> null
     }
 
@@ -761,6 +764,7 @@ object DuaTranslationLocalization {
         181 -> "اے ہمارے رب! ہم سے عذاب دور فرما، ہم ایمان لاتے ہیں۔ (سورۃ الدخان: 12)"
         182 -> "اے ہمارے رب! ہمیں معاف فرما اور ہم پر رحم کر، اور ہمیں دنیا و آخرت کی بھلائی نصیب فرما، تو سب سے بہتر رحم فرمانے والا ہے۔"
         183 -> "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے۔ سب تعریفیں اللہ کے لیے ہیں جو تمام جہانوں کا پالنے والا ہے۔ بڑا مہربان نہایت رحم والا ہے۔ روزِ جزا کا مالک ہے۔ ہم تیری ہی عبادت کرتے ہیں اور تجھ ہی سے مدد مانگتے ہیں۔ ہمیں سیدھے راستے کی ہدایت فرما۔ ان لوگوں کا راستہ جن پر تو نے انعام فرمایا، نہ کہ ان کا جن پر غضب نازل ہوا اور نہ گمراہوں کا۔ (سورۃ الفاتحہ - شفائے کاملہ)"
+        380 -> "اے اللہ! میرے دین کو درست کر دے جو میرے تمام معاملات کا نگہبان ہے، اور میری دنیا کو سنوار دے جس میں میری روزی ہے، اور میری آخرت کو سنوار دے جس کی طرف میرا لوٹنا ہے۔ اور میری زندگی کو ہر خیر میں اضافے کا ذریعہ بنا اور میری موت کو ہر برائی سے راحت بنا۔ [صحیح مسلم: 2720]"
         else -> null
     }
 
@@ -946,6 +950,7 @@ object DuaTranslationLocalization {
         181 -> "我们的主啊！求你为我们解除灾难，我们确是信士。（烟雾章 44:12）"
         182 -> "我们的主啊！求你饶恕我们并怜悯我们，赏赐我们今世与后世的吉庆，你是最善于怜悯的。"
         183 -> "奉至仁至慈的真主之名。一切赞颂全归真主，众世界的主。至仁至慈的主。报应日的主。我们只崇拜你，只求你佑助。求你引导我们走上正路，走你所赐福者的路，不是受谴怒者的路，也不是迷误者的路。（开端章 - 治愈万病之经）"
+        380 -> "真主啊！求祢为我改善我的宗教，它是我的护身保障；求祢为我改善我的今生，其中有我的生活；求祢为我改善我的后世，那是我的归宿；求祢使生命成为我增加所有善功的机遇，使死亡成为我脱离所有邪恶的解脱。[圣训实录 穆斯林 2720]"
         else -> null
     }
 

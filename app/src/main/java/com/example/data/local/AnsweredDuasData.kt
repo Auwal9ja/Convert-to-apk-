@@ -212,6 +212,20 @@ object AnsweredDuasData {
                 translationYoruba = "Allāhu, a fi Ọ siwaju wọn lati dabobo wa, a si wa aabo Rẹ kuro ninu aburu wọn.",
                 translationIgbo = "Chineke, anyị na-etinye Gị n'ihu ha ka Ị chebe anyị, anyị na-achọkwa mgbaba n'ime Gị site n'ihe ọjọọ ha.",
                 reference = "Sunan Abu Dawud no. 1537, Sahih. Manzon Allah (ﷺ) ya kasance yana karanta wannan addu'ar yayin fuskantar tsoron maƙiya."
+            ),
+
+            // 16. Addu'ar Kyautata Addini, Rayuwar Duniya da Lahira (Sahih Muslim 2720)
+            DuaEntity(
+                id = 380,
+                category = "Addu'o'i na Ijaba",
+                title = "Addu'ar Kyautata Addini, Duniyarmu da Lahira (Sahih Muslim)",
+                arabic = "اللَّهُمَّ أَصْلِحْ لِي دِينِي الَّذِي هُوَ عِصْمَةُ أَمْرِي ، وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي ، وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي ، وَاجْعَلِ الْحَيَاةَ زِيَادَةً لِي فِي كُلِّ خَيْرٍ وَاجْعَلِ الْمَوْتَ رَاحَةً لِي مِنْ كُلِّ شَرٍّ",
+                transliteration = "Allahumma aslih li deenil-ladhi huwa 'ismatu amri, wa aslih li dunya yal-lati fiha ma'ashi, wa aslih li aakhiratillati fiha ma'adi, waj-'alil-hayata ziyadatan li fi kulli khayr, waj-'alil mawta rahatan li min kulli sharr.",
+                translation = "O Allah, set right my religion, which is the safeguard of my affairs; and set right my world, wherein is my living; and set right my next life, to which is my return, And make life for me an increase in all good and make death a relief for me from every evil.",
+                translationHausa = "Ya Allah! Ka kyautata mini addinina wanda shi ne kariya ga al'amarina, kuma Ka kyautata mini duniyata wadda a cikinta ne rayuwata take, kuma Ka kyautata mini lahirata wadda zuwa gare ta ne makomata take, kuma Ka sanya rayuwa ta zama ƙari a gare ni a cikin kowane alheri, kuma Ka sanya mutuwa ta zama hutu a gare ni daga dukkan sharri.",
+                translationYoruba = "Allāhu, ṣe àtúnṣe ẹ̀sìn mi tí ó jẹ́ ààbò fún gbogbo ọ̀rọ̀ mi; ṣe àtúnṣe ayé mi tí ìgbé ayé mi wà nínú rẹ̀; ṣe àtúnṣe ọ̀run mi tí ó jẹ́ ibi àbọ̀ mi; kí O sì ṣe ẹ̀mí mi kí ó jẹ́ àlékún nínú gbogbo ohun rere, kí O sì ṣe ikú ní ìsinmi fún mi kúrò nínú gbogbo ibi.",
+                translationIgbo = "Chineke, mezie okpukpe m nke bụ nchekwa nke ihe niile m; mezie ụwa m ebe ibi ndụ m dị; mezie ndụ m nke ọzọ ebe nlaghachi m dị; mezie ka ndụ baa ụba n'ime ihe ọma niile, meekwa ka ọnwụ bụrụ ahụ efe nye m site n'ihe ọjọọ niile.",
+                reference = "Abu Hurairah (RA) ya ruwaito cewa Manzon Allah (ﷺ) ya kasance yana faɗin wannan addu'ar. [Sahih Muslim no. 2720]."
             )
         )
     }
