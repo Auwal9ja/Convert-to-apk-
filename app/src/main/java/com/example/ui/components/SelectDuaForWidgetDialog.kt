@@ -74,6 +74,8 @@ fun SelectDuaForWidgetDialog(
             val q = searchQuery.trim().lowercase()
             val matchesQuery = q.isEmpty() ||
                     dua.title.lowercase().contains(q) ||
+                    AppLocalizer.getDuaTitle(dua.id, dua.title, selectedLanguage).lowercase().contains(q) ||
+                    dua.transliteration.lowercase().contains(q) ||
                     dua.arabic.contains(q) ||
                     dua.translation.lowercase().contains(q) ||
                     dua.translationHausa.lowercase().contains(q) ||

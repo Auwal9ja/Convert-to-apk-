@@ -711,6 +711,18 @@ object DuaDatabaseSeeder {
                 reference = "Abu Dawud 1/206, At-Tirmidhi 1/242. Hisnul Muslim Chapter 17."
             ),
             DuaEntity(
+                id = 381,
+                category = "Prayers & Mosque",
+                title = "Opening Supplication in Night Prayer (Allahumma Rabba Jibril)",
+                arabic = "اللَّهُمَّ رَبَّ جِبْرَائِيلَ وَمِيكَائِيلَ وَإِسْرَافِيلَ ، فَاطِرَ السَّمَاوَاتِ وَالأَرْضِ ، عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، أَنْتَ تَحْكُمُ بَيْنَ عِبَادِكَ فِيمَا كَانُوا فِيهِ يَخْتَلِفُونَ ، اهْدِنِي لِمَا اخْتُلِفَ فِيهِ مِنَ الْحَقِّ بِإِذْنِكَ ، إِنَّكَ تَهْدِي مَنْ تَشَاءُ إِلَى صِرَاطٍ مُسْتَقِيمٍ",
+                transliteration = "Allahumma Rabba Jibra'eela wa Meeka'eela wa Israfeela, Fatiras-samawati wal-ardi, 'Alimal-ghaybi wash-shahadati, Anta tahkumu bayna 'ibadika feema kanoo feehi yakhtalifoon, ihdinee lima-khtulifa feehi minal-haqqi bi-idhnik, innaka tahdee man tasha'u ila siratim-mustaqeem.",
+                translation = "O Allah, Lord of Gabriel, Michael, and Raphael, Creator of the heavens and earth, Knower of the unseen and seen, You judge between Your servants concerning that wherein they differ. Guide me to the truth concerning that in which there is disagreement, by Your leave. Indeed, You guide whom You will to a straight path.",
+                translationHausa = "Ya Allah, Ubangijin Jibrilu da Mika'ilu da Israfilu, Mai ƙaga halittar sammai da ƙasa, Masanin gaibi da bayyane, Kai ne Kake yin hukunci a tsakanin bayinKa a kan abin da suka kasance suna saɓawa a kansa, Ka shiryar da ni zuwa ga abin da aka saɓa a kansa na gaskiya da izininKa, lallai Kai kana shiryar da wanda Kake so zuwa ga tafarki madaidaici.",
+                translationYoruba = "Allāhu, Oluwa Jibrilu, Mikailu ati Israfilu, Oludasilẹ awọn ọrun ati aiye, Olumọ ohun ti o pamọ ati eyi ti o han, Iwọ lo n ṣe idajọ laarin awọn ẹru Rẹ ninu ohun ti wọn yapa si ara wọn ninu rẹ. Fi ọna otitọ ti a yapa ninu rẹ mọ mi pẹlu aṣẹ Rẹ. Dajudaju Iwọ lo n fi ọna taara mọ ẹnikẹni ti O ba fẹ.",
+                translationIgbo = "Chineke, Onyenwe Jibril, Mikael na Israfil, Onye Kere eluigwe na ụwa, Onye Ma ihe zoro ezo na ihe pụtara ìhè, Gị na-ekpebi n'etiti ndị ohu Gị n'ihe ha na-ese okwu maka ya. Duzi m n'eziokwu n'ihe a na-ese okwu maka ya site na nkwado Gị. N'ezie Ị na-eduzi onye ọ bụla Ị chọrọ n'ụzọ ziri ezi.",
+                reference = "Aisha (RA) ta ruwaito cewa Manzon Allah (ﷺ) ya kasance yana buɗe sallar dare (Tahajjud) da wannan addu'ar. [Sahih Muslim lamba 770, Abu Dawud no. 767, At-Tirmidhi no. 3420]."
+            ),
+            DuaEntity(
                 id = 51,
                 category = "Prayers & Mosque",
                 title = "Supplication in Ruku (Bowing)",

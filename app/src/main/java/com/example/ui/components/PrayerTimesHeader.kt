@@ -662,7 +662,11 @@ fun PrayerTimesHeaderCard(
                         ) {
                             Text(text = "📐", fontSize = 11.sp)
                             val shortMethodName = when (currentCalcMethod) {
-                                CalculationMethod.MUSLIM_PRO -> "Muslim Pro (Tsoho)"
+                                CalculationMethod.MUSLIM_PRO -> when (selectedLanguage) {
+                                    "Hausa" -> "Muslim Pro (Tsarin Asali)"
+                                    "Arabic" -> "مسلم برو (الافتراضي)"
+                                    else -> "Muslim Pro (Standard)"
+                                }
                                 CalculationMethod.EGYPTIAN -> "Egyptian General Authority"
                                 CalculationMethod.MUSLIM_WORLD_LEAGUE -> "Muslim World League"
                                 CalculationMethod.UMM_AL_QURA -> "Umm Al-Qura (Makkah)"

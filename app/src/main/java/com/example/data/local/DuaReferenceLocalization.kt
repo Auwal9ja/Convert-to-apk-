@@ -161,6 +161,7 @@ object DuaReferenceLocalization {
             142 -> "Madogara: Sahih Al-Bukhari 6398, Sahih Muslim 771. Cikakkiyar addu'ar neman gafarar zunubai."
             143 -> "Madogara: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Gargadi da jan kunne a kan bid'o'i da kura-kurai a aikin Hajji."
             380 -> "Madogara: Sahih Muslim lamba 2720. Hadisin Abu Hurairah (RA). Cikakkiyar addu'ar Annabi (ﷺ) ta neman gyaruwar addini, rayuwar duniya da lahira."
+            381 -> "Madogara: Sahih Muslim lamba 770, Abu Dawud lamba 767. Hadisin Nana Aisha (RA). Annabi (ﷺ) ya kasance yana buɗe sallar dare (Tahajjud) da wannan addu'ar."
             else -> "Madogara: Al-Bukhari, Muslim da sauran ingantattun littattafan Hadisi."
         }
     }
@@ -309,6 +310,7 @@ object DuaReferenceLocalization {
             142 -> "Ìtọ́kasí: Sahih Al-Bukhari 6398, Sahih Muslim 771. Adura pipe fun idariji ẹṣẹ gbogbo."
             143 -> "Ìtọ́kasí: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Ikilọ lodi si awọn adaṣe ati aṣiṣe ninu Hajj."
             380 -> "Ìtọ́kasí: Sahih Muslim 2720. Hadisi Abu Hurairah (RA). Adura pipe fun atunṣe ẹsin, aye ati ọrun."
+            381 -> "Ìtọ́kasí: Sahih Muslim 770, Abu Dawud 767. Hadisi Aisha (RA). Ojisẹ Ọlọhun (ﷺ) ma n bẹrẹ sọláàti alẹ́ pẹlu adura yi."
             else -> "Ìtọ́kasí: Al-Bukhari, Muslim ati awọn iwe Hadisi mimọ miran."
         }
     }
@@ -457,6 +459,7 @@ object DuaReferenceLocalization {
             142 -> "Ebe nsinyere: Sahih Al-Bukhari 6398, Sahih Muslim 771. Ekpere zuru oke maka mgbaghara mmehie."
             143 -> "Ebe nsinyere: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Ịdọ aka ná ntị megide ihe ọhụrụ na mmejọ na Hajj."
             380 -> "Ebe nsinyere: Sahih Muslim 2720. Hadith Abu Hurairah (RA). Ekpere zuru oke maka imezi okpukpe, ụwa na ndụ ọzọ."
+            381 -> "Ebe nsinyere: Sahih Muslim 770, Abu Dawud 767. Hadith Aisha (RA). Onye Amụma (ﷺ) ji ekpere a malite ekpere anyasị."
             else -> "Ebe nsinyere: Sahih Al-Bukhari, Muslim na akwụkwọ Hadith ndị ọzọ."
         }
     }
@@ -605,6 +608,7 @@ object DuaReferenceLocalization {
             142 -> "المرجع: صحيح البخاري 6398، وصحيح مسلم 771. دعاء شامل عظيم لمغفرة ما قدم وما أخر وما أسر وما أعلن."
             143 -> "المرجع: صحيح البخاري 2697، وصحيح مسلم 1718. التحذير من البدع والمخالفات والأخطاء الشائعة في الحج والعمرة."
             380 -> "المرجع: صحيح مسلم رقم 2720. حديث أبي هريرة رضي الله عنه. دعاء نبوي جامع لصلاح الدين والدنيا والآخرة وحسن الخاتمة."
+            381 -> "المرجع: صحيح مسلم رقم 770، وسنن أبي داود رقم 767. حديث عائشة رضي الله عنها في استفتاح صلاة الليل."
             else -> "المرجع: صحيح البخاري وصحيح مسلم وكتب السنة المعتمدة."
         }
     }
@@ -753,6 +757,7 @@ object DuaReferenceLocalization {
             142 -> "Référence: Sahih Al-Bukhari 6398, Sahih Muslim 771. Invocation complète et majestueuse pour la rémission de tous les péchés."
             143 -> "Référence: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Mises en garde contre les innovations et erreurs courantes lors du Hajj et de la Omra."
             380 -> "Référence: Sahih Muslim no. 2720. Hadith d'Abou Hourayrah (RA). Invocation prophétique universelle pour la droiture de la religion, d'ici-bas et de l'au-delà."
+            381 -> "Référence: Sahih Muslim no. 770, Abou Dawoud no. 767. Hadith d'Aïcha (RA) lors de l'ouverture de la prière nocturne."
             else -> "Référence: Sahih Al-Bukhari, Sahih Muslim et recueils de hadiths authentiques."
         }
     }
@@ -901,6 +906,7 @@ object DuaReferenceLocalization {
             142 -> "Referencia: Sahih Al-Bukhari 6398, Sahih Muslim 771. Magna súplica para el perdón absoluto de todo pecado."
             143 -> "Referencia: Sahih Al-Bukhari 2697, Sahih Muslim 1718. Advertencias contra innovaciones y errores en el Hayy y la Umrah."
             380 -> "Referencia: Sahih Muslim núm. 2720. Hadiz de Abu Hurairah (RA). Súplica profética integral para la rectitud de la religión, este mundo y la otra vida."
+            381 -> "Referencia: Sahih Muslim núm. 770, Abu Dawud núm. 767. Hadiz de Aisha (RA) al iniciar la oración nocturna."
             else -> "Referencia: Sahih Al-Bukhari, Sahih Muslim y libros auténticos de Hadiz."
         }
     }
@@ -1049,6 +1055,7 @@ object DuaReferenceLocalization {
             142 -> "حوالہ: صحیح البخاری 6398، صحیح مسلم 771۔ اگلے پچھلے تمام گناہوں کی بخشش کی عظیم دعا۔"
             143 -> "حوالہ: صحیح البخاری 2697، صحیح مسلم 1718۔ حج اور عمرہ میں بدعات، غلطیوں اور دھکم پیل سے بچنے کی تاکید۔"
             380 -> "حوالہ: صحیح مسلم نمبر 2720۔ حدیث ابوہریرہ رضی اللہ عنہ۔ دین، دنیا اور آخرت کی اصلاح کی نبوی جامع دعا۔"
+            381 -> "حوالہ: صحیح مسلم نمبر 770، سنن ابوداؤد نمبر 767۔ سیدہ عائشہ رضی اللہ عنہا سے مروی ہے کہ نبی ﷺ رات کی نماز اسی دعا سے شروع فرماتے تھے۔"
             else -> "حوالہ: صحیح بخاری، صحیح مسلم اور دیگر کتب احادیث صحیحہ۔"
         }
     }
@@ -1197,6 +1204,7 @@ object DuaReferenceLocalization {
             142 -> "出处：布哈里圣训实录 6398，穆斯林圣训实录 771。求恕前后隐显一切罪错之宏大祈祷词。"
             143 -> "出处：布哈里圣训实录 2697，穆斯林圣训实录 1718。朝觐与副朝中当戒除之异端与常见错误警示。"
             380 -> "出处：穆斯林圣训实录 第2720段。艾布·胡莱勒（愿主喜悦之）传述。改善宗教、今生与后世之全美先知圣训祈祷词。"
+            381 -> "出处：穆斯林圣训实录 第770段，艾布·达伍德圣训集 第767段。阿依莎（愿主喜悦之）传述先知夜间拜开端祈祷。"
             else -> "出处：布哈里圣训实录、穆斯林圣训实录等可靠圣训集。"
         }
     }

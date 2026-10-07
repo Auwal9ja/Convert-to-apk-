@@ -112,6 +112,14 @@ object WidgetContentManager {
             arabic = "اللَّهُمَّ أَصْلِحْ لِي دِينِي الَّذِي هُوَ عِصْمَةُ أَمْرِي ، وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي ، وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي ، وَاجْعَلِ الْحَيَاةَ زِيَادَةً لِي فِي كُلِّ خَيْرٍ وَاجْعَلِ الْمَوْتَ رَاحَةً لِي مِنْ كُلِّ شَرٍّ",
             translation = "Ya Allah! Ka kyautata mini addinina wanda shi ne kariya ga al'amarina, da duniyata wadda rayuwata take a ciki, da lahirata makomata, Ka sanya rayuwa ƙarin alheri, mutuwa kuma hutu daga kowane sharri.",
             reference = "★ Sahih Muslim: 2720 • Hadisin Abu Huraira (RA)"
+        ),
+        WidgetItem(
+            id = "dua_rabba_jibril",
+            type = WidgetContentType.ADDUA,
+            title = "🤲 Buɗe Sallar Dare (Allahumma Rabba Jibrilu)",
+            arabic = "اللَّهُمَّ رَبَّ جِبْرَائِيلَ وَمِيكَائِيلَ وَإِسْرَافِيلَ ، فَاطِرَ السَّمَاوَاتِ وَالأَرْضِ ، عَالِمَ الْغَيْبِ وَالشَّهَادَةِ ، أَنْتَ تَحْكُمُ بَيْنَ عِبَادِكَ فِيمَا كَانُوا فِيهِ يَخْتَلِفُونَ ، اهْدِنِي لِمَا اخْتُلِفَ فِيهِ مِنَ الْحَقِّ بِإِذْنِكَ ، إِنَّكَ تَهْدِي مَنْ تَشَاءُ إِلَى صِرَاطٍ مُسْتَقِيمٍ",
+            translation = "Ya Allah, Ubangijin Jibrilu da Mika'ilu da Israfilu, Mai ƙaga halittar sammai da ƙasa, Masanin gaibi da bayyane, Ka shiryar da ni zuwa ga gaskiya da izininKa, lallai Kana shiryar da wanda Kake so zuwa ga tafarki madaidaici.",
+            reference = "★ Sahih Muslim: 770 • Addu'ar Buɗe Sallar Dare"
         )
     )
 

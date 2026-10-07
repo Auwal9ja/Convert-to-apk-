@@ -1968,6 +1968,7 @@ object AppLocalizer {
         372 -> "Upon Waking Up (Praise for Life after Sleep)"
         373 -> "Upon Waking Up (Health in Body and Return of Soul)"
         380 -> "Supplication for Rectification of Religion, Worldly Life and Hereafter (Sahih Muslim 2720)"
+        381 -> "Opening Supplication in Night Prayer (Allahumma Rabba Jibril)"
         else -> null
     }
 
@@ -2244,6 +2245,7 @@ object AppLocalizer {
         372 -> "Addu'ar Tashi daga Barci (Alhamdu Lillahilladhi Ahyana)"
         373 -> "Addu'ar Tashi daga Barci (Lafiyar Jiki da Mayar da Rai)"
         380 -> "Addu'ar Kyautata Addini, Duniyarmu da Lahira (Sahih Muslim 2720)"
+        381 -> "Addu'ar Buɗe Sallar Dare (Allahumma Rabba Jibrilu)"
         else -> null
     }
 
@@ -2465,6 +2467,7 @@ object AppLocalizer {
         217 -> "Àdúrà San Gbèsè tabi Ìparí Ìdúnadúrà pẹlu Ọpẹ́"
         218 -> "Àdúrà Ìbùkún ninu Èso, Nǹkan Ọjà ati Ìwọ̀n"
         380 -> "Àdúrà Àtúnṣe Ẹ̀sìn, Ayé àti Ọ̀run (Sahih Muslim 2720)"
+        381 -> "Àdúrà Ìṣí-sọláàti Alẹ́ (Allahumma Rabba Jibrilu)"
         else -> null
     }
 
@@ -2686,6 +2689,7 @@ object AppLocalizer {
         217 -> "Ekpere Mgbe A Kwụrụ Ụgwọ ma ọ bụ Mezuo Azụmahịa"
         218 -> "Ekpere Ngọzi na Mkpụrụ Osisi na Ihe Ntụle Ahịa"
         380 -> "Ekpere maka Imezi Okpukpe, Ụwa na Ndụ Ọzọ (Sahih Muslim 2720)"
+        381 -> "Ekpere Mmalite nke Ekpere Anyasị (Allahumma Rabba Jibril)"
         else -> null
     }
 
@@ -2948,6 +2952,7 @@ object AppLocalizer {
         358 -> "دعاء طلب العلم النافع والرزق الطيب والعمل المتقبل"
         359 -> "دعاء النصر على الأعداء والحماية من المكر والشر"
         380 -> "دعاء صلاح الدين والدنيا والآخرة (اللهم أصلح لي ديني)"
+        381 -> "دعاء استفتاح صلاة الليل (اللهم رب جبرائيل وميكائيل وإسرافيل)"
         else -> null
     }
 
@@ -3169,6 +3174,7 @@ object AppLocalizer {
         217 -> "Lors du Remboursement d'une Dette ou de la Conclusion d'une Vente"
         218 -> "Bénédiction sur les Fruits, Marchés et Mesures (Sa' et Moud)"
         380 -> "Invocation pour la Rectitude de la Religion, d'ici-bas et de l'Au-delà (Sahih Muslim 2720)"
+        381 -> "Invocation d'Ouverture de la Prière de Nuit (Allahoumma Rabba Djibril)"
         else -> null
     }
 
@@ -3390,6 +3396,7 @@ object AppLocalizer {
         217 -> "Al Pagar una Deuda o Concluir un Negocio Justo"
         218 -> "Bendición en los Frutos, Mercados y Medidas (Sa' y Mudd)"
         380 -> "Súplica por la Rectitud de la Religión, este Mundo y el Más Allá (Sahih Muslim 2720)"
+        381 -> "Súplica de Apertura de la Oración Nocturna (Allahumma Rabba Yibril)"
         else -> null
     }
 
@@ -3611,6 +3618,7 @@ object AppLocalizer {
         217 -> "قرض کی ادائیگی اور سودے کی تکمیل پر شکر کی دعا"
         218 -> "پھلوں، بازار اور پیمانوں (صاع و مد) میں برکت کی دعا"
         380 -> "دین، دنیا اور آخرت کی درستگی کی جامع دعا (صحیح مسلم: 2720)"
+        381 -> "رات کی نماز کا دعائے استفتاح (اللہم رب جبرائیل ومیکائیل وإسرافیل)"
         else -> null
     }
 
@@ -3832,6 +3840,7 @@ object AppLocalizer {
         217 -> "偿还债务或完成公平交易后之祈愿"
         218 -> "祈求在果品、集市与量器（萨仪与姆德）中降赐吉庆"
         380 -> "改善宗教、今生与后世之全美祈祷词（圣训实录 穆斯林 2720）"
+        381 -> "夜间拜开端祈祷词（真主啊！吉卜利勒、米卡伊勒与伊斯拉非勒的主宰）"
         else -> null
     }
 
