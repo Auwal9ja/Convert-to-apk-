@@ -663,9 +663,15 @@ fun PrayerTimesHeaderCard(
                             Text(text = "📐", fontSize = 11.sp)
                             val shortMethodName = when (currentCalcMethod) {
                                 CalculationMethod.MUSLIM_PRO -> when (selectedLanguage) {
-                                    "Hausa" -> "Muslim Pro (Tsarin Asali)"
-                                    "Arabic" -> "مسلم برو (الافتراضي)"
-                                    else -> "Muslim Pro (Standard)"
+                                    "Hausa" -> "Muslim Pro (Tsarin Lissafi)"
+                                    "Arabic" -> "مسلم برو (الحساب الافتراضي)"
+                                    "Yoruba" -> "Muslim Pro (Ọ̀nà Ìṣírò)"
+                                    "Igbo" -> "Muslim Pro (Usoro Ịgụ Akwụkwọ)"
+                                    "French" -> "Muslim Pro (Méthode de calcul)"
+                                    "Spanish" -> "Muslim Pro (Método de cálculo)"
+                                    "Urdu" -> "مسلم پرو (طریقہ حساب)"
+                                    "Chinese" -> "Muslim Pro (计算法)"
+                                    else -> "Muslim Pro (Calculation Method)"
                                 }
                                 CalculationMethod.EGYPTIAN -> "Egyptian General Authority"
                                 CalculationMethod.MUSLIM_WORLD_LEAGUE -> "Muslim World League"
@@ -892,7 +898,17 @@ fun PrayerTimesHeaderCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (selectedLanguage == "Hausa") "Hanyar Lissafin Lokutan Sallah" else "Prayer Calculation Method",
+                            text = when (selectedLanguage) {
+                                "Hausa" -> "Hanyar Lissafin Lokutan Sallah"
+                                "Arabic" -> "طريقة حساب مواقيت الصلاة"
+                                "Yoruba" -> "Ọ̀nà Ìṣírò Àkókò Àdúrà"
+                                "Igbo" -> "Usoro Ịgụ Oge Ekpere"
+                                "French" -> "Méthode de calcul des prières"
+                                "Spanish" -> "Método de cálculo de oraciones"
+                                "Urdu" -> "نماز کے اوقات کا طریقہ حساب"
+                                "Chinese" -> "礼拜时间计算法"
+                                else -> "Prayer Calculation Method"
+                            },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -903,10 +919,17 @@ fun PrayerTimesHeaderCard(
                     }
 
                     Text(
-                        text = if (selectedLanguage == "Hausa")
-                            "Muslim Pro ita ce hanyar lissafi ta asali (Default: Fajr 18°, Isha 17°). Zaka iya zaɓar kowace hanya da kake so a ƙasa:"
-                        else
-                            "Muslim Pro is the default calculation method (Fajr 18°, Isha 17°). You can choose any other method below:",
+                        text = when (selectedLanguage) {
+                            "Hausa" -> "Muslim Pro ita ce hanyar lissafin lokutan sallah ta asali (Fajr 18°, Isha 17°). Za ka iya zaɓar kowace hanya da kake so a ƙasa:"
+                            "Arabic" -> "مسلم برو هي طريقة حساب مواقit الصلاة الافتراضية (الفجر 18°، العشاء 17°). يمكنك اختيار أي طريقة أخرى أدناه:"
+                            "Yoruba" -> "Muslim Pro ni ọ̀nà ìṣírò àkókò àdúrà àkọ́kọ́ (Fajr 18°, Isha 17°). O le yan ọ̀nà mìíràn ní ìsàlẹ̀:"
+                            "Igbo" -> "Muslim Pro bụ usoro izizi e ji agụ oge ekpere (Fajr 18°, Isha 17°). Ị nwere ike ịhọrọ usoro ọzọ n'okpuru:"
+                            "French" -> "Muslim Pro est la méthode de calcul par défaut (Fajr 18°, Isha 17°). Vous pouvez choisir une autre méthode ci-dessous :"
+                            "Spanish" -> "Muslim Pro es el método de cálculo predeterminado (Fajr 18°, Isha 17°). Puede elegir otro método a continuación:"
+                            "Urdu" -> "مسلم پرو نماز کے اوقات کا بنیادی اور معیاری طریقہ حساب ہے (فجر 18°، عشاء 17°)۔ آپ نیچے سے کوئی بھی طریقہ منتخب کر سکتے ہیں:"
+                            "Chinese" -> "Muslim Pro 是默认的标准礼拜时间计算法（晨礼 18°，宵礼 17°）。您可以在下方选择其他计算法："
+                            else -> "Muslim Pro is the standard calculation method (Fajr 18°, Isha 17°). You can choose any other method below:"
+                        },
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -947,7 +970,17 @@ fun PrayerTimesHeaderCard(
                                         )
                                         if (method == CalculationMethod.MUSLIM_PRO) {
                                             Text(
-                                                text = if (selectedLanguage == "Hausa") "★ Tsarin Asali (Default)" else "★ Default Method",
+                                                text = when (selectedLanguage) {
+                                                    "Hausa" -> "★ Tsarin Lissafi na Asali (Default)"
+                                                    "Arabic" -> "★ طريقة الحساب الافتراضية"
+                                                    "Yoruba" -> "★ Ọ̀nà Ìṣírò Àkọ́kọ́ (Default)"
+                                                    "Igbo" -> "★ Usoro Ndekọ Izizi (Default)"
+                                                    "French" -> "★ Méthode Standard par Défaut"
+                                                    "Spanish" -> "★ Método Estándar Predeterminado"
+                                                    "Urdu" -> "★ بنیادی معیاری طریقہ"
+                                                    "Chinese" -> "★ 默认标准计算法"
+                                                    else -> "★ Default Standard Method"
+                                                },
                                                 fontSize = 10.5.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.primary

@@ -175,6 +175,7 @@
                 <action android:name="com.example.ACTION_PRAYER_TIMES_UPDATED" />
                 <action android:name="com.example.ACTION_NEXT_WIDGET_CONTENT" />
                 <action android:name="com.example.ACTION_CYCLE_WIDGET_MODE" />
+                <action android:name="com.example.ACTION_RESIZE_FONT" />
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>

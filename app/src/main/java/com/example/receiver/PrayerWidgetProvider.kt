@@ -7,7 +7,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.Toast
@@ -27,7 +29,7 @@ import com.example.util.WidgetContentType
  * 5. Combined Mode (Prayer countdown ribbon + Addu'a/Azkar/Surah)
  *
  * User can switch what they want to display from Settings, in-app dialog,
- * or cycle items directly from the widget via the Next (🔀) and Category buttons!
+ * resize fonts directly on the widget, or cycle items directly from the widget via Next (🔀)!
  */
 class PrayerWidgetProvider : AppWidgetProvider() {
 
@@ -36,6 +38,16 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             updateWidgetViews(context, appWidgetManager, appWidgetId)
         }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        updateWidgetViews(context, appWidgetManager, appWidgetId)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -55,6 +67,19 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 updateAllWidgets(context)
                 try {
                     Toast.makeText(context, "An canza tsari: ${newMode.titleHa} ✓", Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {}
+            }
+            ACTION_RESIZE_FONT -> {
+                val newSize = WidgetContentManager.cycleNextFontSize(context)
+                updateAllWidgets(context)
+                try {
+                    val selectedLanguage = com.example.data.local.AppLocalizer.getAppSelectedLanguage(context)
+                    val msg = when (selectedLanguage) {
+                        "Hausa" -> "Girman Rubutu: ${newSize.labelHa} 🔍"
+                        "Arabic" -> "حجم الخط: ${newSize.labelAr} 🔍"
+                        else -> "Font Size: ${newSize.labelEn} 🔍"
+                    }
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 } catch (_: Exception) {}
             }
             ACTION_REFRESH_WIDGET,
@@ -83,6 +108,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         const val ACTION_WIDGET_PINNED = "com.example.ACTION_WIDGET_PINNED"
         const val ACTION_NEXT_WIDGET_CONTENT = "com.example.ACTION_NEXT_WIDGET_CONTENT"
         const val ACTION_CYCLE_WIDGET_MODE = "com.example.ACTION_CYCLE_WIDGET_MODE"
+        const val ACTION_RESIZE_FONT = "com.example.ACTION_RESIZE_FONT"
 
         /**
          * Refreshes all active Zakiru widgets placed on the launcher.
@@ -216,8 +242,20 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 if (contentType != WidgetContentType.PRAYER_TIMES) {
                     views.setTextViewText(R.id.widget_content_title, currentItem.title)
                     views.setTextViewText(R.id.widget_content_arabic, currentItem.arabic)
+                    if (currentItem.transliteration.isNotBlank()) {
+                        views.setViewVisibility(R.id.widget_content_transliteration, View.VISIBLE)
+                        views.setTextViewText(R.id.widget_content_transliteration, currentItem.transliteration)
+                    } else {
+                        views.setViewVisibility(R.id.widget_content_transliteration, View.GONE)
+                    }
                     views.setTextViewText(R.id.widget_content_translation, currentItem.translation)
                     views.setTextViewText(R.id.widget_content_reference, currentItem.reference)
+
+                    // Apply active user-selected font size
+                    val fontSize = WidgetContentManager.getWidgetFontSize(context)
+                    views.setTextViewTextSize(R.id.widget_content_arabic, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleArabic)
+                    views.setTextViewTextSize(R.id.widget_content_transliteration, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslit)
+                    views.setTextViewTextSize(R.id.widget_content_translation, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslation)
                 }
 
                 // If prayer row is visible, bind prayer times
@@ -297,6 +335,18 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
                 views.setOnClickPendingIntent(R.id.widget_btn_next, nextContentPendingIntent)
+
+                // Click on Font Size button cycles font size
+                val fontSizeIntent = Intent(context, PrayerWidgetProvider::class.java).apply {
+                    action = ACTION_RESIZE_FONT
+                }
+                val fontSizePendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    appWidgetId + 5000,
+                    fontSizeIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_btn_font_size, fontSizePendingIntent)
 
                 // Click on header title cycles category mode
                 val cycleModeIntent = Intent(context, PrayerWidgetProvider::class.java).apply {

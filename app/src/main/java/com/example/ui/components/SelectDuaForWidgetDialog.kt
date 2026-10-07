@@ -391,6 +391,18 @@ fun DuaWidgetPickerCard(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Transliteration Snippet
+            if (dua.transliteration.isNotBlank()) {
+                Text(
+                    text = dua.transliteration,
+                    fontSize = 10.5.sp,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    color = Color(0xFF93C5FD),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             // Translation Snippet
             Text(
                 text = translatedText,

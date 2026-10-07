@@ -64,6 +64,7 @@ fun AddWidgetDialog(
 
     var selectedMode by remember { mutableStateOf(WidgetContentManager.getSelectedContentType(context)) }
     var currentItem by remember { mutableStateOf(WidgetContentManager.getCurrentItem(context)) }
+    var currentFontSize by remember { mutableStateOf(WidgetContentManager.getWidgetFontSize(context)) }
     var showFullListPicker by remember { mutableStateOf(false) }
     val schedule = remember { PrayerTimeManager.getTodaySchedule(context, selectedLanguage) }
 
@@ -374,6 +375,88 @@ fun AddWidgetDialog(
                     }
                 }
 
+                // 3.5. FONT SIZE SELECTOR
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = when (selectedLanguage) {
+                                "Hausa" -> "🔤 Girman Rubutun Widget"
+                                "Arabic" -> "🔤 حجم خط الويدجت"
+                                else -> "🔤 Widget Font Size"
+                            },
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDark) Color(0xFFFDE68A) else Color(0xFF0369A1)
+                        )
+                        Text(
+                            text = when (selectedLanguage) {
+                                "Hausa" -> currentFontSize.labelHa
+                                "Arabic" -> currentFontSize.labelAr
+                                else -> currentFontSize.labelEn
+                            },
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF38BDF8)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        com.example.util.WidgetFontSize.values().forEach { size ->
+                            val isSel = currentFontSize == size
+                            Surface(
+                                onClick = {
+                                    currentFontSize = size
+                                    WidgetContentManager.setWidgetFontSize(context, size)
+                                    PrayerWidgetProvider.updateAllWidgets(context)
+                                    Toast.makeText(
+                                        context,
+                                        if (selectedLanguage == "Hausa") "An saita girman rubutu: ${size.labelHa} ✓" else "Font size set: ${size.labelEn} ✓",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSel) {
+                                    if (isDark) Color(0xFF0D423A) else Color(0xFFD1FAE5)
+                                } else {
+                                    if (isDark) Color(0xFF092530) else Color(0xFFF8FAFC)
+                                },
+                                border = BorderStroke(
+                                    if (isSel) 1.5.dp else 0.8.dp,
+                                    if (isSel) Color(0xFF10B981) else if (isDark) Color(0xFF144755) else Color(0xFFCBD5E1)
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = when (selectedLanguage) {
+                                        "Hausa" -> size.labelHa
+                                        "Arabic" -> size.labelAr
+                                        else -> size.labelEn
+                                    },
+                                    fontSize = 10.5.sp,
+                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSel) {
+                                        if (isDark) Color(0xFFA7F3D0) else Color(0xFF065F46)
+                                    } else {
+                                        if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569)
+                                    },
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(vertical = 7.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // 4. LIVE INTERACTIVE PREVIEW
                 Text(
                     text = when (selectedLanguage) {
@@ -392,7 +475,8 @@ fun AddWidgetDialog(
                     schedule = schedule,
                     selectedLanguage = selectedLanguage,
                     mode = selectedMode,
-                    item = currentItem
+                    item = currentItem,
+                    fontSize = currentFontSize
                 )
 
                 // 4. PIN BUTTON (1-TAP PIN TO HOME SCREEN)
@@ -524,7 +608,8 @@ fun WidgetPreviewCard(
     schedule: PrayerScheduleInfo,
     selectedLanguage: String,
     mode: WidgetContentType = WidgetContentType.ADDUA,
-    item: WidgetItem = WidgetContentManager.duasList[0]
+    item: WidgetItem = WidgetContentManager.duasList[0],
+    fontSize: com.example.util.WidgetFontSize = com.example.util.WidgetFontSize.NORMAL
 ) {
     Surface(
         shape = RoundedCornerShape(18.dp),
@@ -663,7 +748,7 @@ fun WidgetPreviewCard(
                         Column(
                             modifier = Modifier.padding(10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
@@ -678,36 +763,48 @@ fun WidgetPreviewCard(
                                 )
                             }
 
+                            // Arabic Text
                             Text(
                                 text = item.arabic,
-                                fontSize = 13.5.sp,
+                                fontSize = fontSize.scaleArabic.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFFFFBEB),
                                 textAlign = TextAlign.Center,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis,
-                                lineHeight = 19.sp,
+                                lineHeight = (fontSize.scaleArabic * 1.35f).sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
 
+                            // Transliteration (Karatun Lafazi)
+                            if (item.transliteration.isNotBlank()) {
+                                Text(
+                                    text = item.transliteration,
+                                    fontSize = fontSize.scaleTranslit.sp,
+                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                    color = Color(0xFF93C5FD),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = (fontSize.scaleTranslit * 1.35f).sp,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            // Full Translation
                             Text(
                                 text = item.translation,
-                                fontSize = 10.sp,
+                                fontSize = fontSize.scaleTranslation.sp,
                                 color = Color(0xFFCBD5E1),
                                 textAlign = TextAlign.Center,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
+                                lineHeight = (fontSize.scaleTranslation * 1.35f).sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
 
+                            // Authentic Reference
                             Text(
                                 text = item.reference,
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFFFDE68A),
                                 textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }

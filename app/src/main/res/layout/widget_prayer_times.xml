@@ -55,6 +55,17 @@
             android:textSize="11sp"
             android:textStyle="bold" />
 
+        <!-- Font Resize Button -->
+        <ImageView
+            android:id="@+id/widget_btn_font_size"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="2dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Font Size"
+            android:padding="4dp"
+            android:src="@drawable/ic_widget_font_size" />
+
         <!-- Next / Shuffle Item Button -->
         <ImageView
             android:id="@+id/widget_btn_next"
@@ -114,74 +125,90 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- ISLAMIC CONTENT SECTION (ADDU'A, AZKAR, SURAH) -->
-    <LinearLayout
+    <!-- ISLAMIC CONTENT SECTION (ADDU'A, AZKAR, SURAH) - SCROLLABLE FOR FULL CONTENT & RESIZING -->
+    <ScrollView
         android:id="@+id/widget_islamic_content_section"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@drawable/bg_widget_content_card"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="6dp">
+        android:fillViewport="true"
+        android:scrollbars="vertical">
 
-        <!-- Title Badge -->
-        <TextView
-            android:id="@+id/widget_content_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:background="@drawable/bg_widget_hero_badge"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            android:text="🤲 Sayyidul Istighfar"
-            android:textColor="#38BDF8"
-            android:textSize="10.5sp"
-            android:textStyle="bold" />
-
-        <!-- Arabic Text -->
-        <TextView
-            android:id="@+id/widget_content_arabic"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:ellipsize="end"
             android:gravity="center"
-            android:lineSpacingExtra="2dp"
-            android:maxLines="3"
-            android:text="اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ..."
-            android:textColor="#FFFBEB"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="6dp">
 
-        <!-- Translation / Meaning Text -->
-        <TextView
-            android:id="@+id/widget_content_translation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="2"
-            android:text="Ya Allah, kai ne Ubangijina, babu abin bautawa da gaskiya sai kai..."
-            android:textColor="#CBD5E1"
-            android:textSize="10.5sp" />
+            <!-- Title Badge -->
+            <TextView
+                android:id="@+id/widget_content_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/bg_widget_hero_badge"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="🤲 Sayyidul Istighfar"
+                android:textColor="#38BDF8"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
 
-        <!-- Virtue / Reference Text -->
-        <TextView
-            android:id="@+id/widget_content_reference"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="★ Buhari: 6306 • Shugaban neman gafara"
-            android:textColor="#FDE68A"
-            android:textSize="9.5sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <!-- Arabic Text -->
+            <TextView
+                android:id="@+id/widget_content_arabic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:text="اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ..."
+                android:textColor="#FFFBEB"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Transliteration (Karatun Lafazi) -->
+            <TextView
+                android:id="@+id/widget_content_transliteration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:lineSpacingExtra="1.5dp"
+                android:text="Allahumma Anta Rabbi la ilaha illa Anta, khalaqtani wa ana 'abduka..."
+                android:textColor="#93C5FD"
+                android:textSize="11sp"
+                android:textStyle="italic" />
+
+            <!-- Full Translation / Meaning Text -->
+            <TextView
+                android:id="@+id/widget_content_translation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="Ya Allah, kai ne Ubangijina, babu abin bautawa da gaskiya sai kai..."
+                android:textColor="#CBD5E1"
+                android:textSize="10.5sp" />
+
+            <!-- Virtue / Reference Text -->
+            <TextView
+                android:id="@+id/widget_content_reference"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="★ Buhari: 6306 • Shugaban neman gafara"
+                android:textColor="#FDE68A"
+                android:textSize="9.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
 
     <!-- 6 Prayer Times Horizontal Row (Shown in PRAYER_TIMES mode) -->
     <LinearLayout
