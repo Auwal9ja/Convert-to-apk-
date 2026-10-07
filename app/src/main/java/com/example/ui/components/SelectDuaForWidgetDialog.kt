@@ -155,14 +155,20 @@ fun SelectDuaForWidgetDialog(
                     }
                 }
 
-                // Search Bar
+                // Search Bar with bright white text so user can clearly see what they type
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        color = Color.White,
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
                     placeholder = {
                         Text(
                             text = if (selectedLanguage == "Hausa") "Bincika addu'a, kalma, ko zikiri..." else "Search Dua, keyword, or Arabic...",
-                            fontSize = 12.5.sp
+                            fontSize = 12.5.sp,
+                            color = Color(0xFF94A3B8)
                         )
                     },
                     leadingIcon = {
@@ -176,15 +182,22 @@ fun SelectDuaForWidgetDialog(
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear", modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color.White, modifier = Modifier.size(16.dp))
                             }
                         }
                     },
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color(0xFF10B981),
+                        focusedPlaceholderColor = Color(0xFF94A3B8),
+                        unfocusedPlaceholderColor = Color(0xFF94A3B8),
                         focusedBorderColor = Color(0xFF10B981),
-                        unfocusedBorderColor = if (isDark) Color(0xFF185465) else Color(0xFFCBD5E1)
+                        unfocusedBorderColor = if (isDark) Color(0xFF1E6173) else Color(0xFF475569),
+                        focusedContainerColor = if (isDark) Color(0xFF092936) else Color(0xFF1E293B),
+                        unfocusedContainerColor = if (isDark) Color(0xFF092936) else Color(0xFF1E293B)
                     ),
                     modifier = Modifier
                         .fillMaxWidth()

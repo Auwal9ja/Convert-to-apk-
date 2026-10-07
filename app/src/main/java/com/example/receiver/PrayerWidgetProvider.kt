@@ -251,11 +251,15 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.widget_content_translation, currentItem.translation)
                     views.setTextViewText(R.id.widget_content_reference, currentItem.reference)
 
-                    // Apply active user-selected font size
-                    val fontSize = WidgetContentManager.getWidgetFontSize(context)
-                    views.setTextViewTextSize(R.id.widget_content_arabic, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleArabic)
-                    views.setTextViewTextSize(R.id.widget_content_transliteration, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslit)
-                    views.setTextViewTextSize(R.id.widget_content_translation, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslation)
+                    // Apply active user-selected font size safely
+                    try {
+                        val fontSize = WidgetContentManager.getWidgetFontSize(context)
+                        views.setTextViewTextSize(R.id.widget_content_arabic, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleArabic)
+                        views.setTextViewTextSize(R.id.widget_content_transliteration, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslit)
+                        views.setTextViewTextSize(R.id.widget_content_translation, TypedValue.COMPLEX_UNIT_SP, fontSize.scaleTranslation)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed setting text size on widget: ${e.message}")
+                    }
                 }
 
                 // If prayer row is visible, bind prayer times
