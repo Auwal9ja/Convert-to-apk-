@@ -79,6 +79,8 @@ fun SelectDuaForWidgetDialog(
                     dua.arabic.contains(q) ||
                     dua.translation.lowercase().contains(q) ||
                     dua.translationHausa.lowercase().contains(q) ||
+                    dua.translationYoruba.lowercase().contains(q) ||
+                    dua.translationIgbo.lowercase().contains(q) ||
                     dua.category.lowercase().contains(q)
             matchesCategory && matchesQuery
         }

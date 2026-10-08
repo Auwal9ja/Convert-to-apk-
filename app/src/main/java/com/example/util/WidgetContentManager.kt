@@ -338,34 +338,86 @@ object WidgetContentManager {
     }
 
     /**
-     * Retrieves all items for a given content type.
+     * Lazily creates all authentic Duas & Azkar items from the full app database.
      */
-    fun getItemsForCategory(type: WidgetContentType): List<WidgetItem> {
-        return when (type) {
-            WidgetContentType.ADDUA -> duasList
-            WidgetContentType.AZKAR -> azkarList
-            WidgetContentType.SURAH -> surahsList
-            WidgetContentType.COMBINED -> duasList + azkarList + surahsList
-            WidgetContentType.PRAYER_TIMES -> emptyList()
+    val allDatabaseWidgetItems: List<WidgetItem> by lazy {
+        com.example.data.local.DuaDatabaseSeeder.getSeedDuas().map { dua ->
+            val isZikr = dua.category.contains("Adhkar", ignoreCase = true) ||
+                         dua.category.contains("Tasbih", ignoreCase = true) ||
+                         dua.category.contains("Asma", ignoreCase = true)
+            val isSurah = dua.category.contains("Surah", ignoreCase = true) ||
+                          dua.category.contains("Rabbana", ignoreCase = true) ||
+                          dua.id == 5 || dua.id == 6 || dua.id == 361 || dua.id == 363 || dua.id == 364
+            val type = when {
+                isSurah -> WidgetContentType.SURAH
+                isZikr -> WidgetContentType.AZKAR
+                else -> WidgetContentType.ADDUA
+            }
+            val icon = when (type) {
+                WidgetContentType.AZKAR -> "📿"
+                WidgetContentType.SURAH -> "📖"
+                else -> "🤲"
+            }
+            WidgetItem(
+                id = "db_${dua.id}",
+                type = type,
+                title = "$icon ${dua.title}",
+                arabic = dua.arabic,
+                transliteration = dua.transliteration,
+                translation = dua.translationHausa.ifBlank { dua.translation },
+                reference = if (dua.reference.startsWith("★")) dua.reference else "★ ${dua.reference}",
+                dbId = dua.id
+            )
         }
     }
 
     /**
-     * Localizes a WidgetItem according to the active app language.
+     * Retrieves all items for a given content type from the full app database.
+     */
+    fun getItemsForCategory(type: WidgetContentType): List<WidgetItem> {
+        val all = allDatabaseWidgetItems
+        return when (type) {
+            WidgetContentType.ADDUA -> {
+                val list = all.filter { it.type == WidgetContentType.ADDUA }
+                if (list.isNotEmpty()) list else all
+            }
+            WidgetContentType.AZKAR -> {
+                val list = all.filter { it.type == WidgetContentType.AZKAR }
+                if (list.isNotEmpty()) list else all
+            }
+            WidgetContentType.SURAH -> {
+                val list = all.filter { it.type == WidgetContentType.SURAH }
+                if (list.isNotEmpty()) list else all
+            }
+            WidgetContentType.COMBINED,
+            WidgetContentType.PRAYER_TIMES -> all
+        }
+    }
+
+    /**
+     * Localizes a WidgetItem according to the active app language across all supported languages.
      */
     fun localizeItem(item: WidgetItem, language: String): WidgetItem {
-        if (language == "Hausa") return item
+        val dbId = item.dbId ?: item.id.removePrefix("db_").toIntOrNull()
+        val seedDua = if (dbId != null) {
+            com.example.data.local.DuaDatabaseSeeder.getSeedDuas().find { it.id == dbId }
+        } else {
+            com.example.data.local.DuaDatabaseSeeder.getSeedDuas().find { 
+                it.arabic == item.arabic || it.title == item.title.removePrefix("🤲 ").removePrefix("📿 ").removePrefix("📖 ")
+            }
+        }
 
-        val dbId = item.dbId
-        if (dbId != null) {
-            val localizedTitle = AppLocalizer.getDuaTitle(dbId, item.title, language)
+        if (seedDua != null) {
+            val localizedTitle = AppLocalizer.getDuaTitle(seedDua.id, seedDua.title, language)
             val localizedMeaning = DuaTranslationLocalization.getLocalizedTranslation(
-                duaId = dbId,
+                duaId = seedDua.id,
                 language = language,
-                defaultTranslation = item.translation,
-                hausa = item.translation
+                defaultTranslation = seedDua.translation,
+                hausa = seedDua.translationHausa,
+                yoruba = seedDua.translationYoruba,
+                igbo = seedDua.translationIgbo
             )
-            val localizedRef = DuaReferenceLocalization.getLocalizedReference(dbId, language) ?: item.reference
+            val localizedRef = DuaReferenceLocalization.getLocalizedReference(seedDua.id, language) ?: seedDua.reference
             val icon = when (item.type) {
                 WidgetContentType.AZKAR -> "📿"
                 WidgetContentType.SURAH -> "📖"
@@ -374,11 +426,13 @@ object WidgetContentManager {
             return item.copy(
                 title = "$icon $localizedTitle",
                 translation = localizedMeaning,
-                reference = localizedRef
+                reference = if (localizedRef.startsWith("★")) localizedRef else "★ $localizedRef",
+                arabic = seedDua.arabic,
+                transliteration = seedDua.transliteration,
+                dbId = seedDua.id
             )
         }
 
-        // Language-specific fallback for non-db items
         return item
     }
 
@@ -391,6 +445,33 @@ object WidgetContentManager {
 
         // 1. Check if user selected a custom Dua from the full database list
         if (getPrefs(context).getBoolean(KEY_CUSTOM_ACTIVE, false)) {
+            val dbId = getPrefs(context).getInt(KEY_CUSTOM_DB_ID, -1).takeIf { it > 0 }
+            if (dbId != null) {
+                val foundSeed = com.example.data.local.DuaDatabaseSeeder.getSeedDuas().find { it.id == dbId }
+                if (foundSeed != null) {
+                    val isZikr = foundSeed.category.contains("Adhkar", ignoreCase = true) ||
+                                 foundSeed.category.contains("Tasbih", ignoreCase = true) ||
+                                 foundSeed.category.contains("Asma", ignoreCase = true)
+                    val isSurah = foundSeed.category.contains("Surah", ignoreCase = true) ||
+                                  foundSeed.category.contains("Rabbana", ignoreCase = true)
+                    val type = when {
+                        isSurah -> WidgetContentType.SURAH
+                        isZikr -> WidgetContentType.AZKAR
+                        else -> WidgetContentType.ADDUA
+                    }
+                    val rawItem = WidgetItem(
+                        id = "db_${foundSeed.id}",
+                        type = type,
+                        title = foundSeed.title,
+                        arabic = foundSeed.arabic,
+                        transliteration = foundSeed.transliteration,
+                        translation = foundSeed.translationHausa.ifBlank { foundSeed.translation },
+                        reference = foundSeed.reference,
+                        dbId = foundSeed.id
+                    )
+                    return localizeItem(rawItem, selectedLanguage)
+                }
+            }
             val title = getPrefs(context).getString(KEY_CUSTOM_TITLE, "") ?: ""
             val arabic = getPrefs(context).getString(KEY_CUSTOM_ARABIC, "") ?: ""
             val transliteration = getPrefs(context).getString(KEY_CUSTOM_TRANSLITERATION, "") ?: ""
@@ -399,7 +480,6 @@ object WidgetContentManager {
             val typeStr = getPrefs(context).getString(KEY_CUSTOM_TYPE, WidgetContentType.ADDUA.id)
             val type = WidgetContentType.values().firstOrNull { it.id == typeStr } ?: WidgetContentType.ADDUA
             val id = getPrefs(context).getString(KEY_CUSTOM_ID, "custom") ?: "custom"
-            val dbId = getPrefs(context).getInt(KEY_CUSTOM_DB_ID, -1).takeIf { it > 0 }
 
             if (title.isNotBlank() && arabic.isNotBlank()) {
                 val rawItem = WidgetItem(id, type, title, arabic, transliteration, translation, reference, dbId)
@@ -410,7 +490,8 @@ object WidgetContentManager {
         val type = getSelectedContentType(context)
         val items = getItemsForCategory(type)
         if (items.isEmpty()) {
-            return localizeItem(duasList[0], selectedLanguage)
+            val fallback = allDatabaseWidgetItems.firstOrNull() ?: duasList[0]
+            return localizeItem(fallback, selectedLanguage)
         }
 
         // Check if user locked onto a specific item
@@ -420,13 +501,14 @@ object WidgetContentManager {
             if (found != null) return localizeItem(found, selectedLanguage)
         }
 
-        val index = getPrefs(context).getInt(KEY_CURRENT_INDEX_PREFIX + type.id, 0)
-        val selectedItem = items[index.coerceIn(0, items.size - 1)]
+        val currentIndex = getPrefs(context).getInt(KEY_CURRENT_INDEX_PREFIX + type.id, 0)
+        val safeIndex = if (items.isNotEmpty()) Math.floorMod(currentIndex, items.size) else 0
+        val selectedItem = items[safeIndex]
         return localizeItem(selectedItem, selectedLanguage)
     }
 
     /**
-     * Cycles to the next item within the active category (e.g. Next Dua / Next Zikr / Next Surah).
+     * Cycles to the next item within the active category across the entire database list.
      */
     fun nextItem(context: Context): WidgetItem {
         // Clear custom locking when user explicitly clicks Next / Shuffle

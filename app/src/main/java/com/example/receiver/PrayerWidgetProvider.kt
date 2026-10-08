@@ -55,6 +55,10 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         val action = intent.action ?: return
         when (action) {
             ACTION_NEXT_WIDGET_CONTENT -> {
+                val currentType = WidgetContentManager.getSelectedContentType(context)
+                if (currentType == WidgetContentType.PRAYER_TIMES) {
+                    WidgetContentManager.setSelectedContentType(context, WidgetContentType.COMBINED)
+                }
                 val nextItem = WidgetContentManager.nextItem(context)
                 updateAllWidgets(context)
                 try {
